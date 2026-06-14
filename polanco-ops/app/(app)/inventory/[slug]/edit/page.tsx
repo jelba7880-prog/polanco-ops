@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,9 +47,15 @@ export default function EditCarPage() {
     resolver: zodResolver(carSchema),
   })
 
-  // Pre-fill form once car data loads
+  // Pre-fill the form once, on initial load. Without this guard, any background
+  // refetch of the car query (e.g. the invalidation triggered after an image
+  // upload) would re-run reset() with fresh data — wiping in-progress edits and
+  // surfacing a Zod coerce error from the numeric fields.
+  const hasReset = useRef(false)
+
   useEffect(() => {
-    if (car) {
+    if (car && !hasReset.current) {
+      hasReset.current = true
       reset({
         make: car.make,
         model: car.model,
@@ -57,7 +63,7 @@ export default function EditCarPage() {
         body_type: car.body_type ?? undefined,
         color_exterior: car.color_exterior ?? undefined,
         color_interior: car.color_interior ?? undefined,
-        mileage_km: car.mileage_km,
+        mileage_km: car.mileage_km ?? 0,
         condition: car.condition,
         transmission: car.transmission ?? undefined,
         fuel_type: car.fuel_type ?? undefined,
@@ -77,7 +83,10 @@ export default function EditCarPage() {
       await updateCar.mutateAsync({ id: car.id, values })
       router.push(`/inventory/${slug}`)
     } catch (err) {
-      console.error('Failed to update car:', err)
+      console.error(
+        'Failed to update car:',
+        err instanceof Error ? err.message : String(err)
+      )
     }
   }
 
