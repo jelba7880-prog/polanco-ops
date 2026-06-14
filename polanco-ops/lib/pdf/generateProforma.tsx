@@ -1,31 +1,17 @@
-'use client'
-
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
-  Font,
 } from '@react-pdf/renderer'
 import type { DealSheet, Settings } from '@/lib/supabase/types'
 
-// Register Inter font from Google Fonts CDN
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2', fontWeight: 400 },
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa2JL7SUc.woff2', fontWeight: 600 },
-  ],
-})
-
-Font.register({
-  family: 'Cormorant',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/cormorantgaramond/v16/co3YmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2', fontWeight: 400 },
-    { src: 'https://fonts.gstatic.com/s/cormorantgaramond/v16/co3bmX5slCNuHLi8bLeY9MK7whWMhyjQrLBJtUE.woff2', fontWeight: 600 },
-  ],
-})
+// Built-in @react-pdf/renderer fonts (no network fetch — always render):
+//   serif  -> Times-Roman / Times-Bold
+//   sans   -> Helvetica / Helvetica-Bold
+const FONT_SANS = 'Helvetica'
+const FONT_SERIF = 'Times-Roman'
 
 const COLORS = {
   ink: '#0A0A0A',
@@ -41,7 +27,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 48,
     fontSize: 10,
-    fontFamily: 'Inter',
+    fontFamily: FONT_SANS,
     color: COLORS.ink,
     backgroundColor: '#FFFFFF',
   },
@@ -56,7 +42,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   brandName: {
-    fontFamily: 'Cormorant',
+    fontFamily: FONT_SERIF,
     fontSize: 22,
     fontWeight: 600,
     color: COLORS.ink,
@@ -70,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   docTitle: {
-    fontFamily: 'Cormorant',
+    fontFamily: FONT_SERIF,
     fontSize: 18,
     fontWeight: 600,
     color: COLORS.gold,
@@ -101,7 +87,7 @@ const styles = StyleSheet.create({
   col: { flex: 1 },
 
   clientName: {
-    fontFamily: 'Cormorant',
+    fontFamily: FONT_SERIF,
     fontSize: 14,
     fontWeight: 600,
     color: COLORS.ink,
@@ -119,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   vehicleTitle: {
-    fontFamily: 'Cormorant',
+    fontFamily: FONT_SERIF,
     fontSize: 18,
     fontWeight: 600,
     color: COLORS.ink,
@@ -176,7 +162,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 600,
     color: COLORS.gold,
-    fontFamily: 'Inter',
+    fontFamily: FONT_SANS,
   },
   totalNgn: {
     fontSize: 10,

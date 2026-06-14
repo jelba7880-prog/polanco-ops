@@ -11,15 +11,13 @@ import { formatUSD, formatNGN, formatDate } from '@/lib/formatters'
 import { ProformaPDF } from '@/lib/pdf/generateProforma'
 import type { DealSheet } from '@/lib/supabase/types'
 
-// PDFDownloadLink must be dynamically imported — it uses browser APIs
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { ssr: false }
-)
-
+// PDFViewer relies on browser APIs (window, canvas) — load it client-side only
 const PDFViewer = dynamic(
   () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="h-96 bg-surface-muted animate-pulse rounded-xl" />,
+  }
 )
 
 export default function DealDetailPage() {
@@ -29,6 +27,7 @@ export default function DealDetailPage() {
   const [deal, setDeal] = useState<DealSheet | null>(null)
   const [loading, setLoading] = useState(true)
   const [showPreview, setShowPreview] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     async function fetchDeal() {
@@ -76,6 +75,31 @@ export default function DealDetailPage() {
   const expiryDate = new Date(
     new Date(deal.created_at).getTime() + deal.valid_hours * 60 * 60 * 1000
   )
+
+  async function handleDownload() {
+    if (!deal || !settings) return
+    setDownloading(true)
+    try {
+      // pdf() must be imported dynamically — it touches browser APIs
+      const { pdf } = await import('@react-pdf/renderer')
+      const blob = await pdf(
+        <ProformaPDF deal={deal} settings={settings} />
+      ).toBlob()
+
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('PDF generation error:', err)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <div className="pb-8">
@@ -140,22 +164,15 @@ export default function DealDetailPage() {
 
         {/* Actions */}
         <div className="flex flex-col gap-2">
-          {PDFDownloadLink && settings && (
-            <PDFDownloadLink
-              document={<ProformaPDF deal={deal} settings={settings} />}
-              fileName={filename}
-              className="flex items-center justify-center gap-2 w-full h-12 bg-gold text-ink font-inter font-medium text-sm rounded-xl active:opacity-80 transition-opacity"
-            >
-              {({ loading: pdfLoading }) =>
-                pdfLoading ? 'Preparing PDF...' : (
-                  <>
-                    <Download size={16} />
-                    Download Proforma PDF
-                  </>
-                )
-              }
-            </PDFDownloadLink>
-          )}
+          <Button
+            onClick={handleDownload}
+            loading={downloading}
+            disabled={!settings}
+            className="w-full"
+          >
+            <Download size={16} />
+            {downloading ? 'Preparing PDF…' : 'Download Proforma PDF'}
+          </Button>
 
           <Button
             variant="secondary"
