@@ -12,7 +12,12 @@ export const leadSchema = z.object({
   car_id: z.string().uuid().optional(),
   source: z.enum(['whatsapp', 'instagram', 'walkin', 'call', 'referral']).default('whatsapp'),
   status: z.enum(['new', 'contacted', 'test_drive', 'negotiating', 'closed_won', 'closed_lost']).default('new'),
-  assigned_to: z.string().uuid().optional(),
+  assigned_to: z
+    .string()
+    .uuid()
+    .optional()
+    .or(z.literal(''))
+    .transform((val) => (val === '' ? undefined : val)),
   notes: z.string().optional(),
 })
 
