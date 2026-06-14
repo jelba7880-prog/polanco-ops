@@ -68,18 +68,19 @@ export function useCreateLead() {
 
   return useMutation({
     mutationFn: async (values: LeadFormValues) => {
-      const { data, error } = await supabase
-        .from('leads')
-        .insert({
-          ...values,
-          email: values.email || null,
-          last_contacted: new Date().toISOString(),
-        })
-        .select()
-        .single()
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      })
 
-      if (error) throw error
-      return data as Lead
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error ?? 'Failed to create lead')
+      }
+
+      const { lead } = await response.json()
+      return lead as Lead
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: leadKeys.lists() })
