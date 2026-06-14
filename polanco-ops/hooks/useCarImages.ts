@@ -22,13 +22,26 @@ export function useAddCarImage(carId: string) {
       // Upload to storage
       const url = await uploadCarImage(carId, file)
 
+      // Find the current max sort_order for this car so we can append. Using a
+      // sequential position (0, 1, 2, ...) keeps the value within the int
+      // column — a Date.now() timestamp overflows it (Postgres error 22003).
+      const { data: existing } = await supabase
+        .from('car_images')
+        .select('sort_order')
+        .eq('car_id', carId)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const nextSortOrder = (existing?.sort_order ?? -1) + 1
+
       // Insert into car_images table
       const { data, error } = await supabase
         .from('car_images')
         .insert({
           car_id: carId,
           url,
-          sort_order: Date.now(),
+          sort_order: nextSortOrder,
           is_cover: isFirst, // first image is automatically the cover
         })
         .select()
