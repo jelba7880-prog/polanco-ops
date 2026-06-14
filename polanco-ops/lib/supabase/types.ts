@@ -60,6 +60,12 @@ export interface Lead {
   last_contacted: string | null
   created_at: string
   updated_at: string
+  // Joined field from useLeads query
+  profiles?: {
+    id: string
+    full_name: string
+    role: string
+  } | null
 }
 
 export interface DealSheet {
