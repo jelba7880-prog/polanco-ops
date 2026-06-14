@@ -17,10 +17,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Polanco Operations Hub",
   description: "Polanco Exotic Cars · Operations Hub",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Polanco Ops",
+  },
   other: {
     "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "default",
   },
 };
 
