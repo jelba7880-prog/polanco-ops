@@ -25,7 +25,11 @@ export const carSchema = z.object({
   notes: z.string().optional(),
 })
 
+// Output type (after defaults are applied) — what a successful submit yields.
 export type CarFormValues = z.infer<typeof carSchema>
+// Input type (before defaults) — what the form fields collect. Fields with a
+// `.default()` (mileage_km, status) are optional on the way in.
+export type CarFormInput = z.input<typeof carSchema>
 
 // Partial schema for updates — all fields optional
 export const carUpdateSchema = carSchema.partial()
