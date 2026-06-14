@@ -7,7 +7,7 @@
   --color-ink-soft: #4d4d4d;
   --color-ink-muted: #6b6b6b;
   --color-gold: #c9a84c;
-  --color-navy: #1e2a4a;
+  --color-navy: #1e3a5f;
   --color-danger: #c0392b;
 
   /* Status colors + soft tinted backgrounds */
@@ -17,7 +17,7 @@
   --color-warning-tint: #fdf1e3;
   --color-neutral-tag: #737373;
   --color-neutral-tint: #f0f0f0;
-  --color-navy-tint: #e9edf4;
+  --color-navy-tint: #e8edf3;
 
   /* Surfaces & borders */
   --color-surface-muted: #f2f2f2;
