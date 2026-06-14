@@ -9,25 +9,35 @@ export async function uploadCarImage(
   carId: string,
   file: File
 ): Promise<string> {
-  // Compress first
-  const compressed = await compressImage(file, {
-    maxSizeMB: MAX_SIZE_MB,
-    maxWidthOrHeight: MAX_WIDTH_PX,
-    useWebWorker: true,
-  })
+  // Compress first, falling back to the original file if compression fails
+  // (e.g. unsupported format or worker error) so the upload can still proceed.
+  let compressed: File = file
+  try {
+    compressed = await compressImage(file, {
+      maxSizeMB: MAX_SIZE_MB,
+      maxWidthOrHeight: MAX_WIDTH_PX,
+      useWebWorker: true,
+    })
+  } catch (compressionError) {
+    console.warn('Image compression failed, uploading original file:', compressionError)
+  }
 
   const ext = file.name.split('.').pop() ?? 'jpg'
   const filename = `${carId}/${Date.now()}.${ext}`
+  const contentType = compressed.type || file.type || 'image/jpeg'
 
   const supabase = createClient()
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(filename, compressed, {
-      contentType: compressed.type,
+      contentType,
       upsert: false,
     })
 
-  if (error) throw error
+  if (error) {
+    console.error('Storage upload error:', JSON.stringify(error))
+    throw error
+  }
 
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(filename)
   return data.publicUrl
