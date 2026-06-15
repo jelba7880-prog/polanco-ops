@@ -27,6 +27,7 @@ export default function NewDealPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const leadId = searchParams.get('leadId')
+  const carId = searchParams.get('carId')
 
   const { data: cars } = useCars()
   const { data: lead } = useLead(leadId ?? '')
@@ -82,6 +83,13 @@ export default function NewDealPage() {
       setValue('price_usd', selectedCar.price_usd)
     }
   }, [selectedCar, setValue])
+
+  // Pre-select the car from the ?carId= URL param (rep can still change it)
+  useEffect(() => {
+    if (carId && !watchedCarId) {
+      setValue('car_id', carId)
+    }
+  }, [carId, watchedCarId, setValue])
 
   const extrasTotal = watchedExtras.reduce((sum, e) => sum + e.amount_usd, 0)
   const totalUsd = watchedPriceUsd + extrasTotal
