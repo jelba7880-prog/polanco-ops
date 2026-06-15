@@ -8,11 +8,16 @@ export default async function SettingsPage() {
   if (!user) redirect('/login')
 
   // Verify admin
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
+
+  // TEMP DIAGNOSTIC — remove once the redirect issue is resolved
+  console.log('[settings] user.id:', user.id)
+  console.log('[settings] profile:', profile)
+  console.log('[settings] profileError:', profileError)
 
   if (profile?.role !== 'admin') redirect('/dashboard')
 
