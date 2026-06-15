@@ -17,6 +17,7 @@ interface SettingsClientProps {
 
 export function SettingsClient({ settings, profiles, currentUserId }: SettingsClientProps) {
   const [exchangeRate, setExchangeRate] = useState(settings.exchange_rate_usd_ngn ?? '1580')
+  const [rateUpdatedAtValue, setRateUpdatedAtValue] = useState(settings.exchange_rate_updated_at ?? '')
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsapp_number ?? '')
   const [businessName, setBusinessName] = useState(settings.business_name ?? '')
   const [businessAddress, setBusinessAddress] = useState(settings.business_address ?? '')
@@ -28,9 +29,7 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
   const [fetchingRate, setFetchingRate] = useState(false)
   const [savedSection, setSavedSection] = useState<string | null>(null)
 
-  const rateUpdatedAt = settings.exchange_rate_updated_at
-    ? formatDate(settings.exchange_rate_updated_at)
-    : 'Never'
+  const rateUpdatedAt = rateUpdatedAtValue ? formatDate(rateUpdatedAtValue) : 'Never'
 
   async function saveSettings(updates: Record<string, string>) {
     const supabase = createClient()
@@ -61,10 +60,12 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
   async function handleSaveRate() {
     setSavingRate(true)
     try {
+      const updatedAt = new Date().toISOString()
       await saveSettings({
         exchange_rate_usd_ngn: exchangeRate,
-        exchange_rate_updated_at: new Date().toISOString(),
+        exchange_rate_updated_at: updatedAt,
       })
+      setRateUpdatedAtValue(updatedAt)
       setSavedSection('rate')
       setTimeout(() => setSavedSection(null), 2000)
     } catch (err) {
@@ -79,12 +80,11 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
     try {
       const res = await fetch('/api/exchange-rate')
       if (!res.ok) throw new Error('Failed to fetch')
-      const { rate } = await res.json()
+      const { rate, updatedAt } = await res.json()
+      // The API route persists the fetched rate to the settings table —
+      // no separate client-side write is needed (and would race with it).
       setExchangeRate(String(rate))
-      await saveSettings({
-        exchange_rate_usd_ngn: String(rate),
-        exchange_rate_updated_at: new Date().toISOString(),
-      })
+      setRateUpdatedAtValue(updatedAt)
       setSavedSection('rate')
       setTimeout(() => setSavedSection(null), 2000)
     } catch (err) {

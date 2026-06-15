@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export interface ExchangeRateResult {
   rate: number
@@ -57,16 +58,28 @@ export async function getExchangeRate(): Promise<ExchangeRateResult> {
     }
 
     const updatedAt = new Date().toISOString()
+    const roundedRate = Math.round(freshRate)
 
-    // Update settings table
-    await supabase
+    // Persist via the service role client — writes to `settings` must
+    // succeed regardless of the calling user's RLS permissions.
+    const serviceClient = createServiceClient()
+    const { error: upsertError } = await serviceClient
       .from('settings')
       .upsert([
-        { key: 'exchange_rate_usd_ngn', value: String(Math.round(freshRate)) },
+        { key: 'exchange_rate_usd_ngn', value: String(roundedRate) },
         { key: 'exchange_rate_updated_at', value: updatedAt },
       ])
 
-    return { rate: Math.round(freshRate), source: 'fresh', updatedAt }
+    if (upsertError) {
+      console.error('Failed to persist exchange rate:', upsertError)
+      return {
+        rate: roundedRate,
+        source: 'fresh',
+        updatedAt: cachedUpdatedAt || updatedAt,
+      }
+    }
+
+    return { rate: roundedRate, source: 'fresh', updatedAt }
   } catch (err) {
     console.error('Exchange rate fetch failed, using cached:', err)
 

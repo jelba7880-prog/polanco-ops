@@ -28,6 +28,6 @@ export function useSettings() {
         twilio_notify_number: map.twilio_notify_number ?? '',
       }
     },
-    staleTime: 5 * 60 * 1000, // cache for 5 minutes
+    staleTime: 4 * 60 * 60 * 1000, // 4 hours — refetch in background, matches exchange rate cache window
   })
 }
