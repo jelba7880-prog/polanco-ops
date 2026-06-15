@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Plus, Search, Car } from 'lucide-react'
 import { useCars } from '@/hooks/useCars'
 import { CarCard } from '@/components/inventory/CarCard'
@@ -18,8 +19,12 @@ const STATUS_FILTERS: { label: string; value: CarStatus | 'all' }[] = [
 
 export default function InventoryPage() {
   const { data: cars, isLoading, error } = useCars()
+  const searchParams = useSearchParams()
+  const statusParam = searchParams.get('status') as CarStatus | null
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<CarStatus | 'all'>('all')
+  const [statusFilter, setStatusFilter] = useState<CarStatus | 'all'>(
+    statusParam && STATUS_FILTERS.some((f) => f.value === statusParam) ? statusParam : 'all'
+  )
 
   const filtered = useMemo(() => {
     if (!cars) return []
