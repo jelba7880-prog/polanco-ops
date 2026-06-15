@@ -1,35 +1,101 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { DashboardClient } from '@/components/dashboard/DashboardClient'
+
+function startOfTodayISO(): string {
+  return new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+}
+
+function sevenDaysAgoISO(): string {
+  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) redirect('/login')
 
-  return (
-    <div className="px-4 py-6">
-      <p className="font-inter text-sm text-ink-muted">
-        Welcome back — here&apos;s what&apos;s happening at Polanco today.
-      </p>
+  const [
+    { count: availableCount },
+    { count: reservedCount },
+    { data: leadsToday },
+    { data: dealsThisWeek },
+    { data: recentCars },
+    { data: recentLeads },
+    { data: recentDeals },
+  ] = await Promise.all([
+    supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'available'),
+    supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'reserved'),
+    supabase
+      .from('leads')
+      .select('id, created_at')
+      .gte('created_at', startOfTodayISO()),
+    supabase
+      .from('deal_sheets')
+      .select('id, created_at')
+      .gte('created_at', sevenDaysAgoISO()),
+    supabase
+      .from('cars')
+      .select('id, make, model, year, status, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('leads')
+      .select('id, name, car_interest, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('deal_sheets')
+      .select('id, client_name, car_snapshot, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ])
 
-      {/* Placeholder stat cards — replaced in Phase 1.6 */}
-      <div className="grid grid-cols-2 gap-3 mt-6">
-        {[
-          { label: 'Available Cars', value: '—' },
-          { label: 'Active Leads', value: '—' },
-          { label: 'Deals This Month', value: '—' },
-          { label: 'Reserved', value: '—' },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-base rounded-xl p-4 shadow-card border border-[var(--border)]"
-          >
-            <p className="font-inter text-xs text-ink-muted mb-1">{stat.label}</p>
-            <p className="font-display text-2xl font-semibold text-ink">{stat.value}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  const stats = {
+    available: availableCount ?? 0,
+    reserved: reservedCount ?? 0,
+    leadsToday: leadsToday?.length ?? 0,
+    dealsThisWeek: dealsThisWeek?.length ?? 0,
+  }
+
+  type ActivityItem = {
+    id: string
+    type: 'car' | 'lead' | 'deal'
+    label: string
+    timestamp: string
+  }
+
+  const activity: ActivityItem[] = [
+    ...(recentCars ?? []).map((c) => ({
+      id: c.id,
+      type: 'car' as const,
+      label: `${c.year} ${c.make} ${c.model} marked ${c.status}`,
+      timestamp: c.updated_at,
+    })),
+    ...(recentLeads ?? []).map((l) => ({
+      id: l.id,
+      type: 'lead' as const,
+      label: `New lead: ${l.name}${l.car_interest ? ` — ${l.car_interest}` : ''}`,
+      timestamp: l.created_at,
+    })),
+    ...(recentDeals ?? []).map((d) => {
+      const snap = d.car_snapshot as { make: string; model: string; year: number }
+      return {
+        id: d.id,
+        type: 'deal' as const,
+        label: `Deal sheet for ${d.client_name} — ${snap?.year} ${snap?.make} ${snap?.model}`,
+        timestamp: d.created_at,
+      }
+    }),
+  ]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 10)
+
+  return <DashboardClient stats={stats} activity={activity} />
 }
