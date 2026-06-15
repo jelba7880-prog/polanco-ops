@@ -51,6 +51,28 @@ body {
   color: var(--color-ink);
 }
 
+/* Subtle horizontal "nudge" used by the carousel edge hints to signal swipeability */
+@keyframes nudge-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-3px); }
+}
+@keyframes nudge-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+.animate-nudge-left {
+  animation: nudge-left 1.8s ease-in-out infinite;
+}
+.animate-nudge-right {
+  animation: nudge-right 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-nudge-left,
+  .animate-nudge-right {
+    animation: none;
+  }
+}
+
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
