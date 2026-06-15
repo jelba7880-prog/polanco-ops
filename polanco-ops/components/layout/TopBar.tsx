@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { SignOutButton } from './SignOutButton'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -28,7 +29,10 @@ export function TopBar({ action }: TopBarProps) {
       <h1 className="font-display text-xl font-semibold text-ink">
         {title}
       </h1>
-      {action && <div>{action}</div>}
+      <div className="flex items-center gap-1">
+        {action}
+        <SignOutButton />
+      </div>
     </header>
   )
 }
