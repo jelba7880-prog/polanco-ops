@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Pencil, Car, FileText } from 'lucide-react'
+import { ArrowLeft, Pencil, FileText } from 'lucide-react'
 import { useCar, useDeleteCar } from '@/hooks/useCars'
 import { useSettings } from '@/hooks/useSettings'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { StatusBadge } from '@/components/inventory/StatusBadge'
 import { StatusQuickUpdate } from '@/components/inventory/StatusQuickUpdate'
+import { ImageCarousel } from '@/components/inventory/ImageCarousel'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import {
@@ -68,6 +69,7 @@ export default function CarDetailPage() {
   }
 
   const currentStatus = optimisticStatus ?? car.status
+  const carImages = car.car_images ?? []
   const exchangeRate = settings?.exchange_rate_usd_ngn ?? 1580
   const priceNGN = usdToNgn(car.price_usd, exchangeRate)
 
@@ -101,20 +103,12 @@ export default function CarDetailPage() {
           </button>
         </div>
 
-        {/* Image area */}
-        <div className="relative w-full aspect-[16/9] bg-surface-muted mb-6">
-          {car.car_images && car.car_images.length > 0 ? (
-            // eslint-disable-next-line @next/next/no-img-element -- image domain may not be in remotePatterns yet
-            <img
-              src={car.car_images.find((i) => i.is_cover)?.url ?? car.car_images[0].url}
-              alt={formatCarTitle(car.make, car.model, car.year)}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex items-center justify-center w-full h-full">
-              <Car size={56} className="text-ink-muted opacity-20" />
-            </div>
-          )}
+        {/* Image carousel */}
+        <div className="px-4">
+          <ImageCarousel
+            images={carImages}
+            carName={`${car.year} ${car.make} ${car.model}`}
+          />
         </div>
 
         <div className="px-4">
