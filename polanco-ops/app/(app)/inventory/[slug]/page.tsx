@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Pencil, Car } from 'lucide-react'
-import { useCar } from '@/hooks/useCars'
+import { ArrowLeft, Pencil, Car, FileText } from 'lucide-react'
+import { useCar, useDeleteCar } from '@/hooks/useCars'
 import { useSettings } from '@/hooks/useSettings'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { StatusBadge } from '@/components/inventory/StatusBadge'
 import { StatusQuickUpdate } from '@/components/inventory/StatusQuickUpdate'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import {
   formatUSD,
   formatNGN,
@@ -23,8 +25,23 @@ export default function CarDetailPage() {
   const router = useRouter()
   const { data: car, isLoading, error } = useCar(slug)
   const { data: settings } = useSettings()
+  const { data: currentUser } = useCurrentUser()
+  const deleteCarMutation = useDeleteCar()
   const [statusModalOpen, setStatusModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [optimisticStatus, setOptimisticStatus] = useState<CarStatus | null>(null)
+
+  const isAdmin = currentUser?.role === 'admin'
+
+  async function handleDelete() {
+    if (!car) return
+    try {
+      await deleteCarMutation.mutateAsync(car.id)
+      router.push('/inventory')
+    } catch (err) {
+      console.error('Delete failed:', err)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -65,6 +82,9 @@ export default function CarDetailPage() {
     { label: 'Interior', value: car.color_interior ?? '—' },
     { label: 'Engine', value: car.engine_cc ? `${car.engine_cc.toLocaleString()} cc` : '—' },
     { label: 'Horsepower', value: car.horsepower ? `${car.horsepower} hp` : '—' },
+    ...(car.reserved_for && currentStatus === 'reserved'
+      ? [{ label: 'Reserved For', value: car.reserved_for }]
+      : []),
   ]
 
   return (
@@ -169,7 +189,28 @@ export default function CarDetailPage() {
             >
               Update Status
             </Button>
+            {isAdmin && (
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => setDeleteModalOpen(true)}
+              >
+                Delete
+              </Button>
+            )}
           </div>
+
+          {/* Generate deal sheet shortcut (available cars only) */}
+          {currentStatus === 'available' && (
+            <Button
+              variant="secondary"
+              className="w-full gap-2 mt-2"
+              onClick={() => router.push(`/deals/new?carId=${car.id}`)}
+            >
+              <FileText size={16} />
+              Generate Deal Sheet
+            </Button>
+          )}
         </div>
       </div>
 
@@ -177,10 +218,40 @@ export default function CarDetailPage() {
       <StatusQuickUpdate
         carId={car.id}
         currentStatus={currentStatus}
+        currentReservedFor={car.reserved_for}
         open={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
         onSuccess={(newStatus) => setOptimisticStatus(newStatus)}
       />
+
+      {/* Delete confirmation modal (admin only) */}
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Delete Vehicle"
+      >
+        <p className="font-inter text-sm text-ink-soft mb-6">
+          Are you sure you want to delete the {car.year} {car.make} {car.model}?
+          This cannot be undone and will remove all associated images.
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => setDeleteModalOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={handleDelete}
+            loading={deleteCarMutation.isPending}
+          >
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </>
   )
 }

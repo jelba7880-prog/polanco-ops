@@ -42,6 +42,7 @@ const STATUS_OPTIONS: {
 interface StatusQuickUpdateProps {
   carId: string
   currentStatus: CarStatus
+  currentReservedFor?: string | null
   open: boolean
   onClose: () => void
   onSuccess: (newStatus: CarStatus) => void
@@ -50,21 +51,30 @@ interface StatusQuickUpdateProps {
 export function StatusQuickUpdate({
   carId,
   currentStatus,
+  currentReservedFor,
   open,
   onClose,
   onSuccess,
 }: StatusQuickUpdateProps) {
   const [selected, setSelected] = useState<CarStatus>(currentStatus)
+  const [reservedFor, setReservedFor] = useState(currentReservedFor ?? '')
   const updateStatus = useUpdateCarStatus()
 
   async function handleConfirm() {
-    if (selected === currentStatus) {
+    if (
+      selected === currentStatus &&
+      (selected !== 'reserved' || reservedFor === (currentReservedFor ?? ''))
+    ) {
       onClose()
       return
     }
 
     try {
-      await updateStatus.mutateAsync({ id: carId, status: selected })
+      await updateStatus.mutateAsync({
+        id: carId,
+        status: selected,
+        reserved_for: selected === 'reserved' ? reservedFor : undefined,
+      })
       onSuccess(selected)
       onClose()
     } catch {
@@ -109,6 +119,16 @@ export function StatusQuickUpdate({
             </button>
           )
         })}
+
+        {selected === 'reserved' && (
+          <input
+            type="text"
+            placeholder="Reserved for (client name)"
+            value={reservedFor}
+            onChange={(e) => setReservedFor(e.target.value)}
+            className="w-full min-h-[44px] px-4 py-2.5 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy mt-2"
+          />
+        )}
       </div>
 
       <button

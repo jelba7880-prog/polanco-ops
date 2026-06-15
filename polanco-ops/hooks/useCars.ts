@@ -98,10 +98,22 @@ export function useUpdateCarStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: CarStatus }) => {
+    mutationFn: async ({
+      id,
+      status,
+      reserved_for,
+    }: {
+      id: string
+      status: CarStatus
+      reserved_for?: string
+    }) => {
       const { data, error } = await supabase
         .from('cars')
-        .update({ status })
+        .update({
+          status,
+          // Clear reserved_for whenever the car moves away from 'reserved'.
+          reserved_for: status === 'reserved' ? reserved_for ?? null : null,
+        })
         .eq('id', id)
         .select()
         .single()
