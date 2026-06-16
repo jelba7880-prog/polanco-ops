@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/ui/Toast'
 import { formatUSD, formatNGN, usdToNgn, toDisplayCase } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
@@ -39,6 +40,7 @@ export default function NewDealPage() {
   const { data: lead } = useLead(leadId ?? '')
   const { data: exchangeRateData } = useExchangeRate()
   const { data: settings } = useSettings()
+  const showToast = useToast()
 
   const [step, setStep] = useState<Step>(1)
   const [saving, setSaving] = useState(false)
@@ -151,9 +153,11 @@ export default function NewDealPage() {
 
       if (error) throw error
 
+      showToast('Deal created', 'success')
       router.push(`/deals/${deal.id}`)
     } catch (err) {
       console.error('Failed to create deal:', err instanceof Error ? err.message : String(err))
+      showToast('Failed to create deal. Please try again.', 'error')
       setSaving(false)
     }
   }

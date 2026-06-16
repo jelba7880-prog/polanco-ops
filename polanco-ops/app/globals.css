@@ -196,3 +196,74 @@ body {
     animation: cardEnter 280ms ease-out both;
   }
 }
+
+/* ── Toast: slide-up entrance + slide-down exit ───────────────────── */
+
+/* Shares the app's entrance motion language (translateY + fade, ease-out — the
+   same family as pageEnter/cardEnter). The exit is the reverse and slightly
+   quicker, consistent with the project principle that departing elements may
+   move a touch faster than arriving ones. */
+@keyframes toastEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.toast-enter {
+  animation: toastEnter 250ms ease-out both;
+}
+
+.toast-exit {
+  /* `both` holds the faded-out end state until the JS removal timer fires, so
+     the toast never flickers back to full opacity before it unmounts. */
+  animation: toastExit 180ms ease-out both;
+}
+
+/* Under reduced motion the toast still appears, rests, and is removed on the
+   same triggers and the same overall timing budget — just without the
+   slide/fade. Removal is driven by setTimeout in the component, not by this
+   animation, so disabling it here cannot strand a toast on screen. */
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter,
+  .toast-exit {
+    animation: none;
+  }
+}
+
+/* Fixed host that stacks toasts above the BottomNav (z-40) and any open Modal
+   (z-50), clearing the iOS home-indicator safe area so the toast stays fully
+   visible during entrance, rest, and exit. The container is click-through;
+   only the toast chips themselves capture taps (tap-to-dismiss). */
+.toast-host {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  pointer-events: none;
+}
+
+.toast-host > * {
+  pointer-events: auto;
+}

@@ -14,11 +14,13 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { SourceChips } from '@/components/leads/SourceChips'
+import { useToast } from '@/components/ui/Toast'
 
 export default function AddLeadPage() {
   const router = useRouter()
   const createLead = useCreateLead()
   const { data: profiles } = useProfiles()
+  const showToast = useToast()
 
   const {
     register,
@@ -36,6 +38,7 @@ export default function AddLeadPage() {
   async function onSubmit(values: LeadFormValues) {
     try {
       const lead = await createLead.mutateAsync(values)
+      showToast('Lead saved', 'success')
       router.push(`/leads/${lead.id}`)
     } catch (err) {
       console.error('Failed to create lead:', err instanceof Error ? err.message : String(err))
