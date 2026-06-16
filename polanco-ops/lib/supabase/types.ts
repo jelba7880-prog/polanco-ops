@@ -91,6 +91,22 @@ export interface DealSheet {
   } | null
 }
 
+export type StaffStatus = 'active' | 'pending' | 'deactivated'
+
+/**
+ * A staff row enriched with Supabase Auth data (email + account status) that
+ * lives only in auth.users, not in profiles. Built server-side for the Settings
+ * staff list so it can show emails, "Pending" invites, and deactivated accounts.
+ */
+export interface StaffMember {
+  id: string
+  full_name: string
+  role: UserRole
+  email: string | null
+  status: StaffStatus
+  created_at: string
+}
+
 export interface Settings {
   exchange_rate_usd_ngn: number
   exchange_rate_updated_at: string

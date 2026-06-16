@@ -1,22 +1,32 @@
 'use client'
 
 import { useState } from 'react'
-import { RefreshCw, Save, Shield, User } from 'lucide-react'
+import {
+  RefreshCw,
+  Save,
+  Shield,
+  User,
+  UserPlus,
+  UserX,
+  UserCheck,
+  Trash2,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { formatDate } from '@/lib/formatters'
-import type { Profile } from '@/lib/supabase/types'
+import type { StaffMember } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
 interface SettingsClientProps {
   settings: Record<string, string>
-  profiles: Profile[]
+  staff: StaffMember[]
   currentUserId: string
 }
 
-export function SettingsClient({ settings, profiles, currentUserId }: SettingsClientProps) {
+export function SettingsClient({ settings, staff, currentUserId }: SettingsClientProps) {
   const [exchangeRate, setExchangeRate] = useState(settings.exchange_rate_usd_ngn ?? '1580')
   const [rateUpdatedAtValue, setRateUpdatedAtValue] = useState(settings.exchange_rate_updated_at ?? '')
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsapp_number ?? '')
@@ -29,6 +39,24 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
   const [savingRate, setSavingRate] = useState(false)
   const [fetchingRate, setFetchingRate] = useState(false)
   const [savedSection, setSavedSection] = useState<string | null>(null)
+
+  // Invite staff
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteName, setInviteName] = useState('')
+  const [inviting, setInviting] = useState(false)
+
+  // Deactivate / reactivate confirmation
+  const [statusTarget, setStatusTarget] = useState<{
+    member: StaffMember
+    action: 'deactivate' | 'reactivate'
+  } | null>(null)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  // Clear sold cars
+  const [clearOpen, setClearOpen] = useState(false)
+  const [clearCount, setClearCount] = useState<number | null>(null)
+  const [clearing, setClearing] = useState(false)
 
   const showToast = useToast()
 
@@ -113,6 +141,103 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
       .eq('id', profileId)
     // Refresh page to show updated roles
     window.location.reload()
+  }
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault()
+    setInviting(true)
+    try {
+      const res = await fetch('/api/admin/invite-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail, full_name: inviteName }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        showToast(data.error ?? 'Failed to send invitation.', 'error')
+        return
+      }
+      showToast('Invitation sent', 'success')
+      // Reload so the new (pending) staff row appears in the list.
+      window.location.reload()
+    } catch (err) {
+      console.error('Invite failed:', err)
+      showToast('Failed to send invitation.', 'error')
+    } finally {
+      setInviting(false)
+    }
+  }
+
+  async function handleConfirmStatus() {
+    if (!statusTarget) return
+    setUpdatingStatus(true)
+    try {
+      const res = await fetch('/api/admin/staff-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: statusTarget.member.id,
+          action: statusTarget.action,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        showToast(data.error ?? 'Failed to update account.', 'error')
+        return
+      }
+      showToast(
+        statusTarget.action === 'reactivate'
+          ? 'Account reactivated'
+          : 'Account deactivated',
+        'success'
+      )
+      window.location.reload()
+    } catch (err) {
+      console.error('Status update failed:', err)
+      showToast('Failed to update account.', 'error')
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
+  async function openClearModal() {
+    setClearOpen(true)
+    setClearCount(null)
+    try {
+      const res = await fetch('/api/admin/clear-sold-cars')
+      if (!res.ok) throw new Error('Failed to count')
+      const { count } = await res.json()
+      setClearCount(count)
+    } catch (err) {
+      console.error('Count sold cars failed:', err)
+      showToast('Failed to load count.', 'error')
+      setClearOpen(false)
+    }
+  }
+
+  async function handleClearSold() {
+    setClearing(true)
+    try {
+      const res = await fetch('/api/admin/clear-sold-cars', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        showToast(data.error ?? 'Failed to clear sold cars.', 'error')
+        return
+      }
+      const count = data.count ?? 0
+      showToast(
+        count === 1
+          ? '1 sold car older than 90 days was cleared'
+          : `${count} sold cars older than 90 days were cleared`,
+        'success'
+      )
+      setClearOpen(false)
+    } catch (err) {
+      console.error('Clear sold cars failed:', err)
+      showToast('Failed to clear sold cars.', 'error')
+    } finally {
+      setClearing(false)
+    }
   }
 
   return (
@@ -204,51 +329,247 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
 
       {/* Staff */}
       <section className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[var(--border)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
           <p className="font-inter text-sm font-semibold text-ink">Staff Accounts</p>
+          <Button
+            variant="secondary"
+            className="min-h-0 h-8 px-3 gap-1.5 text-xs"
+            onClick={() => setInviteOpen(true)}
+          >
+            <UserPlus size={14} />
+            Invite Staff
+          </Button>
         </div>
 
-        {profiles.map((profile, i) => (
-          <div
-            key={profile.id}
-            className={cn(
-              'flex items-center justify-between px-4 py-3',
-              i < profiles.length - 1 ? 'border-b border-[var(--border)]' : ''
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center">
-                <User size={14} className="text-ink-muted" />
+        {staff.map((member, i) => {
+          const isSelf = member.id === currentUserId
+          const isDeactivated = member.status === 'deactivated'
+          const isPending = member.status === 'pending'
+
+          return (
+            <div
+              key={member.id}
+              className={cn(
+                'flex items-center justify-between px-4 py-3 gap-2',
+                i < staff.length - 1 ? 'border-b border-[var(--border)]' : ''
+              )}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center shrink-0">
+                  <User size={14} className="text-ink-muted" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-inter text-sm font-medium text-ink truncate">
+                    {member.full_name}
+                  </p>
+                  <p className="font-inter text-xs text-ink-muted truncate">
+                    {member.email ?? (member.role === 'admin' ? 'Admin' : 'Staff')}
+                    {' · '}
+                    Joined {formatDate(member.created_at)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-inter text-sm font-medium text-ink">{profile.full_name}</p>
-                <p className="font-inter text-xs text-ink-muted">
-                  {profile.role === 'admin' ? 'Admin' : 'Staff'} · Joined {formatDate(profile.created_at)}
-                </p>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {isPending && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-inter font-medium bg-warning/10 text-warning border border-warning/20">
+                    Pending
+                  </span>
+                )}
+                {isDeactivated && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-inter font-medium bg-surface-muted text-ink-muted border border-[var(--border)]">
+                    Deactivated
+                  </span>
+                )}
+
+                {/* Role: interactive toggle for others, static label for self/deactivated */}
+                {isSelf ? (
+                  <span className="font-inter text-[10px] text-ink-muted">(you)</span>
+                ) : isDeactivated ? null : (
+                  <button
+                    onClick={() => handleToggleRole(member.id, member.role)}
+                    className={cn(
+                      'flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-inter font-medium border transition-all duration-150 ease-out active:scale-[0.97]',
+                      member.role === 'admin'
+                        ? 'bg-navy-tint text-navy border-navy/20'
+                        : 'bg-surface-muted text-ink-muted border-[var(--border)]'
+                    )}
+                  >
+                    <Shield size={10} />
+                    {member.role === 'admin' ? 'Admin' : 'Staff'}
+                  </button>
+                )}
+
+                {/* Deactivate / reactivate — never on your own row */}
+                {!isSelf && (
+                  <button
+                    onClick={() =>
+                      setStatusTarget({
+                        member,
+                        action: isDeactivated ? 'reactivate' : 'deactivate',
+                      })
+                    }
+                    aria-label={
+                      isDeactivated ? 'Reactivate account' : 'Deactivate account'
+                    }
+                    className={cn(
+                      'flex h-7 w-7 items-center justify-center rounded-full border transition-all duration-150 ease-out active:scale-[0.97]',
+                      isDeactivated
+                        ? 'text-success border-success/30 hover:bg-success/10'
+                        : 'text-danger border-danger/30 hover:bg-danger/10'
+                    )}
+                  >
+                    {isDeactivated ? <UserCheck size={14} /> : <UserX size={14} />}
+                  </button>
+                )}
               </div>
             </div>
-
-            {profile.id !== currentUserId && (
-              <button
-                onClick={() => handleToggleRole(profile.id, profile.role)}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-inter font-medium border transition-all duration-150 ease-out active:scale-[0.97]',
-                  profile.role === 'admin'
-                    ? 'bg-navy-tint text-navy border-navy/20'
-                    : 'bg-surface-muted text-ink-muted border-[var(--border)]'
-                )}
-              >
-                <Shield size={10} />
-                {profile.role === 'admin' ? 'Admin' : 'Staff'}
-              </button>
-            )}
-
-            {profile.id === currentUserId && (
-              <span className="font-inter text-[10px] text-ink-muted">(you)</span>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </section>
+
+      {/* Data utilities */}
+      <section className="bg-white rounded-xl border border-[var(--border)] p-4">
+        <p className="font-inter text-sm font-semibold text-ink mb-1">Data Utilities</p>
+        <p className="font-inter text-xs text-ink-muted mb-4">
+          Permanently remove old sold inventory. Deal sheets that reference these
+          cars are preserved.
+        </p>
+        <Button
+          variant="destructive"
+          className="w-full gap-2"
+          onClick={openClearModal}
+        >
+          <Trash2 size={16} />
+          Clear sold cars older than 90 days
+        </Button>
+      </section>
+
+      {/* Invite staff modal */}
+      <Modal open={inviteOpen} onClose={() => setInviteOpen(false)} title="Invite Staff">
+        <form onSubmit={handleInvite} className="flex flex-col gap-3">
+          <Input
+            label="Email address"
+            type="email"
+            required
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            placeholder="name@example.com"
+          />
+          <Input
+            label="Full name (optional)"
+            value={inviteName}
+            onChange={(e) => setInviteName(e.target.value)}
+            placeholder="Jane Doe"
+          />
+          <p className="font-inter text-xs text-ink-muted">
+            They&apos;ll receive an email invitation to set a password and join as
+            Staff. You can promote them to Admin afterwards.
+          </p>
+          <div className="flex gap-3 mt-1">
+            <Button
+              type="button"
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setInviteOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1" loading={inviting}>
+              Send Invite
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Deactivate / reactivate confirmation modal */}
+      <Modal
+        open={!!statusTarget}
+        onClose={() => setStatusTarget(null)}
+        title={
+          statusTarget?.action === 'reactivate'
+            ? 'Reactivate Account'
+            : 'Deactivate Account'
+        }
+      >
+        {statusTarget && (
+          <>
+            <p className="font-inter text-sm text-ink-soft mb-6">
+              {statusTarget.action === 'reactivate' ? (
+                <>
+                  Reactivate <span className="font-medium text-ink">{statusTarget.member.full_name}</span>?
+                  They&apos;ll be able to sign in again.
+                </>
+              ) : (
+                <>
+                  Deactivate <span className="font-medium text-ink">{statusTarget.member.full_name}</span>?
+                  They&apos;ll no longer be able to sign in. Their leads and deal
+                  sheets are kept, and you can reactivate them later.
+                </>
+              )}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={() => setStatusTarget(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={statusTarget.action === 'reactivate' ? 'primary' : 'destructive'}
+                className="flex-1"
+                onClick={handleConfirmStatus}
+                loading={updatingStatus}
+              >
+                {statusTarget.action === 'reactivate' ? 'Reactivate' : 'Deactivate'}
+              </Button>
+            </div>
+          </>
+        )}
+      </Modal>
+
+      {/* Clear sold cars confirmation modal */}
+      <Modal
+        open={clearOpen}
+        onClose={() => setClearOpen(false)}
+        title="Clear Sold Cars"
+      >
+        <p className="font-inter text-sm text-ink-soft mb-6">
+          {clearCount === null ? (
+            'Checking how many records match…'
+          ) : clearCount === 0 ? (
+            'There are no sold cars older than 90 days to clear.'
+          ) : (
+            <>
+              This will permanently delete{' '}
+              <span className="font-medium text-ink">
+                {clearCount} sold {clearCount === 1 ? 'car' : 'cars'}
+              </span>{' '}
+              last updated more than 90 days ago, along with their photos. Deal
+              sheets that reference them are preserved. This cannot be undone.
+            </>
+          )}
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => setClearOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={handleClearSold}
+            loading={clearing}
+            disabled={clearCount === null || clearCount === 0}
+          >
+            Clear
+          </Button>
+        </div>
+      </Modal>
 
     </div>
   )
