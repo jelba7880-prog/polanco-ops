@@ -199,7 +199,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!hasPrev}
                 aria-label="Previous photo"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-opacity duration-200 group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-all duration-200 ease-out active:scale-[0.97] group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -211,7 +211,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!hasNext}
                 aria-label="Next photo"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-opacity duration-200 group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-all duration-200 ease-out active:scale-[0.97] group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
               >
                 <ChevronRight size={20} />
               </button>
@@ -262,7 +262,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
               setLightboxOpen(false)
             }}
             aria-label="Close photo viewer"
-            className="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-150 ease-out active:scale-[0.97]"
           >
             <X size={22} />
           </button>
@@ -302,7 +302,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!hasPrev}
                 aria-label="Previous photo"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors disabled:pointer-events-none disabled:opacity-30"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronLeft size={24} />
               </button>
@@ -314,7 +314,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!hasNext}
                 aria-label="Next photo"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors disabled:pointer-events-none disabled:opacity-30"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronRight size={24} />
               </button>

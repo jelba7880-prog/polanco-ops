@@ -48,8 +48,9 @@
 }
 
 /* Suppress the default mobile browser tap-highlight flash so the custom
-   active:scale press feedback is the only visual response on touch. */
-* {
+   active:scale press feedback is the only visual response on touch.
+   -webkit-tap-highlight-color inherits, so setting it on the root is enough. */
+html {
   -webkit-tap-highlight-color: transparent;
 }
 
