@@ -66,7 +66,7 @@ export default function InventoryPage() {
           <button
             key={f.value}
             onClick={() => setStatusFilter(f.value)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-inter border transition-colors duration-150 ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-inter border transition-all duration-150 ease-out active:scale-[0.97] ${
               statusFilter === f.value
                 ? 'bg-ink text-white border-ink'
                 : 'bg-white text-ink-muted border-[var(--border)] hover:border-ink-soft'

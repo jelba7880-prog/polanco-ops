@@ -60,7 +60,7 @@ export function ExtrasBuilder({ extras, exchangeRate, onChange }: ExtrasBuilderP
               <button
                 type="button"
                 onClick={() => handleRemove(i)}
-                className="p-2 text-ink-muted hover:text-danger transition-colors"
+                className="p-2 text-ink-muted hover:text-danger transition-all duration-150 ease-out active:scale-[0.97]"
               >
                 <Trash2 size={16} />
               </button>
@@ -98,7 +98,7 @@ export function ExtrasBuilder({ extras, exchangeRate, onChange }: ExtrasBuilderP
         <button
           type="button"
           onClick={handleAdd}
-          className="flex items-center gap-1.5 text-sm font-inter text-navy hover:opacity-80 transition-colors"
+          className="flex items-center gap-1.5 text-sm font-inter text-navy hover:opacity-80 transition-all duration-150 ease-out active:scale-[0.97]"
         >
           <Plus size={14} />
           Add Item

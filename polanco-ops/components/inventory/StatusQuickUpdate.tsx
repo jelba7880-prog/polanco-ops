@@ -94,7 +94,7 @@ export function StatusQuickUpdate({
               key={option.value}
               onClick={() => setSelected(option.value)}
               className={cn(
-                'flex items-center justify-between w-full px-4 py-3.5 rounded-xl border text-left transition-colors duration-150',
+                'flex items-center justify-between w-full px-4 py-3.5 rounded-xl border text-left transition-all duration-150 ease-out active:scale-[0.97]',
                 isSelected
                   ? 'border-ink bg-surface-muted'
                   : 'border-[var(--border)] bg-white hover:bg-surface-muted'
@@ -134,7 +134,7 @@ export function StatusQuickUpdate({
       <button
         onClick={handleConfirm}
         disabled={updateStatus.isPending}
-        className="w-full h-12 bg-gold text-ink font-inter font-medium text-sm rounded-xl disabled:opacity-50 transition-opacity"
+        className="w-full h-12 bg-gold text-ink font-inter font-medium text-sm rounded-xl disabled:opacity-50 transition-all duration-150 ease-out active:scale-[0.97]"
       >
         {updateStatus.isPending ? 'Updating...' : 'Confirm'}
       </button>

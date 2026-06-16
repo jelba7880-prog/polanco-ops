@@ -80,7 +80,7 @@ export function ImageUploader({ carId, images }: ImageUploaderProps) {
               {!image.is_cover && (
                 <button
                   onClick={() => setCover.mutate(image.id)}
-                  className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center"
+                  className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center transition-all duration-150 ease-out active:scale-[0.97]"
                   title="Set as cover"
                 >
                   <Star size={10} className="text-white" />
@@ -90,7 +90,7 @@ export function ImageUploader({ carId, images }: ImageUploaderProps) {
                 onClick={() =>
                   deleteImage.mutate({ imageId: image.id, url: image.url })
                 }
-                className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center"
+                className="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center transition-all duration-150 ease-out active:scale-[0.97]"
                 title="Delete photo"
               >
                 <X size={10} className="text-white" />
@@ -104,7 +104,7 @@ export function ImageUploader({ carId, images }: ImageUploaderProps) {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={addImage.isPending}
-            className="aspect-square rounded-lg border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center gap-1 bg-white hover:bg-surface-muted transition-colors disabled:opacity-50"
+            className="aspect-square rounded-lg border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center gap-1 bg-white hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97] disabled:opacity-50"
           >
             {addImage.isPending ? (
               <div className="w-5 h-5 border-2 border-ink-muted border-t-ink rounded-full animate-spin" />

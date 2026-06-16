@@ -74,7 +74,7 @@ export function TopBar({ action }: TopBarProps) {
             aria-label="Account menu"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-white font-inter text-xs font-semibold"
+            className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-white font-inter text-xs font-semibold transition-all duration-150 ease-out active:scale-[0.97]"
           >
             {initials}
           </button>
@@ -93,7 +93,7 @@ export function TopBar({ action }: TopBarProps) {
               )}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-red-50 transition-colors"
+                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-red-50 transition-all duration-150 ease-out active:scale-[0.97]"
               >
                 <LogOut size={14} />
                 Sign Out

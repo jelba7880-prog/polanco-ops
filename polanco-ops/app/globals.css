@@ -47,6 +47,12 @@
   display: none;
 }
 
+/* Suppress the default mobile browser tap-highlight flash so the custom
+   active:scale press feedback is the only visual response on touch. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   background: var(--color-base);
   color: var(--color-ink);
