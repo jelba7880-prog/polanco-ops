@@ -53,6 +53,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Honour prefers-reduced-motion for the app-wide tactile press feedback.
+   Only the scale component is neutralised (both the native `scale` property
+   and the Tailwind transform vars), so elements that position themselves with
+   translate — e.g. the centered carousel arrows — keep their layout while the
+   shrink-on-press is removed. Covers the shared Button too without editing it. */
+@media (prefers-reduced-motion: reduce) {
+  a:active,
+  button:active,
+  [role="button"]:active {
+    scale: 1 !important;
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
+  }
+}
+
 body {
   background: var(--color-base);
   color: var(--color-ink);
