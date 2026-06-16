@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Car, Users, FileText } from 'lucide-react'
 import { formatRelativeDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
+import { StatCard } from './StatCard'
 
 interface Stats {
   available: number
@@ -23,41 +24,6 @@ interface DashboardClientProps {
   stats: Stats
   activity: ActivityItem[]
 }
-
-const STAT_CARDS = (stats: Stats) => [
-  {
-    label: 'Available',
-    value: stats.available,
-    color: 'text-success',
-    bg: 'bg-success-tint',
-    icon: Car,
-    href: '/inventory?status=available',
-  },
-  {
-    label: 'Reserved',
-    value: stats.reserved,
-    color: 'text-warning',
-    bg: 'bg-warning-tint',
-    icon: Car,
-    href: '/inventory?status=reserved',
-  },
-  {
-    label: 'Leads Today',
-    value: stats.leadsToday,
-    color: 'text-navy',
-    bg: 'bg-navy-tint',
-    icon: Users,
-    href: '/leads',
-  },
-  {
-    label: 'Deals / Week',
-    value: stats.dealsThisWeek,
-    color: 'text-gold-deep',
-    bg: 'bg-gold-tint',
-    icon: FileText,
-    href: '/deals',
-  },
-]
 
 const ACTIVITY_ICONS = {
   car: Car,
@@ -82,24 +48,10 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        {STAT_CARDS(stats).map((card) => {
-          const Icon = card.icon
-          return (
-            <Link
-              key={card.label}
-              href={card.href}
-              className="bg-white rounded-xl border border-[var(--border)] shadow-card p-4 active:scale-[0.98] transition-transform"
-            >
-              <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center mb-3', card.bg)}>
-                <Icon size={16} className={card.color} />
-              </div>
-              <p className={cn('font-cormorant font-semibold text-5xl leading-none tracking-tight mb-0.5', card.color)}>
-                {card.value}
-              </p>
-              <p className="font-inter text-xs text-ink-muted">{card.label}</p>
-            </Link>
-          )
-        })}
+        <StatCard label="Available"    value={stats.available}     accentColor="success" />
+        <StatCard label="Reserved"     value={stats.reserved}      accentColor="warning" />
+        <StatCard label="Leads Today"  value={stats.leadsToday}    accentColor="navy" />
+        <StatCard label="Deals / Week" value={stats.dealsThisWeek} accentColor="gold" />
       </div>
 
       {/* Quick actions */}
