@@ -119,6 +119,26 @@ body {
   }
 }
 
+/* Deal form multi-step slide and progress indicator transitions */
+.step-slider {
+  transition: transform 280ms ease-out;
+}
+
+.step-circle,
+.step-connector,
+.step-label {
+  transition: background-color 200ms ease-out, color 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-slider,
+  .step-circle,
+  .step-connector,
+  .step-label {
+    transition: none !important;
+  }
+}
+
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
