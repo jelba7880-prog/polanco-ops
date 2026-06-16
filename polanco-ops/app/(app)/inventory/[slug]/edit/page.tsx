@@ -10,27 +10,7 @@ import {
   type CarFormInput,
 } from '@/lib/validations/car.schema'
 import { useCar, useUpdateCar } from '@/hooks/useCars'
-import { ImageUploader } from '@/components/inventory/ImageUploader'
-import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
-import { Button } from '@/components/ui/Button'
-
-// Optional number inputs come through as '' when left blank; with
-// `valueAsNumber` that becomes NaN, which Zod rejects. Coerce blanks to
-// undefined so optional fields validate (and defaults can kick in).
-const optionalNumber = {
-  setValueAs: (v: unknown) => {
-    if (v === '' || v === null || v === undefined) return undefined
-    const n = Number(v)
-    return Number.isNaN(n) ? undefined : n
-  },
-}
-
-// Optional enum selects default to the empty "Select..." option; '' is not a
-// valid enum value, so coerce it to undefined to satisfy `.optional()`.
-const optionalSelect = {
-  setValueAs: (v: unknown) => (v === '' ? undefined : v),
-}
+import { CarForm } from '@/components/inventory/CarForm'
 
 export default function EditCarPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -110,123 +90,17 @@ export default function EditCarPage() {
 
   return (
     <div className="px-4 py-6 max-w-lg mx-auto">
-
-      {/* Image uploader — above the form */}
-      <div className="bg-white rounded-xl border border-[var(--border)] p-4 mb-6">
-        <ImageUploader
-          carId={car.id}
-          images={car.car_images ?? []}
-        />
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-3">
-          <Input label="Make" error={errors.make?.message} {...register('make')} />
-          <Input label="Model" error={errors.model?.message} {...register('model')} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            label="Year"
-            type="number"
-            error={errors.year?.message}
-            {...register('year', { valueAsNumber: true })}
-          />
-          <Input
-            label="Price (USD)"
-            type="number"
-            error={errors.price_usd?.message}
-            {...register('price_usd', { valueAsNumber: true })}
-          />
-        </div>
-
-        <Select label="Condition" error={errors.condition?.message} {...register('condition')}>
-          <option value="New">New</option>
-          <option value="Foreign Used">Foreign Used</option>
-          <option value="Locally Used">Locally Used</option>
-        </Select>
-
-        <Select label="Status" error={errors.status?.message} {...register('status')}>
-          <option value="available">Available</option>
-          <option value="reserved">Reserved</option>
-          <option value="in_transit">In Transit</option>
-          <option value="sold">Sold</option>
-        </Select>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Select label="Transmission" {...register('transmission', optionalSelect)}>
-            <option value="">Select...</option>
-            <option value="Automatic">Automatic</option>
-            <option value="Manual">Manual</option>
-          </Select>
-          <Select label="Fuel Type" {...register('fuel_type', optionalSelect)}>
-            <option value="">Select...</option>
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Electric">Electric</option>
-            <option value="Hybrid">Hybrid</option>
-          </Select>
-        </div>
-
-        <Input
-          label="Mileage (km)"
-          type="number"
-          {...register('mileage_km', optionalNumber)}
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <Input label="Exterior Color" {...register('color_exterior')} />
-          <Input label="Interior Color" {...register('color_interior')} />
-        </div>
-
-        <Input label="Body Type" {...register('body_type')} />
-
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            label="Engine (cc)"
-            type="number"
-            {...register('engine_cc', optionalNumber)}
-          />
-          <Input
-            label="Horsepower"
-            type="number"
-            {...register('horsepower', optionalNumber)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-ink font-inter">Notes</label>
-          <textarea
-            rows={3}
-            className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
-            {...register('notes')}
-          />
-        </div>
-
-        {updateCar.isError && (
-          <p className="text-sm text-danger font-inter">
-            Failed to save changes. Please try again.
-          </p>
-        )}
-
-        <div className="flex gap-3 pt-2 pb-4">
-          <Button
-            type="button"
-            variant="secondary"
-            className="flex-1"
-            onClick={() => router.back()}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1"
-            loading={isSubmitting || updateCar.isPending}
-          >
-            Save Changes
-          </Button>
-        </div>
-      </form>
+      <CarForm
+        register={register}
+        errors={errors}
+        onSubmit={handleSubmit(onSubmit)}
+        loading={isSubmitting || updateCar.isPending}
+        isError={updateCar.isError}
+        submitLabel="Save Changes"
+        onCancel={() => router.back()}
+        carId={car.id}
+        images={car.car_images ?? []}
+      />
     </div>
   )
 }
