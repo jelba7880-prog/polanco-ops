@@ -7,7 +7,8 @@ import { useLead, useUpdateLeadStatus, useUpdateLead } from '@/hooks/useLeads'
 import { WhatsAppButton } from '@/components/leads/WhatsAppButton'
 import { Button } from '@/components/ui/Button'
 import { formatDateTime, formatRelativeDate, formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
-import type { LeadSource, LeadStatus } from '@/lib/supabase/types'
+import type { LeadStatus } from '@/lib/supabase/types'
+import { LEAD_SOURCE_CONFIG } from '@/lib/leads/sources'
 import { cn } from '@/lib/utils'
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string; colorClass: string }[] = [
@@ -18,14 +19,6 @@ const STATUS_OPTIONS: { value: LeadStatus; label: string; colorClass: string }[]
   { value: 'closed_won', label: 'Closed Won', colorClass: 'bg-success-tint text-success' },
   { value: 'closed_lost', label: 'Closed Lost', colorClass: 'bg-neutral-tint text-neutral-tag' },
 ]
-
-const SOURCE_LABELS: Record<LeadSource, string> = {
-  whatsapp: 'WhatsApp',
-  instagram: 'Instagram',
-  walkin: 'Walk-in',
-  call: 'Phone Call',
-  referral: 'Referral',
-}
 
 interface NoteEntry {
   text: string
@@ -145,7 +138,7 @@ export default function LeadDetailPage() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
             <span className="font-inter text-sm text-ink-muted">Source</span>
             <span className="font-inter text-sm font-medium text-ink">
-              {SOURCE_LABELS[currentLead.source]}
+              {LEAD_SOURCE_CONFIG[currentLead.source].label}
             </span>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
