@@ -114,8 +114,8 @@ export default function InventoryPage() {
 
       {!isLoading && filtered.length > 0 && (
         <div className="flex flex-col gap-3">
-          {filtered.map((car) => (
-            <CarCard key={car.id} car={car} />
+          {filtered.map((car, index) => (
+            <CarCard key={car.id} car={car} index={index} />
           ))}
         </div>
       )}

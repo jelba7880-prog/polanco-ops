@@ -126,3 +126,53 @@ body {
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0px);
 }
+
+/* ── Inventory card: hover lift + staggered entrance ──────────────── */
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover lift — genuine pointer/mouse devices only, no reduced-motion.
+   @media (hover: hover) excludes touchscreens regardless of viewport width,
+   which is the correct capability check (not a width breakpoint). */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .car-card {
+    /* Covers transform (hover lift), individual CSS transform properties used
+       by Tailwind v4 utilities (scale, translate, rotate), and box-shadow for
+       the depth change on hover. Matches the 150ms ease-out used app-wide. */
+    transition: transform 150ms ease-out, translate 150ms ease-out,
+                scale 150ms ease-out, rotate 150ms ease-out,
+                box-shadow 150ms ease-out;
+  }
+
+  .car-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  /* During press: reset the Y lift so active:scale-[0.98] (Item 10) presses
+     the card down from its resting position, not from the lifted state.
+     The scale property is handled by Tailwind's utility and composes
+     independently via the CSS individual transform properties. */
+  .car-card:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-card);
+    transition-duration: 100ms;
+  }
+}
+
+/* Staggered entrance — capped per card index in the component, disabled
+   under reduced-motion. The animation-delay is applied via inline style. */
+@media (prefers-reduced-motion: no-preference) {
+  .car-card-enter {
+    animation: cardEnter 280ms ease-out both;
+  }
+}
