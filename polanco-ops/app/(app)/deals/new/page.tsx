@@ -23,6 +23,12 @@ import { cn } from '@/lib/utils'
 
 type Step = 1 | 2 | 3
 
+const STEP_LABELS: Record<Step, string> = {
+  1: 'Car & Client',
+  2: 'Pricing',
+  3: 'Review',
+}
+
 export default function NewDealPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -154,206 +160,255 @@ export default function NewDealPage() {
 
   const availableCars = cars?.filter((c) => c.status === 'available') ?? []
 
+  // translateX: step 1 → 0%, step 2 → -100%, step 3 → -200%
+  const sliderOffset = (1 - step) * 100
+
   return (
     <div className="px-4 py-6 max-w-lg mx-auto pb-8">
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 mb-6">
-        {([1, 2, 3] as Step[]).map((s) => (
-          <div key={s} className="flex items-center gap-2">
-            <div className={cn(
-              'w-7 h-7 rounded-full flex items-center justify-center text-xs font-inter font-semibold',
-              step === s
-                ? 'bg-ink text-white'
-                : step > s
-                ? 'bg-success text-white'
-                : 'bg-surface-muted text-ink-muted'
-            )}>
-              {step > s ? '✓' : s}
+      {/* Step indicator — all three labels always visible */}
+      <div className="flex items-start mb-6" role="list" aria-label="Form steps">
+        {([1, 2, 3] as Step[]).map((s) => {
+          const isCompleted = step > s
+          const isActive = step === s
+          return (
+            <div key={s} className="flex items-center flex-1 last:flex-none" role="listitem">
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                <div
+                  className={cn(
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-inter font-semibold step-circle',
+                    isCompleted
+                      ? 'bg-gold text-white'
+                      : isActive
+                      ? 'bg-ink text-white'
+                      : 'bg-surface-muted text-ink-muted'
+                  )}
+                >
+                  {isCompleted ? '✓' : s}
+                </div>
+                <span
+                  className={cn(
+                    'text-[10px] font-inter leading-tight text-center step-label',
+                    isActive
+                      ? 'text-ink font-semibold'
+                      : isCompleted
+                      ? 'text-gold-deep'
+                      : 'text-ink-muted'
+                  )}
+                >
+                  {STEP_LABELS[s]}
+                </span>
+              </div>
+              {s < 3 && (
+                <div
+                  className={cn(
+                    'flex-1 h-px mt-3.5 mx-2 step-connector',
+                    isCompleted ? 'bg-gold' : 'bg-[var(--border)]'
+                  )}
+                />
+              )}
             </div>
-            {s < 3 && <div className={cn('h-px flex-1 w-8', step > s ? 'bg-success' : 'bg-[var(--border)]')} />}
-          </div>
-        ))}
-        <p className="ml-2 font-inter text-xs text-ink-muted">
-          {step === 1 ? 'Car & Client' : step === 2 ? 'Pricing' : 'Review'}
-        </p>
+          )
+        })}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/*
+          All three steps are always mounted so form state is never lost on
+          navigation. The flex container slides via translateX; only the
+          visible step panel accepts pointer events.
+        */}
+        <div className="overflow-hidden">
+          <div
+            className="flex step-slider"
+            style={{ transform: `translateX(${sliderOffset}%)` }}
+          >
 
-        {/* Step 1 — Car & Client */}
-        {step === 1 && (
-          <div className="flex flex-col gap-4">
-            <Input
-              id="client_name"
-              label="Client Name"
-              placeholder="Emeka Okafor"
-              error={errors.client_name?.message}
-              {...register('client_name')}
-            />
-
-            {/* Car selection */}
-            {!useManualCar ? (
-              <div className="flex flex-col gap-1.5">
-                <Select
-                  id="car_id"
-                  label="Select Vehicle"
-                  {...register('car_id')}
-                >
-                  <option value="">Select from inventory...</option>
-                  {availableCars.map((car) => (
-                    <option key={car.id} value={car.id}>
-                      {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)} — {formatUSD(car.price_usd)}
-                    </option>
-                  ))}
-                </Select>
-                <button
-                  type="button"
-                  onClick={() => setUseManualCar(true)}
-                  className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
-                >
-                  Car not in inventory? Enter manually →
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <p className="font-inter text-sm font-medium text-ink">Manual Vehicle Entry</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <Input placeholder="Year" type="number"
-                    {...register('manual_year', { valueAsNumber: true })} />
-                  <Input placeholder="Make" {...register('manual_make')} />
-                  <Input placeholder="Model" {...register('manual_model')} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setUseManualCar(false)}
-                  className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
-                >
-                  ← Select from inventory
-                </button>
-              </div>
-            )}
-
-            <Button
-              type="button"
-              onClick={() => setStep(2)}
-              className="w-full mt-2"
+            {/* Step 1 — Car & Client */}
+            <div
+              className={cn('min-w-full', step !== 1 && 'pointer-events-none')}
+              aria-hidden={step !== 1 ? true : undefined}
             >
-              Next →
-            </Button>
-          </div>
-        )}
-
-        {/* Step 2 — Pricing */}
-        {step === 2 && (
-          <div className="flex flex-col gap-4">
-            <Input
-              id="price_usd"
-              label="Vehicle Price (USD)"
-              type="number"
-              error={errors.price_usd?.message}
-              {...register('price_usd', { valueAsNumber: true })}
-            />
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-ink font-inter">
-                Exchange Rate (₦ per $1)
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  className="flex-1 min-h-[48px] px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy tabular-nums"
-                  {...register('exchange_rate', { valueAsNumber: true })}
+              <div className="flex flex-col gap-4">
+                <Input
+                  id="client_name"
+                  label="Client Name"
+                  placeholder="Emeka Okafor"
+                  error={errors.client_name?.message}
+                  {...register('client_name')}
                 />
-                <span className="text-xs text-ink-muted font-inter shrink-0">
-                  {exchangeRateData?.source === 'fresh' ? '● Live' : '● Cached'}
-                </span>
-              </div>
-            </div>
 
-            <Controller
-              name="extras"
-              control={control}
-              render={({ field }) => (
-                <ExtrasBuilder
-                  extras={field.value ?? []}
-                  exchangeRate={watchedExchangeRate}
-                  onChange={field.onChange}
-                />
-              )}
-            />
+                {/* Car selection */}
+                {!useManualCar ? (
+                  <div className="flex flex-col gap-1.5">
+                    <Select
+                      id="car_id"
+                      label="Select Vehicle"
+                      {...register('car_id')}
+                    >
+                      <option value="">Select from inventory...</option>
+                      {availableCars.map((car) => (
+                        <option key={car.id} value={car.id}>
+                          {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)} — {formatUSD(car.price_usd)}
+                        </option>
+                      ))}
+                    </Select>
+                    <button
+                      type="button"
+                      onClick={() => setUseManualCar(true)}
+                      className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
+                    >
+                      Car not in inventory? Enter manually →
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <p className="font-inter text-sm font-medium text-ink">Manual Vehicle Entry</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Input placeholder="Year" type="number"
+                        {...register('manual_year', { valueAsNumber: true })} />
+                      <Input placeholder="Make" {...register('manual_make')} />
+                      <Input placeholder="Model" {...register('manual_model')} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setUseManualCar(false)}
+                      className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
+                    >
+                      ← Select from inventory
+                    </button>
+                  </div>
+                )}
 
-            <Input
-              id="valid_hours"
-              label="Valid for (hours)"
-              type="number"
-              {...register('valid_hours', { valueAsNumber: true })}
-            />
-
-            <div className="flex gap-3">
-              <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(1)}>
-                ← Back
-              </Button>
-              <Button type="button" className="flex-1" onClick={() => setStep(3)}>
-                Review →
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3 — Review */}
-        {step === 3 && (
-          <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
-              {[
-                { label: 'Client', value: watch('client_name') },
-                {
-                  label: 'Vehicle',
-                  value: selectedCar
-                    ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`
-                    : `${watch('manual_year') ?? ''} ${watch('manual_make') ?? ''} ${watch('manual_model') ?? ''}`,
-                },
-                { label: 'Vehicle Price', value: formatUSD(watchedPriceUsd) },
-                { label: 'Extras', value: formatUSD(extrasTotal) },
-                { label: 'Exchange Rate', value: `₦${watchedExchangeRate.toLocaleString()}/$` },
-              ].map((row, i, arr) => (
-                <div
-                  key={row.label}
-                  className={`flex items-center justify-between px-4 py-3 ${
-                    i < arr.length - 1 ? 'border-b border-[var(--border)]' : ''
-                  }`}
+                <Button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="w-full mt-2"
                 >
-                  <span className="font-inter text-sm text-ink-muted">{row.label}</span>
-                  <span className="font-inter text-sm font-medium text-ink">{row.value}</span>
+                  Next →
+                </Button>
+              </div>
+            </div>
+
+            {/* Step 2 — Pricing */}
+            <div
+              className={cn('min-w-full', step !== 2 && 'pointer-events-none')}
+              aria-hidden={step !== 2 ? true : undefined}
+            >
+              <div className="flex flex-col gap-4">
+                <Input
+                  id="price_usd"
+                  label="Vehicle Price (USD)"
+                  type="number"
+                  error={errors.price_usd?.message}
+                  {...register('price_usd', { valueAsNumber: true })}
+                />
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-ink font-inter">
+                    Exchange Rate (₦ per $1)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      className="flex-1 min-h-[48px] px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy tabular-nums"
+                      {...register('exchange_rate', { valueAsNumber: true })}
+                    />
+                    <span className="text-xs text-ink-muted font-inter shrink-0">
+                      {exchangeRateData?.source === 'fresh' ? '● Live' : '● Cached'}
+                    </span>
+                  </div>
                 </div>
-              ))}
+
+                <Controller
+                  name="extras"
+                  control={control}
+                  render={({ field }) => (
+                    <ExtrasBuilder
+                      extras={field.value ?? []}
+                      exchangeRate={watchedExchangeRate}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+
+                <Input
+                  id="valid_hours"
+                  label="Valid for (hours)"
+                  type="number"
+                  {...register('valid_hours', { valueAsNumber: true })}
+                />
+
+                <div className="flex gap-3">
+                  <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(1)}>
+                    ← Back
+                  </Button>
+                  <Button type="button" className="flex-1" onClick={() => setStep(3)}>
+                    Review →
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            {/* Total */}
-            <div className="bg-ink rounded-xl p-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-inter text-sm text-white/70">Total</span>
-                <span className="font-inter text-xl font-semibold text-gold tabular-nums">
-                  {formatUSD(totalUsd)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-inter text-xs text-white/50">NGN equivalent</span>
-                <span className="font-inter text-sm text-white/80 tabular-nums">
-                  {formatNGN(totalNgn)}
-                </span>
+            {/* Step 3 — Review */}
+            <div
+              className={cn('min-w-full', step !== 3 && 'pointer-events-none')}
+              aria-hidden={step !== 3 ? true : undefined}
+            >
+              <div className="flex flex-col gap-4">
+                <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+                  {[
+                    { label: 'Client', value: watch('client_name') },
+                    {
+                      label: 'Vehicle',
+                      value: selectedCar
+                        ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`
+                        : `${watch('manual_year') ?? ''} ${watch('manual_make') ?? ''} ${watch('manual_model') ?? ''}`,
+                    },
+                    { label: 'Vehicle Price', value: formatUSD(watchedPriceUsd) },
+                    { label: 'Extras', value: formatUSD(extrasTotal) },
+                    { label: 'Exchange Rate', value: `₦${watchedExchangeRate.toLocaleString()}/$` },
+                  ].map((row, i, arr) => (
+                    <div
+                      key={row.label}
+                      className={`flex items-center justify-between px-4 py-3 ${
+                        i < arr.length - 1 ? 'border-b border-[var(--border)]' : ''
+                      }`}
+                    >
+                      <span className="font-inter text-sm text-ink-muted">{row.label}</span>
+                      <span className="font-inter text-sm font-medium text-ink">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total */}
+                <div className="bg-ink rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-inter text-sm text-white/70">Total</span>
+                    <span className="font-inter text-xl font-semibold text-gold tabular-nums">
+                      {formatUSD(totalUsd)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-inter text-xs text-white/50">NGN equivalent</span>
+                    <span className="font-inter text-sm text-white/80 tabular-nums">
+                      {formatNGN(totalNgn)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(2)}>
+                    ← Back
+                  </Button>
+                  <Button type="submit" className="flex-1" loading={saving}>
+                    Generate Deal
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="button" variant="secondary" className="flex-1" onClick={() => setStep(2)}>
-                ← Back
-              </Button>
-              <Button type="submit" className="flex-1" loading={saving}>
-                Generate Deal
-              </Button>
-            </div>
           </div>
-        )}
+        </div>
       </form>
     </div>
   )
