@@ -60,7 +60,7 @@ export function TopBar({ action }: TopBarProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-base border-b border-[var(--border)] flex items-center justify-between px-4">
-      <h1 className="font-display text-xl font-semibold text-ink">
+      <h1 className="font-cormorant text-xl font-semibold text-ink">
         {title}
       </h1>
 
