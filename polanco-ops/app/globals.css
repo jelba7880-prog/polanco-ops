@@ -158,12 +158,12 @@ body {
     box-shadow: var(--shadow-elevated);
   }
 
-  /* During press: reset the Y lift so active:scale-[0.98] (Item 10) presses
-     the card down from its resting position, not from the lifted state.
-     The scale property is handled by Tailwind's utility and composes
+  /* During press: drop partway from the hover lift (-1px) so the card
+     visibly responds to the click while still reading as "above rest".
+     The scale property from active:scale-[0.98] (Item 10) composes
      independently via the CSS individual transform properties. */
   .car-card:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
     box-shadow: var(--shadow-card);
     transition-duration: 100ms;
   }

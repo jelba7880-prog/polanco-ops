@@ -9,16 +9,16 @@ import { cn } from '@/lib/utils'
 interface CarCardProps {
   car: CarType
   className?: string
-  index?: number
+  animationDelay?: number
 }
 
-export function CarCard({ car, className, index }: CarCardProps) {
+export function CarCard({ car, className, animationDelay }: CarCardProps) {
   const coverImage = car.car_images?.find((img) => img.is_cover) ?? car.car_images?.[0]
 
   return (
     <Link
       href={`/inventory/${car.slug}`}
-      style={typeof index === 'number' ? { animationDelay: `${Math.min(index, 8) * 50}ms` } : undefined}
+      style={typeof animationDelay === 'number' ? { animationDelay: `${animationDelay}ms` } : undefined}
       className={cn(
         'block bg-white rounded-xl shadow-card border border-[var(--border)] overflow-hidden',
         // Press feedback shares the app-wide easing/duration (150ms ease-out).
