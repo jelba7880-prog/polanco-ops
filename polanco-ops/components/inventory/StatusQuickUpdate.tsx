@@ -45,7 +45,6 @@ interface StatusQuickUpdateProps {
   currentReservedFor?: string | null
   open: boolean
   onClose: () => void
-  onSuccess: (newStatus: CarStatus) => void
 }
 
 export function StatusQuickUpdate({
@@ -54,7 +53,6 @@ export function StatusQuickUpdate({
   currentReservedFor,
   open,
   onClose,
-  onSuccess,
 }: StatusQuickUpdateProps) {
   const [selected, setSelected] = useState<CarStatus>(currentStatus)
   const [reservedFor, setReservedFor] = useState(currentReservedFor ?? '')
@@ -70,15 +68,20 @@ export function StatusQuickUpdate({
     }
 
     try {
+      // The cache is patched optimistically in onMutate, so the badge behind
+      // the sheet already reflects the new status. We still await here so the
+      // sheet closes only on confirmed success — if the mutation fails and
+      // rolls back, the sheet stays open to show the inline error below,
+      // which would be hidden if we closed immediately.
       await updateStatus.mutateAsync({
         id: carId,
         status: selected,
         reserved_for: selected === 'reserved' ? reservedFor : undefined,
       })
-      onSuccess(selected)
       onClose()
     } catch {
-      // Error handled by parent via mutation state
+      // Failure is surfaced via the inline updateStatus.isError block below;
+      // the optimistic cache change is rolled back in the mutation's onError.
     }
   }
 
@@ -130,6 +133,13 @@ export function StatusQuickUpdate({
           />
         )}
       </div>
+
+      {/* Error from mutation — optimistic change was rolled back */}
+      {updateStatus.isError && (
+        <p className="text-sm text-danger font-inter mb-3">
+          Failed to update status. Please try again.
+        </p>
+      )}
 
       <button
         onClick={handleConfirm}

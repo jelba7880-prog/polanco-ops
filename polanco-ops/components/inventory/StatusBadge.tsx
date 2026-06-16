@@ -32,6 +32,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <span
       className={cn(
         'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium font-inter',
+        'motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out',
         config.className,
         className
       )}

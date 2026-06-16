@@ -9,14 +9,16 @@ import { cn } from '@/lib/utils'
 interface CarCardProps {
   car: CarType
   className?: string
+  animationDelay?: number
 }
 
-export function CarCard({ car, className }: CarCardProps) {
+export function CarCard({ car, className, animationDelay }: CarCardProps) {
   const coverImage = car.car_images?.find((img) => img.is_cover) ?? car.car_images?.[0]
 
   return (
     <Link
       href={`/inventory/${car.slug}`}
+      style={typeof animationDelay === 'number' ? { animationDelay: `${animationDelay}ms` } : undefined}
       className={cn(
         'block bg-white rounded-xl shadow-card border border-[var(--border)] overflow-hidden',
         // Press feedback shares the app-wide easing/duration (150ms ease-out).
@@ -24,6 +26,8 @@ export function CarCard({ car, className }: CarCardProps) {
         // because the same proportional shrink reads as more motion on a large
         // full-width element than on a small control.
         'active:scale-[0.98] transition-transform duration-150 ease-out',
+        // Hover lift (desktop) and staggered entrance — see globals.css .car-card
+        'car-card car-card-enter',
         className
       )}
     >

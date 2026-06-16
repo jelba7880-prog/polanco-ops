@@ -121,7 +121,46 @@ export function useUpdateCarStatus() {
       if (error) throw error
       return data as Car
     },
-    onSuccess: () => {
+    // Optimistic update: patch every cached 'cars' entry the UI reads from
+    // (the list at ['cars','list'] and any detail at ['cars','detail',slug])
+    // before the network resolves, so the badge changes instantly on tap.
+    onMutate: async ({ id, status, reserved_for }) => {
+      // Stop any in-flight refetch from clobbering the optimistic value.
+      await queryClient.cancelQueries({ queryKey: carKeys.all })
+
+      // Snapshot the complete previous state for an exact rollback on failure.
+      const previous = queryClient.getQueriesData<Car[] | Car>({ queryKey: carKeys.all })
+
+      // Mirror the mutationFn's own rule: reserved_for only persists for reserved.
+      const nextReservedFor = status === 'reserved' ? reserved_for ?? null : null
+
+      // Field-level merge — never replace the whole object/array, so images,
+      // price, notes and every other field are preserved.
+      queryClient.setQueriesData<Car[] | Car>({ queryKey: carKeys.all }, (old) => {
+        if (!old) return old
+        if (Array.isArray(old)) {
+          return old.map((c) =>
+            c.id === id ? { ...c, status, reserved_for: nextReservedFor } : c
+          )
+        }
+        if (old.id === id) {
+          return { ...old, status, reserved_for: nextReservedFor }
+        }
+        return old
+      })
+
+      return { previous }
+    },
+    // Roll back to the exact captured snapshots; the inline error in
+    // StatusQuickUpdate surfaces the failure to the user.
+    onError: (_err, _vars, context) => {
+      context?.previous.forEach(([key, data]) => {
+        queryClient.setQueryData(key, data)
+      })
+    },
+    // Reconcile with the server's actual row regardless of success/failure,
+    // covering any side effects (triggers/defaults) on the updated row.
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: carKeys.all })
     },
   })
