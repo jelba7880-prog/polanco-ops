@@ -62,17 +62,17 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
           {formatUSD(car.price_usd)}
         </p>
 
-        <div className="flex items-center gap-3 text-xs text-ink-muted font-inter">
+        <div className="flex items-center gap-1.5 text-xs text-ink-muted font-inter">
           <span>{toDisplayCase(car.condition)}</span>
           {car.mileage_km !== undefined && (
             <>
-              <span className="w-px h-3 bg-border-base" />
+              <span aria-hidden="true">·</span>
               <span>{formatMileage(car.mileage_km)}</span>
             </>
           )}
           {car.transmission && (
             <>
-              <span className="w-px h-3 bg-border-base" />
+              <span aria-hidden="true">·</span>
               <span>{toDisplayCase(car.transmission)}</span>
             </>
           )}
