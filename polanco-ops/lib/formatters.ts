@@ -66,14 +66,14 @@ export function normalizeNigerianPhone(raw: string): string {
   return raw.startsWith('+') ? raw : `+${digits}`
 }
 
-export function formatPhoneDisplay(phone: string): string {
-  const normalized = normalizeNigerianPhone(phone)
-  // Format: +234 801 234 5678
-  const digits = normalized.replace('+234', '')
-  if (digits.length === 10) {
-    return `+234 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
-  }
-  return normalized
+export function formatPhoneDisplay(phone: string | null | undefined): string {
+  if (!phone) return ''
+  if (phone.includes(' ')) return phone
+  const ngMatch = phone.match(/^\+234(\d{3})(\d{3})(\d{4})$/)
+  if (ngMatch) return `+234 ${ngMatch[1]} ${ngMatch[2]} ${ngMatch[3]}`
+  const usMatch = phone.match(/^\+1(\d{3})(\d{3})(\d{4})$/)
+  if (usMatch) return `+1 (${usMatch[1]}) ${usMatch[2]}-${usMatch[3]}`
+  return phone
 }
 
 // --- Car display helpers ---

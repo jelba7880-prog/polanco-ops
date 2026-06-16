@@ -93,7 +93,7 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
               <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center mb-3', card.bg)}>
                 <Icon size={16} className={card.color} />
               </div>
-              <p className={cn('font-display text-3xl font-semibold mb-0.5', card.color)}>
+              <p className={cn('font-cormorant font-semibold text-5xl leading-none tracking-tight mb-0.5', card.color)}>
                 {card.value}
               </p>
               <p className="font-inter text-xs text-ink-muted">{card.label}</p>

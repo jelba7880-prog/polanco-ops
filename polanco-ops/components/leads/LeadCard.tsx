@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MessageCircle, Camera, Store, Phone, Users } from 'lucide-react'
 import { differenceInDays } from 'date-fns'
 import type { Lead, LeadSource } from '@/lib/supabase/types'
+import { formatPhoneDisplay } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 const SOURCE_CONFIG: Record<LeadSource, {
@@ -61,7 +62,7 @@ export function LeadCard({ lead }: LeadCardProps) {
           </div>
 
           <p className="font-inter text-xs text-ink-muted mb-2">
-            {lead.phone}
+            {formatPhoneDisplay(lead.phone)}
           </p>
 
           {lead.car_interest && (
