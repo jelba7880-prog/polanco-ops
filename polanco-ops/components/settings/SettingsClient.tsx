@@ -5,6 +5,7 @@ import { RefreshCw, Save, Shield, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { useToast } from '@/components/ui/Toast'
 import { formatDate } from '@/lib/formatters'
 import type { Profile } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
@@ -29,6 +30,8 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
   const [fetchingRate, setFetchingRate] = useState(false)
   const [savedSection, setSavedSection] = useState<string | null>(null)
 
+  const showToast = useToast()
+
   const rateUpdatedAt = rateUpdatedAtValue ? formatDate(rateUpdatedAtValue) : 'Never'
 
   async function saveSettings(updates: Record<string, string>) {
@@ -50,8 +53,10 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
       })
       setSavedSection('business')
       setTimeout(() => setSavedSection(null), 2000)
+      showToast('Business info saved', 'success')
     } catch (err) {
       console.error('Save failed:', err)
+      showToast('Failed to save. Please try again.', 'error')
     } finally {
       setSavingBusiness(false)
     }
@@ -68,8 +73,10 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
       setRateUpdatedAtValue(updatedAt)
       setSavedSection('rate')
       setTimeout(() => setSavedSection(null), 2000)
+      showToast('Exchange rate saved', 'success')
     } catch (err) {
       console.error('Save failed:', err)
+      showToast('Failed to save. Please try again.', 'error')
     } finally {
       setSavingRate(false)
     }
@@ -87,8 +94,10 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
       setRateUpdatedAtValue(updatedAt)
       setSavedSection('rate')
       setTimeout(() => setSavedSection(null), 2000)
+      showToast('Live rate updated', 'success')
     } catch (err) {
       console.error('Fetch rate failed:', err)
+      showToast('Failed to fetch live rate.', 'error')
     } finally {
       setFetchingRate(false)
     }

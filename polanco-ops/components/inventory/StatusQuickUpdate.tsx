@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
+import { useToast } from '@/components/ui/Toast'
 import { useUpdateCarStatus } from '@/hooks/useCars'
 import type { CarStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
@@ -57,6 +58,7 @@ export function StatusQuickUpdate({
   const [selected, setSelected] = useState<CarStatus>(currentStatus)
   const [reservedFor, setReservedFor] = useState(currentReservedFor ?? '')
   const updateStatus = useUpdateCarStatus()
+  const showToast = useToast()
 
   async function handleConfirm() {
     if (
@@ -78,10 +80,13 @@ export function StatusQuickUpdate({
         status: selected,
         reserved_for: selected === 'reserved' ? reservedFor : undefined,
       })
+      showToast('Status updated', 'success')
       onClose()
     } catch {
-      // Failure is surfaced via the inline updateStatus.isError block below;
-      // the optimistic cache change is rolled back in the mutation's onError.
+      // Surface the rolled-back failure as a toast (the optimistic cache change
+      // is reverted in the mutation's onError). The inline updateStatus.isError
+      // block below also remains as a second, in-context signal.
+      showToast('Failed to update status. Please try again.', 'error')
     }
   }
 

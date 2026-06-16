@@ -10,10 +10,12 @@ import {
 } from '@/lib/validations/car.schema'
 import { useCreateCar } from '@/hooks/useCars'
 import { CarForm } from '@/components/inventory/CarForm'
+import { useToast } from '@/components/ui/Toast'
 
 export default function AddCarPage() {
   const router = useRouter()
   const createCar = useCreateCar()
+  const showToast = useToast()
 
   const {
     register,
@@ -31,6 +33,7 @@ export default function AddCarPage() {
   async function onSubmit(values: CarFormValues) {
     try {
       await createCar.mutateAsync(values)
+      showToast('Vehicle added', 'success')
       router.push('/inventory')
     } catch (err) {
       console.error('Failed to create car:', err)

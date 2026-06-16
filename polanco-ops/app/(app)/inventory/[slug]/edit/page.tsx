@@ -11,12 +11,14 @@ import {
 } from '@/lib/validations/car.schema'
 import { useCar, useUpdateCar } from '@/hooks/useCars'
 import { CarForm } from '@/components/inventory/CarForm'
+import { useToast } from '@/components/ui/Toast'
 
 export default function EditCarPage() {
   const { slug } = useParams<{ slug: string }>()
   const router = useRouter()
   const { data: car, isLoading } = useCar(slug)
   const updateCar = useUpdateCar()
+  const showToast = useToast()
 
   const {
     register,
@@ -61,6 +63,7 @@ export default function EditCarPage() {
     if (!car) return
     try {
       await updateCar.mutateAsync({ id: car.id, values })
+      showToast('Changes saved', 'success')
       router.push(`/inventory/${slug}`)
     } catch (err) {
       console.error(
