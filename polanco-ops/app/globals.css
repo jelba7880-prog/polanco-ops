@@ -197,6 +197,52 @@ body {
   }
 }
 
+/* ── Floating action buttons: desktop hover lift + scale ──────────── */
+/* Applies to the Add Vehicle / Add Lead / New Deal FABs (each an inline
+   <Link> sharing the same classes, including `.fab`). Reuses Item 11's exact
+   hover-capability mechanism — @media (hover: hover) — rather than a width
+   breakpoint, and the same 150ms ease-out timing as the .car-card hover lift,
+   so all hover-capable elements stay in sync. Calibrated smaller than the card
+   lift (−2px / 1.04) because the FAB is a small solid-gold pill, not a big card.
+   The lift/scale-up use the individual `translate`/`scale` transform properties
+   so the press feedback (Item 10's active:scale-[0.97], also the `scale`
+   property in Tailwind v4) cleanly overrides the hover scale-up via source
+   order — no two transforms fighting when a user hovers then clicks. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .fab {
+    transition: scale 150ms ease-out, translate 150ms ease-out,
+                box-shadow 150ms ease-out;
+  }
+
+  .fab:hover {
+    scale: 1.04;
+    translate: 0 -2px;
+    /* Softer, more pronounced than the resting shadow-elevated, transitioned in
+       so the depth change never jumps at the hover boundary. */
+    box-shadow: 0 16px 36px rgba(10, 10, 10, 0.18),
+                0 6px 14px rgba(10, 10, 10, 0.10);
+  }
+
+  /* Press while hovering: scale down past rest and drop the lift. Defined after
+     :hover so the scale-down wins; box-shadow returns to the resting elevation. */
+  .fab:active {
+    scale: 0.97;
+    translate: 0 0;
+    box-shadow: var(--shadow-elevated);
+    transition-duration: 100ms;
+  }
+}
+
+/* Reduced motion, still hover-capable: keep a static (un-animated) shadow
+   change on hover so the FAB remains visibly the most interactive element,
+   while the global reduced-motion rule above suppresses the press scale. */
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .fab:hover {
+    box-shadow: 0 16px 36px rgba(10, 10, 10, 0.18),
+                0 6px 14px rgba(10, 10, 10, 0.10);
+  }
+}
+
 /* ── Toast: slide-up entrance + slide-down exit ───────────────────── */
 
 /* Shares the app's entrance motion language (translateY + fade, ease-out — the
