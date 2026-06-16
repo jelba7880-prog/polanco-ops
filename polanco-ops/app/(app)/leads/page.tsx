@@ -111,7 +111,11 @@ export default function LeadsPage() {
                   onClick={() => collapsible && toggleCollapse(status)}
                   className={cn(
                     'flex items-center justify-between w-full mb-3',
-                    collapsible ? 'cursor-pointer' : 'cursor-default'
+                    // Only the collapsible headers actually do anything on tap, so
+                    // press feedback is scoped to them (matches buttons elsewhere).
+                    collapsible
+                      ? 'cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97]'
+                      : 'cursor-default'
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -149,7 +153,7 @@ export default function LeadsPage() {
       {/* FAB */}
       <Link
         href="/leads/add"
-        className="fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-95 transition-transform"
+        className="fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-[0.97] transition-transform duration-150 ease-out"
       >
         <Plus size={18} />
         Add Lead

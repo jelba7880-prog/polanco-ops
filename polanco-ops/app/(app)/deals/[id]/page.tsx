@@ -57,7 +57,7 @@ export default function DealDetailPage() {
     return (
       <div className="px-4 py-8 text-center">
         <p className="text-sm text-danger font-inter">Deal not found.</p>
-        <button onClick={() => router.back()} className="mt-4 text-sm text-navy font-inter underline">
+        <button onClick={() => router.back()} className="mt-4 text-sm text-navy font-inter underline transition-all duration-150 ease-out active:scale-[0.97]">
           Go back
         </button>
       </div>
@@ -107,7 +107,7 @@ export default function DealDetailPage() {
       <div className="px-4 pt-2 pb-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-colors min-h-[44px]"
+          className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-all duration-150 ease-out active:scale-[0.97] min-h-[44px]"
         >
           <ArrowLeft size={16} />
           Deals

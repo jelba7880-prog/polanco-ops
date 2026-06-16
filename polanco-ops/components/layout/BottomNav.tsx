@@ -57,7 +57,7 @@ export function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[48px] transition-colors duration-150',
+                'flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[48px] transition-all duration-150 ease-out active:scale-[0.97]',
                 isActive ? 'text-ink' : 'text-ink-muted hover:text-ink-soft'
               )}
             >

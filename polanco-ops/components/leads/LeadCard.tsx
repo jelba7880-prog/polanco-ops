@@ -45,7 +45,8 @@ export function LeadCard({ lead }: LeadCardProps) {
   return (
     <Link
       href={`/leads/${lead.id}`}
-      className="block bg-white rounded-xl border border-[var(--border)] shadow-card px-4 py-3.5 active:scale-[0.98] transition-transform duration-100"
+      // Softer 0.98 press scale for large cards (vs 0.97 on buttons/chips); same 150ms ease-out.
+      className="block bg-white rounded-xl border border-[var(--border)] shadow-card px-4 py-3.5 active:scale-[0.98] transition-transform duration-150 ease-out"
     >
       <div className="flex items-start justify-between gap-3">
         {/* Left — main info */}

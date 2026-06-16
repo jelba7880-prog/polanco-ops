@@ -209,7 +209,7 @@ export default function NewDealPage() {
                 <button
                   type="button"
                   onClick={() => setUseManualCar(true)}
-                  className="text-xs text-navy font-inter text-left hover:underline"
+                  className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
                 >
                   Car not in inventory? Enter manually →
                 </button>
@@ -226,7 +226,7 @@ export default function NewDealPage() {
                 <button
                   type="button"
                   onClick={() => setUseManualCar(false)}
-                  className="text-xs text-navy font-inter text-left hover:underline"
+                  className="text-xs text-navy font-inter text-left hover:underline transition-all duration-150 ease-out active:scale-[0.97]"
                 >
                   ← Select from inventory
                 </button>

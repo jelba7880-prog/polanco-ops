@@ -66,7 +66,7 @@ export default function InventoryPage() {
           <button
             key={f.value}
             onClick={() => setStatusFilter(f.value)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-inter border transition-colors duration-150 ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-inter border transition-all duration-150 ease-out active:scale-[0.97] ${
               statusFilter === f.value
                 ? 'bg-ink text-white border-ink'
                 : 'bg-white text-ink-muted border-[var(--border)] hover:border-ink-soft'
@@ -130,7 +130,7 @@ export default function InventoryPage() {
       {/* FAB — Add vehicle */}
       <Link
         href="/inventory/add"
-        className="fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-95 transition-transform"
+        className="fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-[0.97] transition-transform duration-150 ease-out"
       >
         <Plus size={18} />
         Add Vehicle

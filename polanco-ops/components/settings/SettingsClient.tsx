@@ -223,7 +223,7 @@ export function SettingsClient({ settings, profiles, currentUserId }: SettingsCl
               <button
                 onClick={() => handleToggleRole(profile.id, profile.role)}
                 className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-inter font-medium border transition-colors',
+                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-inter font-medium border transition-all duration-150 ease-out active:scale-[0.97]',
                   profile.role === 'admin'
                     ? 'bg-navy-tint text-navy border-navy/20'
                     : 'bg-surface-muted text-ink-muted border-[var(--border)]'

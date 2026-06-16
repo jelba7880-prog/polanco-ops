@@ -66,7 +66,7 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 bg-white rounded-xl border border-[var(--border)] shadow-card px-4 py-3.5 active:scale-[0.98] transition-transform"
+              className="flex items-center gap-3 bg-white rounded-xl border border-[var(--border)] shadow-card px-4 py-3.5 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <div className="w-8 h-8 rounded-lg bg-gold-tint flex items-center justify-center shrink-0">
                 <Icon size={16} className="text-gold-deep" />

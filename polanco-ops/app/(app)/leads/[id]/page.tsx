@@ -71,7 +71,7 @@ export default function LeadDetailPage() {
         <p className="text-sm text-danger font-inter mb-4">Lead not found.</p>
         <button
           onClick={() => router.back()}
-          className="text-sm text-navy font-inter underline"
+          className="text-sm text-navy font-inter underline transition-all duration-150 ease-out active:scale-[0.97]"
         >
           Go back
         </button>
@@ -119,7 +119,7 @@ export default function LeadDetailPage() {
       {/* Back button */}
       <button
         onClick={() => router.push('/leads')}
-        className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-colors min-h-[44px] mb-2"
+        className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-all duration-150 ease-out active:scale-[0.97] min-h-[44px] mb-2"
       >
         <ArrowLeft size={16} />
         Leads
@@ -180,7 +180,7 @@ export default function LeadDetailPage() {
                 onClick={() => handleStatusChange(option.value)}
                 disabled={updateStatus.isPending}
                 className={cn(
-                  'px-3 py-1.5 rounded-full text-xs font-inter font-medium transition-opacity disabled:opacity-50',
+                  'px-3 py-1.5 rounded-full text-xs font-inter font-medium transition-all duration-150 ease-out active:scale-[0.97] disabled:opacity-50',
                   isActive ? option.colorClass : 'bg-surface-muted text-ink-muted'
                 )}
               >

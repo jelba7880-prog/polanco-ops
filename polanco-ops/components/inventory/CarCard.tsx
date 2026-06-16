@@ -19,7 +19,11 @@ export function CarCard({ car, className }: CarCardProps) {
       href={`/inventory/${car.slug}`}
       className={cn(
         'block bg-white rounded-xl shadow-card border border-[var(--border)] overflow-hidden',
-        'active:scale-[0.98] transition-transform duration-100',
+        // Press feedback shares the app-wide easing/duration (150ms ease-out).
+        // Cards use a slightly softer scale (0.98 vs the 0.97 on buttons/chips)
+        // because the same proportional shrink reads as more motion on a large
+        // full-width element than on a small control.
+        'active:scale-[0.98] transition-transform duration-150 ease-out',
         className
       )}
     >
