@@ -18,6 +18,7 @@ import {
   formatMileage,
   formatCarTitle,
   formatRelativeDate,
+  toDisplayCase,
 } from '@/lib/formatters'
 import type { CarStatus } from '@/lib/supabase/types'
 
@@ -74,14 +75,14 @@ export default function CarDetailPage() {
   const priceNGN = usdToNgn(car.price_usd, exchangeRate)
 
   const specs = [
-    { label: 'Condition', value: car.condition },
+    { label: 'Condition', value: toDisplayCase(car.condition) },
     { label: 'Year', value: car.year.toString() },
     { label: 'Mileage', value: formatMileage(car.mileage_km) },
-    { label: 'Transmission', value: car.transmission ?? '—' },
-    { label: 'Fuel Type', value: car.fuel_type ?? '—' },
-    { label: 'Body Type', value: car.body_type ?? '—' },
-    { label: 'Exterior', value: car.color_exterior ?? '—' },
-    { label: 'Interior', value: car.color_interior ?? '—' },
+    { label: 'Transmission', value: car.transmission ? toDisplayCase(car.transmission) : '—' },
+    { label: 'Fuel Type', value: car.fuel_type ? toDisplayCase(car.fuel_type) : '—' },
+    { label: 'Body Type', value: car.body_type ? toDisplayCase(car.body_type) : '—' },
+    { label: 'Exterior', value: car.color_exterior ? toDisplayCase(car.color_exterior) : '—' },
+    { label: 'Interior', value: car.color_interior ? toDisplayCase(car.color_interior) : '—' },
     { label: 'Engine', value: car.engine_cc ? `${car.engine_cc.toLocaleString()} cc` : '—' },
     { label: 'Horsepower', value: car.horsepower ? `${car.horsepower} hp` : '—' },
     ...(car.reserved_for && currentStatus === 'reserved'
@@ -107,7 +108,7 @@ export default function CarDetailPage() {
         <div className="px-4">
           <ImageCarousel
             images={carImages}
-            carName={`${car.year} ${car.make} ${car.model}`}
+            carName={`${car.year} ${toDisplayCase(car.make)} ${toDisplayCase(car.model)}`}
           />
         </div>
 
@@ -225,7 +226,7 @@ export default function CarDetailPage() {
         title="Delete Vehicle"
       >
         <p className="font-inter text-sm text-ink-soft mb-6">
-          Are you sure you want to delete the {car.year} {car.make} {car.model}?
+          Are you sure you want to delete the {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)}?
           This cannot be undone and will remove all associated images.
         </p>
         <div className="flex gap-3">

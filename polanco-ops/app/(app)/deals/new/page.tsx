@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
-import { formatUSD, formatNGN, usdToNgn } from '@/lib/formatters'
+import { formatUSD, formatNGN, usdToNgn, toDisplayCase } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 type Step = 1 | 2 | 3
@@ -202,7 +202,7 @@ export default function NewDealPage() {
                   <option value="">Select from inventory...</option>
                   {availableCars.map((car) => (
                     <option key={car.id} value={car.id}>
-                      {car.year} {car.make} {car.model} — {formatUSD(car.price_usd)}
+                      {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)} — {formatUSD(car.price_usd)}
                     </option>
                   ))}
                 </Select>

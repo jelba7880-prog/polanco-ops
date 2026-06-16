@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useLead, useUpdateLeadStatus, useUpdateLead } from '@/hooks/useLeads'
 import { WhatsAppButton } from '@/components/leads/WhatsAppButton'
 import { Button } from '@/components/ui/Button'
-import { formatDateTime, formatRelativeDate, formatPhoneDisplay } from '@/lib/formatters'
+import { formatDateTime, formatRelativeDate, formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
 import type { LeadSource, LeadStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
@@ -139,7 +139,7 @@ export default function LeadDetailPage() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
             <span className="font-inter text-sm text-ink-muted">Car Interest</span>
             <span className="font-inter text-sm font-medium text-ink text-right">
-              {currentLead.car_interest ?? '—'}
+              {toDisplayCase(currentLead.car_interest) || '—'}
             </span>
           </div>
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
@@ -159,7 +159,7 @@ export default function LeadDetailPage() {
         <WhatsAppButton
           phone={currentLead.phone}
           message={`Hi ${currentLead.name}, this is Polanco Motors${
-            currentLead.car_interest ? ` regarding the ${currentLead.car_interest}` : ' regarding your enquiry'
+            currentLead.car_interest ? ` regarding the ${toDisplayCase(currentLead.car_interest)}` : ' regarding your enquiry'
           }.`}
           className="w-full"
         />

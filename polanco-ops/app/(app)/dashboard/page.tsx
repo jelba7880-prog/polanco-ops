@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from '@/components/dashboard/DashboardClient'
+import { toDisplayCase } from '@/lib/formatters'
 
 function startOfTodayISO(): string {
   return new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
@@ -75,13 +76,13 @@ export default async function DashboardPage() {
     ...(recentCars ?? []).map((c) => ({
       id: c.id,
       type: 'car' as const,
-      label: `${c.year} ${c.make} ${c.model} marked ${c.status}`,
+      label: `${c.year} ${toDisplayCase(c.make)} ${toDisplayCase(c.model)} marked ${c.status}`,
       timestamp: c.updated_at,
     })),
     ...(recentLeads ?? []).map((l) => ({
       id: l.id,
       type: 'lead' as const,
-      label: `New lead: ${l.name}${l.car_interest ? ` — ${l.car_interest}` : ''}`,
+      label: `New lead: ${l.name}${l.car_interest ? ` — ${toDisplayCase(l.car_interest)}` : ''}`,
       timestamp: l.created_at,
     })),
     ...(recentDeals ?? []).map((d) => {
@@ -89,7 +90,7 @@ export default async function DashboardPage() {
       return {
         id: d.id,
         type: 'deal' as const,
-        label: `Deal sheet for ${d.client_name} — ${snap?.year} ${snap?.make} ${snap?.model}`,
+        label: `Deal sheet for ${d.client_name} — ${snap?.year} ${toDisplayCase(snap?.make)} ${toDisplayCase(snap?.model)}`,
         timestamp: d.created_at,
       }
     }),

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Car } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
-import { formatUSD, formatMileage, formatCarTitle } from '@/lib/formatters'
+import { formatUSD, formatMileage, formatCarTitle, toDisplayCase } from '@/lib/formatters'
 import type { Car as CarType } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
@@ -55,7 +55,7 @@ export function CarCard({ car, className }: CarCardProps) {
         </p>
 
         <div className="flex items-center gap-3 text-xs text-ink-muted font-inter">
-          <span>{car.condition}</span>
+          <span>{toDisplayCase(car.condition)}</span>
           {car.mileage_km !== undefined && (
             <>
               <span className="w-px h-3 bg-border-base" />
@@ -65,7 +65,7 @@ export function CarCard({ car, className }: CarCardProps) {
           {car.transmission && (
             <>
               <span className="w-px h-3 bg-border-base" />
-              <span>{car.transmission}</span>
+              <span>{toDisplayCase(car.transmission)}</span>
             </>
           )}
         </div>
