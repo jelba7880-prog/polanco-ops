@@ -5,6 +5,7 @@ import { Car, Users, FileText } from 'lucide-react'
 import { formatRelativeDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { StatCard } from './StatCard'
+import { QuickActionTile } from './QuickActionTile'
 
 interface Stats {
   available: number
@@ -57,28 +58,17 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
       {/* Quick actions */}
       <div className="mb-6">
         <p className="font-inter text-xs font-medium text-ink-muted mb-3">QUICK ACTIONS</p>
-        <div className="flex flex-col gap-2">
-          {[
-            { label: 'Add Vehicle', href: '/inventory/add', icon: Car },
-            { label: 'Log Lead', href: '/leads/add', icon: Users },
-            { label: 'New Deal Sheet', href: '/deals/new', icon: FileText },
-          ].map(({ label, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 bg-white rounded-xl border border-[var(--border)] shadow-card px-4 py-3.5 active:scale-[0.98] transition-transform duration-150 ease-out"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gold-tint flex items-center justify-center shrink-0">
-                <Icon size={16} className="text-gold-deep" />
-              </div>
-              <span className="font-inter text-sm font-medium text-ink">{label}</span>
-              <div className="ml-auto text-ink-muted">
-                <svg width="6" height="10" viewBox="0 0 6 10" fill="none">
-                  <path d="M1 1l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          <QuickActionTile label="Add Vehicle"    href="/inventory/add" icon={Car}      delay={0} />
+          <QuickActionTile label="Log Lead"       href="/leads/add"     icon={Users}    delay={60} />
+          <QuickActionTile
+            label="New Deal Sheet"
+            href="/deals/new"
+            icon={FileText}
+            delay={120}
+            horizontal
+            className="col-span-2"
+          />
         </div>
       </div>
 

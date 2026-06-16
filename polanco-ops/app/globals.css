@@ -267,3 +267,12 @@ body {
 .toast-host > * {
   pointer-events: auto;
 }
+
+/* ── Quick Action tiles: staggered entrance ──────────────────────── */
+/* Reuses the existing cardEnter keyframes. animation-delay is applied
+   via inline style on each tile to produce the stagger effect. */
+@media (prefers-reduced-motion: no-preference) {
+  .tile-enter {
+    animation: cardEnter 280ms ease-out both;
+  }
+}
