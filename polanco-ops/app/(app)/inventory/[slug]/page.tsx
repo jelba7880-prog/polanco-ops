@@ -20,7 +20,6 @@ import {
   formatRelativeDate,
   toDisplayCase,
 } from '@/lib/formatters'
-import type { CarStatus } from '@/lib/supabase/types'
 
 export default function CarDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -31,7 +30,6 @@ export default function CarDetailPage() {
   const deleteCarMutation = useDeleteCar()
   const [statusModalOpen, setStatusModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [optimisticStatus, setOptimisticStatus] = useState<CarStatus | null>(null)
 
   const isAdmin = currentUser?.role === 'admin'
 
@@ -69,7 +67,9 @@ export default function CarDetailPage() {
     )
   }
 
-  const currentStatus = optimisticStatus ?? car.status
+  // Reads straight from the React Query cache, which useUpdateCarStatus
+  // patches optimistically — so the badge updates instantly on confirm.
+  const currentStatus = car.status
   const carImages = car.car_images ?? []
   const exchangeRate = settings?.exchange_rate_usd_ngn ?? 1580
   const priceNGN = usdToNgn(car.price_usd, exchangeRate)
@@ -216,7 +216,6 @@ export default function CarDetailPage() {
         currentReservedFor={car.reserved_for}
         open={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
-        onSuccess={(newStatus) => setOptimisticStatus(newStatus)}
       />
 
       {/* Delete confirmation modal (admin only) */}
