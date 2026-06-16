@@ -1,30 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { MessageCircle, Camera, Store, Phone, Users } from 'lucide-react'
 import { differenceInDays } from 'date-fns'
-import type { Lead, LeadSource } from '@/lib/supabase/types'
+import type { Lead } from '@/lib/supabase/types'
+import { LEAD_SOURCE_CONFIG } from '@/lib/leads/sources'
 import { formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
-
-const SOURCE_CONFIG: Record<LeadSource, {
-  icon: React.ElementType
-  color: string
-  label: string
-}> = {
-  whatsapp: { icon: MessageCircle, color: 'text-green-600', label: 'WhatsApp' },
-  instagram: { icon: Camera, color: 'text-pink-500', label: 'Instagram' },
-  walkin: { icon: Store, color: 'text-navy', label: 'Walk-in' },
-  call: { icon: Phone, color: 'text-warning', label: 'Call' },
-  referral: { icon: Users, color: 'text-purple-500', label: 'Referral' },
-}
 
 interface LeadCardProps {
   lead: Lead
 }
 
 export function LeadCard({ lead }: LeadCardProps) {
-  const source = SOURCE_CONFIG[lead.source]
+  const source = LEAD_SOURCE_CONFIG[lead.source]
   const SourceIcon = source.icon
 
   const daysSinceContact = lead.last_contacted
@@ -77,7 +65,7 @@ export function LeadCard({ lead }: LeadCardProps) {
             <div className="flex items-center gap-1">
               <SourceIcon size={12} className={source.color} />
               <span className="font-inter text-[10px] text-ink-muted">
-                {source.label}
+                {source.shortLabel}
               </span>
             </div>
 

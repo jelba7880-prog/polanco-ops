@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   leadSchema,
@@ -13,6 +13,7 @@ import { useProfiles } from '@/hooks/useProfiles'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
+import { SourceChips } from '@/components/leads/SourceChips'
 
 export default function AddLeadPage() {
   const router = useRouter()
@@ -22,6 +23,7 @@ export default function AddLeadPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<LeadFormInput, unknown, LeadFormValues>({
     resolver: zodResolver(leadSchema),
@@ -86,18 +88,18 @@ export default function AddLeadPage() {
         />
 
         {/* Source */}
-        <Select
-          id="source"
-          label="Source"
-          error={errors.source?.message}
-          {...register('source')}
-        >
-          <option value="whatsapp">WhatsApp</option>
-          <option value="instagram">Instagram</option>
-          <option value="walkin">Walk-in</option>
-          <option value="call">Phone Call</option>
-          <option value="referral">Referral</option>
-        </Select>
+        <Controller
+          name="source"
+          control={control}
+          render={({ field }) => (
+            <SourceChips
+              label="Source"
+              value={field.value ?? 'whatsapp'}
+              onChange={field.onChange}
+              error={errors.source?.message}
+            />
+          )}
+        />
 
         {/* Assign To */}
         <Select
