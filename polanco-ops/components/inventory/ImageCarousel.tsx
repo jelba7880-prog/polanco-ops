@@ -1,7 +1,9 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import useEmblaCarousel from 'embla-carousel-react'
+import type { EmblaCarouselType } from 'embla-carousel'
 import { Car, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface CarouselImage {
@@ -17,7 +19,13 @@ interface ImageCarouselProps {
 }
 
 // Minimum horizontal travel (px) before a touch gesture counts as a swipe.
+// Only used by the fullscreen lightbox, which isn't Embla-driven.
 const SWIPE_THRESHOLD = 50
+
+// Frames at Embla's internal 60fps tick rate. ~12 frames keeps the slide
+// scroll within the app's 200ms ease-out motion spec instead of Embla's
+// floatier ~420ms default.
+const SCROLL_DURATION = 12
 
 // Sort so the cover image is always first, then by ascending sort_order.
 function orderImages(images: CarouselImage[]): CarouselImage[] {
@@ -31,16 +39,45 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
   const ordered = orderImages(images)
   const count = ordered.length
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    duration: SCROLL_DURATION,
+  })
+
   const [activeIndex, setActiveIndex] = useState(0)
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
   const [loaded, setLoaded] = useState<Record<number, boolean>>({})
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
-  // Touch start coordinates live in refs so swipe handling never triggers a render.
+  // Touch start coordinates live in refs so the lightbox's swipe handling
+  // never triggers a render. The inline carousel's swipe is now Embla's job.
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
-  // Tracks whether the last gesture was a swipe, so the synthetic click that
-  // follows a touch swipe doesn't also open the lightbox.
+  // Tracks whether the last lightbox gesture was a swipe, so the synthetic
+  // click that follows a touch swipe doesn't also close the lightbox.
   const didSwipe = useRef(false)
+
+  const syncFromEmbla = useCallback((api: EmblaCarouselType) => {
+    setActiveIndex(api.selectedScrollSnap())
+    setCanScrollPrev(api.canScrollPrev())
+    setCanScrollNext(api.canScrollNext())
+  }, [])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    // Embla has already finished initializing by the time this effect runs
+    // (emblaApi is only ever non-null after that), so this is the one chance
+    // to read its starting position before subscribing to future changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    syncFromEmbla(emblaApi)
+    emblaApi.on('select', syncFromEmbla)
+    emblaApi.on('reInit', syncFromEmbla)
+    return () => {
+      emblaApi.off('select', syncFromEmbla)
+      emblaApi.off('reInit', syncFromEmbla)
+    }
+  }, [emblaApi, syncFromEmbla])
 
   // --- Empty state ---
   if (count === 0) {
@@ -52,12 +89,9 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
     )
   }
 
-  const goTo = (index: number) => {
-    if (index < 0 || index > count - 1) return
-    setActiveIndex(index)
-  }
-  const goPrev = () => goTo(activeIndex - 1)
-  const goNext = () => goTo(activeIndex + 1)
+  const goTo = (index: number) => emblaApi?.scrollTo(index)
+  const goPrev = () => emblaApi?.scrollPrev()
+  const goNext = () => emblaApi?.scrollNext()
 
   function handleTouchStart(e: React.TouchEvent) {
     didSwipe.current = false
@@ -65,25 +99,10 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
     touchStartY.current = e.changedTouches[0].clientY
   }
 
-  function handleTouchEnd(e: React.TouchEvent) {
-    const deltaX = e.changedTouches[0].clientX - touchStartX.current
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current
-
-    // Only hijack predominantly-horizontal gestures so vertical scroll still works.
-    if (Math.abs(deltaX) < Math.abs(deltaY)) return
-    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return
-
-    didSwipe.current = true
-    if (deltaX < 0) goNext()
-    else goPrev()
-  }
-
-  // Tap (not swipe) on the photo opens the fullscreen viewer.
+  // Tap (not swipe) on the photo opens the fullscreen viewer. Embla already
+  // suppresses the click that follows a real drag, so no swipe-tracking
+  // needed here — only the (non-Embla) lightbox needs the didSwipe guard.
   function handleImageClick() {
-    if (didSwipe.current) {
-      didSwipe.current = false
-      return
-    }
     setLightboxOpen(true)
   }
 
@@ -113,8 +132,17 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
     }
   }
 
-  const hasPrev = activeIndex > 0
-  const hasNext = activeIndex < count - 1
+  function handleLightboxTouchEnd(e: React.TouchEvent) {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+
+    if (Math.abs(deltaX) < Math.abs(deltaY)) return
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return
+
+    didSwipe.current = true
+    if (deltaX < 0) goNext()
+    else goPrev()
+  }
 
   return (
     <>
@@ -124,42 +152,39 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
           aria-roledescription="carousel"
           aria-label={`${carName} photos`}
           tabIndex={0}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
           onKeyDown={handleKeyDown}
-          onClick={handleImageClick}
-          className="group relative w-full aspect-[16/9] bg-surface-muted rounded-lg overflow-hidden touch-pan-y select-none outline-none cursor-zoom-in"
+          className="relative w-full aspect-[16/9] bg-surface-muted rounded-lg overflow-hidden outline-none"
         >
-          {ordered.map((image, i) => {
-            const isActive = i === activeIndex
-            return (
-              <div
-                key={`${image.url}-${i}`}
-                aria-hidden={!isActive}
-                className="absolute inset-0 transition-opacity duration-300 ease-out"
-                style={{ opacity: isActive ? 1 : 0 }}
-              >
-                {/* Skeleton placeholder until this image has loaded. */}
-                {!loaded[i] && (
-                  <div className="absolute inset-0 bg-surface-muted animate-pulse" />
-                )}
-                <Image
-                  src={image.url}
-                  alt={`${carName} — photo ${i + 1} of ${count}`}
-                  fill
-                  // Next.js 16 deprecated `priority` in favour of `preload`.
-                  // Eagerly fetch the hero (cover) image; lazy-load the rest.
-                  preload={i === 0}
-                  loading={i === 0 ? undefined : 'lazy'}
-                  sizes="(max-width: 768px) 100vw, 768px"
-                  draggable={false}
-                  onLoad={() => setLoaded((prev) => ({ ...prev, [i]: true }))}
-                  className="object-cover"
-                  style={{ opacity: loaded[i] ? 1 : 0 }}
-                />
-              </div>
-            )
-          })}
+          <div
+            ref={emblaRef}
+            onClick={handleImageClick}
+            className="h-full w-full overflow-hidden touch-pan-y select-none cursor-zoom-in"
+          >
+            <div className="flex h-full">
+              {ordered.map((image, i) => (
+                <div key={`${image.url}-${i}`} className="relative h-full w-full flex-[0_0_100%]">
+                  {/* Skeleton placeholder until this image has loaded. */}
+                  {!loaded[i] && (
+                    <div className="absolute inset-0 bg-surface-muted animate-pulse" />
+                  )}
+                  <Image
+                    src={image.url}
+                    alt={`${carName} — photo ${i + 1} of ${count}`}
+                    fill
+                    // Next.js 16 deprecated `priority` in favour of `preload`.
+                    // Eagerly fetch the hero (cover) image; lazy-load the rest.
+                    preload={i === 0}
+                    loading={i === 0 ? undefined : 'lazy'}
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    draggable={false}
+                    onLoad={() => setLoaded((prev) => ({ ...prev, [i]: true }))}
+                    className="object-cover"
+                    style={{ opacity: loaded[i] ? 1 : 0 }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Image counter badge */}
           {count > 1 && (
@@ -170,25 +195,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
             </div>
           )}
 
-          {/* Mobile swipe-affordance hints: subtle nudging chevrons at the edges */}
-          {hasPrev && (
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-[5] flex w-12 items-center justify-start bg-gradient-to-r from-black/25 to-transparent pl-1 md:hidden">
-              <ChevronLeft
-                size={22}
-                className="animate-nudge-left text-white/85 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
-              />
-            </div>
-          )}
-          {hasNext && (
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-[5] flex w-12 items-center justify-end bg-gradient-to-l from-black/25 to-transparent pr-1 md:hidden">
-              <ChevronRight
-                size={22}
-                className="animate-nudge-right text-white/85 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
-              />
-            </div>
-          )}
-
-          {/* Desktop arrow buttons: subtly visible at rest, fully opaque on hover */}
+          {/* Tap-to-navigate arrow buttons — overlaid, scoped hit area, in sync with swipe */}
           {count > 1 && (
             <>
               <button
@@ -197,9 +204,9 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                   e.stopPropagation()
                   goPrev()
                 }}
-                disabled={!hasPrev}
+                disabled={!canScrollPrev}
                 aria-label="Previous photo"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-all duration-200 ease-out active:scale-[0.97] group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-ink/40 text-white transition-all duration-200 ease-out hover:bg-ink/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -209,9 +216,9 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                   e.stopPropagation()
                   goNext()
                 }}
-                disabled={!hasNext}
+                disabled={!canScrollNext}
                 aria-label="Next photo"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 hidden h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-50 transition-all duration-200 ease-out active:scale-[0.97] group-hover:opacity-100 hover:bg-black/65 disabled:pointer-events-none disabled:opacity-0 md:flex"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-ink/40 text-white transition-all duration-200 ease-out hover:bg-ink/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronRight size={20} />
               </button>
@@ -219,7 +226,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
           )}
         </div>
 
-        {/* Dot indicators */}
+        {/* Dot indicators — tappable to jump directly to a photo */}
         {count > 1 && (
           <div className="mt-3 flex items-center justify-center gap-1.5">
             {ordered.map((_, i) => (
@@ -250,7 +257,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
           ref={(el) => el?.focus()}
           onKeyDown={handleLightboxKeyDown}
           onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={handleLightboxTouchEnd}
           onClick={() => setLightboxOpen(false)}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 select-none outline-none pt-safe pb-safe"
         >
@@ -300,7 +307,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                   e.stopPropagation()
                   goPrev()
                 }}
-                disabled={!hasPrev}
+                disabled={!canScrollPrev}
                 aria-label="Previous photo"
                 className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-30"
               >
@@ -312,7 +319,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                   e.stopPropagation()
                   goNext()
                 }}
-                disabled={!hasNext}
+                disabled={!canScrollNext}
                 aria-label="Next photo"
                 className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-30"
               >
