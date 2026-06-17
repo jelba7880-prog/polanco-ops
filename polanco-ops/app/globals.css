@@ -207,8 +207,9 @@ body {
 }
 
 /* ── Floating action buttons: desktop hover lift + scale ──────────── */
-/* Applies to the Add Vehicle / Add Lead / New Deal FABs (each an inline
-   <Link> sharing the same classes, including `.fab`). Reuses Item 11's exact
+/* Applies to the Add Vehicle / Add Lead / New Deal FABs, all rendered by the
+   shared <FAB> component (components/ui/FAB.tsx), via its `.fab` class. Reuses
+   Item 11's exact
    hover-capability mechanism — @media (hover: hover) — rather than a width
    breakpoint, and the same 150ms ease-out timing as the .car-card hover lift,
    so all hover-capable elements stay in sync. Calibrated smaller than the card

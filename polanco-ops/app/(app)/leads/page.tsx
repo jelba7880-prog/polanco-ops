@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
-import { Plus, ChevronDown, ChevronRight, Users } from 'lucide-react'
+import { ChevronDown, ChevronRight, Users } from 'lucide-react'
 import { useLeads } from '@/hooks/useLeads'
 import { LeadCard } from '@/components/leads/LeadCard'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FAB } from '@/components/ui/FAB'
 import type { Lead, LeadStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
@@ -151,13 +151,7 @@ export default function LeadsPage() {
       )}
 
       {/* FAB */}
-      <Link
-        href="/leads/add"
-        className="fab fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-[0.97] transition-transform duration-150 ease-out"
-      >
-        <Plus size={18} />
-        Add Lead
-      </Link>
+      <FAB href="/leads/add" label="Add Lead" />
     </div>
   )
 }

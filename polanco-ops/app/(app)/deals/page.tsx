@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
-import { Plus, FileText } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { useDeals } from '@/hooks/useDeals'
 import { DealCard } from '@/components/deals/DealCard'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FAB } from '@/components/ui/FAB'
 
 export default function DealsPage() {
   const { data: deals, isLoading } = useDeals()
@@ -35,13 +35,7 @@ export default function DealsPage() {
         </div>
       )}
 
-      <Link
-        href="/deals/new"
-        className="fab fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-[0.97] transition-transform duration-150 ease-out"
-      >
-        <Plus size={18} />
-        New Deal
-      </Link>
+      <FAB href="/deals/new" label="New Deal" />
     </div>
   )
 }
