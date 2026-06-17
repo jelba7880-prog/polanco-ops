@@ -32,14 +32,14 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
       )}
     >
       {/* Image */}
-      <div className="relative w-full aspect-[16/9] bg-surface-muted">
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-surface-muted">
         {coverImage ? (
           <Image
             src={coverImage.url}
             alt={formatCarTitle(car.make, car.model, car.year)}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
