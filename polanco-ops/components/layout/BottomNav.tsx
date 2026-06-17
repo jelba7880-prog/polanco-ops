@@ -31,7 +31,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-base border-t border-[var(--border)] pb-safe">
-      <div className="relative flex items-stretch h-16">
+      <div className="relative flex items-stretch h-16 lg:max-w-6xl lg:mx-auto">
 
         {/* Single shared indicator that slides between tabs.
             translateX(N * 100%) moves it by N × its own width, which equals

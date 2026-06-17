@@ -53,47 +53,49 @@ export function TopBar({ action }: TopBarProps) {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-base border-b border-[var(--border)] flex items-center justify-between px-4">
-      <h1 className="font-cormorant text-xl font-semibold text-ink">
-        {title}
-      </h1>
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-base border-b border-[var(--border)]">
+      <div className="h-full flex items-center justify-between px-4 lg:max-w-6xl lg:mx-auto">
+        <h1 className="font-cormorant text-xl font-semibold text-ink">
+          {title}
+        </h1>
 
-      <div className="flex items-center gap-1">
-        {action}
+        <div className="flex items-center gap-1">
+          {action}
 
-        {/* Avatar + dropdown */}
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Account menu"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-white font-inter text-xs font-semibold transition-all duration-150 ease-out active:scale-[0.97]"
-          >
-            {initials}
-          </button>
+          {/* Avatar + dropdown */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Account menu"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-white font-inter text-xs font-semibold transition-all duration-150 ease-out active:scale-[0.97]"
+            >
+              {initials}
+            </button>
 
-          {menuOpen && (
-            <div className="absolute right-0 top-10 w-52 bg-base rounded-xl shadow-elevated border border-[var(--border)] overflow-hidden z-50">
-              {currentUser && (
-                <div className="px-4 py-3 border-b border-[var(--border)]">
-                  <p className="font-inter text-xs font-semibold text-ink truncate">
-                    {currentUser.full_name}
-                  </p>
-                  <p className="font-inter text-[10px] text-ink-muted capitalize">
-                    {currentUser.role}
-                  </p>
-                </div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-red-50 transition-all duration-150 ease-out active:scale-[0.97]"
-              >
-                <LogOut size={14} />
-                Sign Out
-              </button>
-            </div>
-          )}
+            {menuOpen && (
+              <div className="absolute right-0 top-10 w-52 bg-base rounded-xl shadow-elevated border border-[var(--border)] overflow-hidden z-50">
+                {currentUser && (
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <p className="font-inter text-xs font-semibold text-ink truncate">
+                      {currentUser.full_name}
+                    </p>
+                    <p className="font-inter text-[10px] text-ink-muted capitalize">
+                      {currentUser.role}
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-red-50 transition-all duration-150 ease-out active:scale-[0.97]"
+                >
+                  <LogOut size={14} />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
