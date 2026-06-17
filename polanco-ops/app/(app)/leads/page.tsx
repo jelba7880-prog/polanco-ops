@@ -7,6 +7,7 @@ import { LeadCard } from '@/components/leads/LeadCard'
 import { PipelineBoard } from '@/components/leads/PipelineBoard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FAB } from '@/components/ui/FAB'
+import { PageHeaderSubtitle } from '@/components/layout/PageHeaderSubtitle'
 import { PIPELINE_STAGES, STAGE_COLORS } from '@/lib/leads/pipeline'
 import type { Lead, LeadStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
@@ -62,9 +63,9 @@ export default function LeadsPage() {
     <div className="px-4 py-6 pb-8">
       {/* Summary */}
       {hasAnyLeads && (
-        <p className="font-inter text-xs text-ink-muted mb-5">
+        <PageHeaderSubtitle>
           {totalActive} active lead{totalActive !== 1 ? 's' : ''}
-        </p>
+        </PageHeaderSubtitle>
       )}
 
       {!hasAnyLeads && (

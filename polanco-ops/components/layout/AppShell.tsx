@@ -11,7 +11,7 @@ export function AppShell({ children, topBarAction }: AppShellProps) {
   return (
     <div className="min-h-screen bg-subtle">
       <TopBar action={topBarAction} />
-      <main className="pt-14 pb-20 min-h-screen lg:max-w-6xl lg:mx-auto lg:bg-base">
+      <main className="pt-14 lg:pt-24 pb-20 min-h-screen lg:max-w-6xl lg:mx-auto lg:bg-base">
         <PageTransition>{children}</PageTransition>
       </main>
       <BottomNav />
