@@ -76,6 +76,18 @@ export function formatPhoneDisplay(phone: string | null | undefined): string {
   return phone
 }
 
+// --- Name display helpers ---
+
+// First letter of the first word + first letter of the last word (e.g.
+// "Oguike Paschal" -> "OP"). Single-word names return just that one letter.
+export function getInitials(fullName: string | null | undefined): string {
+  const words = (fullName ?? '').trim().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return '?'
+  const first = words[0][0]
+  const last = words[words.length - 1][0]
+  return (words.length === 1 ? first : first + last).toUpperCase()
+}
+
 // --- Car display helpers ---
 
 const AUTOMOTIVE_CASE_MAP: Record<string, string> = {

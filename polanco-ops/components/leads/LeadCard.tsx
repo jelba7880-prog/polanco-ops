@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { differenceInDays } from 'date-fns'
 import type { Lead } from '@/lib/supabase/types'
 import { LEAD_SOURCE_CONFIG } from '@/lib/leads/sources'
-import { formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
+import { formatPhoneDisplay, toDisplayCase, getInitials } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 interface LeadCardProps {
@@ -22,12 +22,7 @@ export function LeadCard({ lead }: LeadCardProps) {
   const contactIsStale = daysSinceContact !== null && daysSinceContact >= 3
 
   const assignedInitials = lead.profiles?.full_name
-    ? lead.profiles.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+    ? getInitials(lead.profiles.full_name)
     : null
 
   return (
