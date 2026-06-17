@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ModalProps {
   open: boolean
@@ -10,8 +11,36 @@ interface ModalProps {
   children: React.ReactNode
 }
 
+// Exit transition length — must stay in sync with the slowest of the
+// `sheetExit` / `modalBackdropExit` keyframes in globals.css. Actual unmount
+// is driven by THIS timeout (not an animationend listener) so the sheet can
+// never linger past this duration even under reduced motion or if the
+// animation is interrupted.
+const EXIT_DURATION = 200
+
 export function Modal({ open, onClose, title, children }: ModalProps) {
-  // Close on Escape and lock body scroll while open
+  // `rendered` keeps the sheet mounted for the brief exit transition after
+  // `open` flips to false, so the slide-down/fade-out actually has a window
+  // to play instead of the sheet disappearing instantly.
+  const [rendered, setRendered] = useState(open)
+  const [closing, setClosing] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      setClosing(false)
+      setRendered(true)
+      return
+    }
+    if (!rendered) return
+    setClosing(true)
+    const timer = setTimeout(() => {
+      setRendered(false)
+      setClosing(false)
+    }, EXIT_DURATION)
+    return () => clearTimeout(timer)
+  }, [open, rendered])
+
+  // Close on Escape while open
   useEffect(() => {
     if (!open) return
 
@@ -20,22 +49,31 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     }
 
     document.addEventListener('keydown', handleKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.removeEventListener('keydown', handleKey)
-      document.body.style.overflow = prevOverflow
-    }
+    return () => document.removeEventListener('keydown', handleKey)
   }, [open, onClose])
 
-  if (!open) return null
+  // Lock body scroll for as long as the sheet is on screen, including the
+  // exit transition, so the background can't scroll behind a still-visible
+  // (mid-close) sheet.
+  useEffect(() => {
+    if (!rendered) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [rendered])
+
+  if (!rendered) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40"
+        className={cn(
+          'absolute inset-0 bg-black/40',
+          closing ? 'modal-backdrop-exit' : 'modal-backdrop-enter'
+        )}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -45,7 +83,10 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative w-full sm:max-w-md bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated px-4 pt-4 pb-6 pb-safe"
+        className={cn(
+          'relative w-full sm:max-w-md bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated px-4 pt-4 pb-6 pb-safe',
+          closing ? 'modal-sheet-exit' : 'modal-sheet-enter'
+        )}
       >
         {/* Drag handle (mobile sheet affordance) */}
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border-base sm:hidden" />
