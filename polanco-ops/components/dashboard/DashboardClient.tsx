@@ -48,7 +48,7 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
       </p>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard label="Available"    value={stats.available}     accentColor="success" delay={0} />
         <StatCard label="Reserved"     value={stats.reserved}      accentColor="warning" delay={80} />
         <StatCard label="Leads Today"  value={stats.leadsToday}    accentColor="navy"    delay={160} />
@@ -58,7 +58,7 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
       {/* Quick actions */}
       <div className="mb-6">
         <p className="font-inter text-xs font-medium text-ink-muted mb-3">QUICK ACTIONS</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           <QuickActionTile label="Add Vehicle"    href="/inventory/add" icon={Car}      delay={0} />
           <QuickActionTile label="Log Lead"       href="/leads/add"     icon={Users}    delay={60} />
           <QuickActionTile
@@ -67,7 +67,7 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
             icon={FileText}
             delay={120}
             horizontal
-            className="col-span-2"
+            className="col-span-2 lg:col-span-1"
           />
         </div>
       </div>
