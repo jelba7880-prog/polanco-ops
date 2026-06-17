@@ -84,7 +84,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative w-full sm:max-w-md bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated px-4 pt-4 pb-6 pb-safe',
+          'relative w-full sm:max-w-md bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated px-6 pt-6 pb-6 pb-safe',
           closing ? 'modal-sheet-exit' : 'modal-sheet-enter'
         )}
       >
@@ -92,14 +92,14 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border-base sm:hidden" />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           {title && (
             <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
           )}
           <button
             onClick={onClose}
             aria-label="Close"
-            className="ml-auto -mr-1 flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97]"
+            className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97]"
           >
             <X size={18} />
           </button>
