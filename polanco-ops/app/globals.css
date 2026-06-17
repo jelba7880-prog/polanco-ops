@@ -403,3 +403,14 @@ body {
     animation: cardEnter 280ms ease-out both;
   }
 }
+
+/* ── Dashboard stat cards: staggered entrance ────────────────────── */
+/* Reuses the existing cardEnter keyframes. The per-card animation-delay
+   (0/80/160/240ms) is applied via inline style; the matching useCountUp
+   delay keeps the number count-up in sync with the fade-in. Disabled
+   under reduced-motion, where the count-up also jumps to its final value. */
+@media (prefers-reduced-motion: no-preference) {
+  .stat-card-enter {
+    animation: cardEnter 280ms ease-out both;
+  }
+}
