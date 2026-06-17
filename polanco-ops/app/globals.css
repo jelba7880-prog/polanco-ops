@@ -124,6 +124,14 @@ body {
   transition: transform 280ms ease-out;
 }
 
+/* Each step panel fades in/out in sync with the track slide so the outgoing
+   step fades while it slides left and the incoming step fades up while it
+   slides in from the right (transform on the track + opacity here — no
+   width/height/position animation). Matches the 280ms ease-out slide timing. */
+.step-panel {
+  transition: opacity 280ms ease-out;
+}
+
 .step-circle,
 .step-connector,
 .step-label {
@@ -132,6 +140,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .step-slider,
+  .step-panel,
   .step-circle,
   .step-connector,
   .step-label {

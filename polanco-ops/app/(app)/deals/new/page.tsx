@@ -229,7 +229,10 @@ export default function NewDealPage() {
 
             {/* Step 1 — Car & Client */}
             <div
-              className={cn('min-w-full', step !== 1 && 'pointer-events-none')}
+              className={cn(
+                'min-w-full step-panel',
+                step === 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              )}
               aria-hidden={step !== 1 ? true : undefined}
             >
               <div className="flex flex-col gap-4">
@@ -295,7 +298,10 @@ export default function NewDealPage() {
 
             {/* Step 2 — Pricing */}
             <div
-              className={cn('min-w-full', step !== 2 && 'pointer-events-none')}
+              className={cn(
+                'min-w-full step-panel',
+                step === 2 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              )}
               aria-hidden={step !== 2 ? true : undefined}
             >
               <div className="flex flex-col gap-4">
@@ -355,7 +361,10 @@ export default function NewDealPage() {
 
             {/* Step 3 — Review */}
             <div
-              className={cn('min-w-full', step !== 3 && 'pointer-events-none')}
+              className={cn(
+                'min-w-full step-panel',
+                step === 3 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              )}
               aria-hidden={step !== 3 ? true : undefined}
             >
               <div className="flex flex-col gap-4">
