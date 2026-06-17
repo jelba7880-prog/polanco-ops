@@ -53,11 +53,15 @@ export function TopBar({ action }: TopBarProps) {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-base border-b border-[var(--border)]">
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 lg:h-24 bg-base border-b border-[var(--border)]">
       <div className="h-full flex items-center justify-between px-4 lg:max-w-6xl lg:mx-auto">
-        <h1 className="font-cormorant text-xl font-semibold text-ink">
-          {title}
-        </h1>
+        <div className="flex flex-col lg:gap-2">
+          <h1 className="font-cormorant text-xl lg:text-4xl font-semibold text-ink leading-tight">
+            {title}
+          </h1>
+          {/* Gold rule echoes the login wordmark divider and BottomNav active-tab indicator. */}
+          <div className="hidden lg:block w-12 h-px bg-gold opacity-60" />
+        </div>
 
         <div className="flex items-center gap-1">
           {action}

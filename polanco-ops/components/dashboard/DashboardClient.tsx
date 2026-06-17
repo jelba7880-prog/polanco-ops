@@ -6,6 +6,7 @@ import { formatRelativeDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { StatCard } from './StatCard'
 import { QuickActionTile } from './QuickActionTile'
+import { PageHeaderSubtitle } from '@/components/layout/PageHeaderSubtitle'
 
 interface Stats {
   available: number
@@ -43,9 +44,9 @@ export function DashboardClient({ stats, activity }: DashboardClientProps) {
     <div className="px-4 py-6 pb-8">
 
       {/* Welcome */}
-      <p className="font-inter text-sm text-ink-muted mb-5">
+      <PageHeaderSubtitle>
         Here&apos;s what&apos;s happening at Polanco today.
-      </p>
+      </PageHeaderSubtitle>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
