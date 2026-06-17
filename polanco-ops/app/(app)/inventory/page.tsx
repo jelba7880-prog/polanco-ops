@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Plus, Search, Car } from 'lucide-react'
+import { Search, Car } from 'lucide-react'
 import { useCars } from '@/hooks/useCars'
 import { CarCard } from '@/components/inventory/CarCard'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FAB } from '@/components/ui/FAB'
 import type { CarStatus } from '@/lib/supabase/types'
 
 const STATUS_FILTERS: { label: string; value: CarStatus | 'all' }[] = [
@@ -132,13 +132,7 @@ export default function InventoryPage() {
       )}
 
       {/* FAB — Add vehicle */}
-      <Link
-        href="/inventory/add"
-        className="fab fixed bottom-20 right-4 z-30 flex items-center gap-2 bg-gold text-ink font-inter font-medium text-sm px-4 h-12 rounded-full shadow-elevated active:scale-[0.97] transition-transform duration-150 ease-out"
-      >
-        <Plus size={18} />
-        Add Vehicle
-      </Link>
+      <FAB href="/inventory/add" label="Add Vehicle" />
     </div>
   )
 }
