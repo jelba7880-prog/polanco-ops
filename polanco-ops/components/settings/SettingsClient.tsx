@@ -455,7 +455,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
 
       {/* Invite staff modal */}
       <Modal open={inviteOpen} onClose={() => setInviteOpen(false)} title="Invite Staff">
-        <form onSubmit={handleInvite} className="flex flex-col gap-3">
+        <form onSubmit={handleInvite} className="flex flex-col gap-6">
           <Input
             label="Email address"
             type="email"
@@ -464,17 +464,19 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
             onChange={(e) => setInviteEmail(e.target.value)}
             placeholder="name@example.com"
           />
-          <Input
-            label="Full name (optional)"
-            value={inviteName}
-            onChange={(e) => setInviteName(e.target.value)}
-            placeholder="Jane Doe"
-          />
-          <p className="font-inter text-xs text-ink-muted">
-            They&apos;ll receive an email invitation to set a password and join as
-            Staff. You can promote them to Admin afterwards.
-          </p>
-          <div className="flex gap-3 mt-1">
+          <div className="flex flex-col gap-2">
+            <Input
+              label="Full name (optional)"
+              value={inviteName}
+              onChange={(e) => setInviteName(e.target.value)}
+              placeholder="Jane Doe"
+            />
+            <p className="font-inter text-xs text-ink-muted">
+              They&apos;ll receive an email invitation to set a password and join as
+              Staff. You can promote them to Admin afterwards.
+            </p>
+          </div>
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="secondary"
