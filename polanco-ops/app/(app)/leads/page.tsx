@@ -4,32 +4,12 @@ import { useState, useMemo } from 'react'
 import { ChevronDown, ChevronRight, Users } from 'lucide-react'
 import { useLeads } from '@/hooks/useLeads'
 import { LeadCard } from '@/components/leads/LeadCard'
+import { PipelineBoard } from '@/components/leads/PipelineBoard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FAB } from '@/components/ui/FAB'
+import { PIPELINE_STAGES, STAGE_COLORS } from '@/lib/leads/pipeline'
 import type { Lead, LeadStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
-
-const PIPELINE_STAGES: {
-  status: LeadStatus
-  label: string
-  collapsible?: boolean
-}[] = [
-  { status: 'new', label: 'New' },
-  { status: 'contacted', label: 'Contacted' },
-  { status: 'test_drive', label: 'Test Drive' },
-  { status: 'negotiating', label: 'Negotiating' },
-  { status: 'closed_won', label: 'Closed Won ✓', collapsible: true },
-  { status: 'closed_lost', label: 'Closed Lost ✗', collapsible: true },
-]
-
-const STAGE_COLORS: Record<LeadStatus, string> = {
-  new: 'bg-navy-tint text-navy',
-  contacted: 'bg-gold-tint text-gold-deep',
-  test_drive: 'bg-purple-50 text-purple-600',
-  negotiating: 'bg-warning-tint text-warning',
-  closed_won: 'bg-success-tint text-success',
-  closed_lost: 'bg-neutral-tint text-neutral-tag',
-}
 
 export default function LeadsPage() {
   const { data: leads, isLoading, error } = useLeads()
@@ -95,9 +75,9 @@ export default function LeadsPage() {
         />
       )}
 
-      {/* Pipeline stages */}
+      {/* Pipeline stages — vertical grouped list (mobile/tablet) */}
       {hasAnyLeads && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 lg:hidden">
           {PIPELINE_STAGES.map(({ status, label, collapsible }) => {
             const stageLeads = grouped[status] ?? []
             if (stageLeads.length === 0) return null
@@ -147,6 +127,13 @@ export default function LeadsPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Pipeline board — Kanban columns (desktop) */}
+      {hasAnyLeads && (
+        <div className="hidden lg:block">
+          <PipelineBoard grouped={grouped} />
         </div>
       )}
 
