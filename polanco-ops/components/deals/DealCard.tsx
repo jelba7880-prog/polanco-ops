@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Car } from 'lucide-react'
-import { formatUSD, formatNGN, formatDate } from '@/lib/formatters'
+import { formatUSD, formatNGN, formatDate, getInitials } from '@/lib/formatters'
 import type { DealSheet } from '@/lib/supabase/types'
 
 interface DealCardProps {
@@ -23,14 +23,7 @@ export function DealCard({ deal }: DealCardProps) {
       ? snapshot.image_url
       : null
 
-  const initials = deal.profiles?.full_name
-    ? deal.profiles.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : null
+  const initials = deal.profiles?.full_name ? getInitials(deal.profiles.full_name) : null
 
   return (
     <Link

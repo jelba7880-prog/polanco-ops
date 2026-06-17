@@ -26,6 +26,14 @@ interface SettingsClientProps {
   currentUserId: string
 }
 
+// Old seed data left this literal string in the `settings` table for accounts that
+// never configured a real Twilio number — treat it as unconfigured rather than real data.
+const TWILIO_SEED_PLACEHOLDER = '+234XXXXXXXXXX'
+
+function sanitizeTwilioNumber(value: string | undefined) {
+  return value && value !== TWILIO_SEED_PLACEHOLDER ? value : ''
+}
+
 export function SettingsClient({ settings, staff, currentUserId }: SettingsClientProps) {
   const [exchangeRate, setExchangeRate] = useState(settings.exchange_rate_usd_ngn ?? '1580')
   const [rateUpdatedAtValue, setRateUpdatedAtValue] = useState(settings.exchange_rate_updated_at ?? '')
@@ -33,7 +41,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
   const [businessName, setBusinessName] = useState(settings.business_name ?? '')
   const [businessAddress, setBusinessAddress] = useState(settings.business_address ?? '')
   const [validityHours, setValidityHours] = useState(settings.proforma_validity_hours ?? '48')
-  const [twilioNumber, setTwilioNumber] = useState(settings.twilio_notify_number ?? '')
+  const [twilioNumber, setTwilioNumber] = useState(sanitizeTwilioNumber(settings.twilio_notify_number))
 
   const [savingBusiness, setSavingBusiness] = useState(false)
   const [savingRate, setSavingRate] = useState(false)
@@ -313,7 +321,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
             label="Twilio Notify Number"
             value={twilioNumber}
             onChange={(e) => setTwilioNumber(e.target.value)}
-            placeholder="+234XXXXXXXXXX"
+            placeholder="Not yet configured"
           />
         </div>
 

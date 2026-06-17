@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import { LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { getInitials } from '@/lib/formatters'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -30,14 +31,7 @@ export function TopBar({ action }: TopBarProps) {
   // Match exact path first, then check prefixes for detail pages
   const title = PAGE_TITLES[pathname] ?? deriveTitle(pathname)
 
-  const initials = currentUser?.full_name
-    ? currentUser.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '?'
+  const initials = getInitials(currentUser?.full_name)
 
   async function handleLogout() {
     const supabase = createClient()
