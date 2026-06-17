@@ -324,6 +324,77 @@ body {
   pointer-events: auto;
 }
 
+/* ── Modal / bottom sheet: slide-up entrance + slide-down exit ──────── */
+
+/* iOS-style decelerate curve so the sheet feels native rather than linear.
+   The backdrop fades on its own timeline but starts/ends in lockstep with
+   the sheet so neither appears to lag the other. */
+@keyframes sheetEnter {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetExit {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes modalBackdropEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalBackdropExit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.modal-sheet-enter {
+  animation: sheetEnter 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.modal-sheet-exit {
+  /* `both` holds the off-screen end state until the JS removal timer in
+     Modal.tsx fires, so the sheet can't flash back into view before unmount. */
+  animation: sheetExit 200ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.modal-backdrop-enter {
+  animation: modalBackdropEnter 300ms ease-out both;
+}
+
+.modal-backdrop-exit {
+  animation: modalBackdropExit 200ms ease-out both;
+}
+
+/* Under reduced motion the sheet still opens and closes on the same
+   triggers and timing budget (EXIT_DURATION in Modal.tsx) — just without the
+   slide/fade, consistent with how toast motion is suppressed above. */
+@media (prefers-reduced-motion: reduce) {
+  .modal-sheet-enter,
+  .modal-sheet-exit,
+  .modal-backdrop-enter,
+  .modal-backdrop-exit {
+    animation: none;
+  }
+}
+
 /* ── Quick Action tiles: staggered entrance ──────────────────────── */
 /* Reuses the existing cardEnter keyframes. animation-delay is applied
    via inline style on each tile to produce the stagger effect. */
