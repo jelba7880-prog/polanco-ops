@@ -28,11 +28,13 @@ export default async function DashboardPage() {
     supabase
       .from('cars')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'available'),
+      .eq('status', 'available')
+      .eq('lifecycle_status', 'active'),
     supabase
       .from('cars')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'reserved'),
+      .eq('status', 'reserved')
+      .eq('lifecycle_status', 'active'),
     supabase
       .from('leads')
       .select('id, created_at')
@@ -44,6 +46,7 @@ export default async function DashboardPage() {
     supabase
       .from('cars')
       .select('id, make, model, year, status, updated_at')
+      .eq('lifecycle_status', 'active')
       .order('updated_at', { ascending: false })
       .limit(5),
     supabase

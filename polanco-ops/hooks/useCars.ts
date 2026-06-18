@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
-import type { Car, CarStatus } from '@/lib/supabase/types'
+import type { Car, CarStatus, CarLifecycleStatus } from '@/lib/supabase/types'
 import type { CarFormValues } from '@/lib/validations/car.schema'
 
 const supabase = createClient()
@@ -16,8 +16,11 @@ export const carKeys = {
   detail: (slug: string) => [...carKeys.all, 'detail', slug] as const,
 }
 
-// --- Fetch all cars with cover image ---
-async function fetchCars(): Promise<Car[]> {
+// --- Fetch cars in a given lifecycle state, with cover image ---
+// Defaults to 'active' so the main Inventory list and every existing caller
+// (e.g. the deal-sheet car picker) only ever sees live cars. 'archived' powers
+// the Archived tab. 'deleted' is never fetched by any app surface.
+async function fetchCars(lifecycle: CarLifecycleStatus): Promise<Car[]> {
   const { data, error } = await supabase
     .from('cars')
     .select(`
@@ -26,6 +29,7 @@ async function fetchCars(): Promise<Car[]> {
         id, url, sort_order, is_cover
       )
     `)
+    .eq('lifecycle_status', lifecycle)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -33,6 +37,9 @@ async function fetchCars(): Promise<Car[]> {
 }
 
 // --- Fetch single car by slug ---
+// Active and archived cars both resolve (the detail page is reachable from the
+// Archived tab so admins can Restore/Delete). 'deleted' cars are treated as
+// not-found, keeping them invisible everywhere in the app even via direct URL.
 async function fetchCarBySlug(slug: string): Promise<Car> {
   const { data, error } = await supabase
     .from('cars')
@@ -43,6 +50,7 @@ async function fetchCarBySlug(slug: string): Promise<Car> {
       )
     `)
     .eq('slug', slug)
+    .neq('lifecycle_status', 'deleted')
     .single()
 
   if (error) throw error
@@ -51,10 +59,12 @@ async function fetchCarBySlug(slug: string): Promise<Car> {
 
 // --- Hooks ---
 
-export function useCars() {
+// Mirrors the useDeals(archived) shape: one source of truth for car list
+// queries, parameterised by lifecycle. Defaults to 'active'.
+export function useCars(lifecycle: CarLifecycleStatus = 'active') {
   return useQuery({
-    queryKey: carKeys.lists(),
-    queryFn: fetchCars,
+    queryKey: carKeys.list({ lifecycle }),
+    queryFn: () => fetchCars(lifecycle),
   })
 }
 
@@ -187,20 +197,31 @@ export function useUpdateCar() {
   })
 }
 
-export function useDeleteCar() {
+// Moves a car between lifecycle states (active ↔ archived → deleted). This is
+// the only path that ever changes lifecycle_status and is always a plain
+// UPDATE — there is no hard-delete of cars anywhere in the app. Invalidates the
+// whole 'cars' tree so the Active list, Archived list and detail view all
+// reconcile after the transition.
+export function useSetCarLifecycle() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
+    mutationFn: async ({ id, lifecycle }: { id: string; lifecycle: CarLifecycleStatus }) => {
+      const { data, error } = await supabase
         .from('cars')
-        .delete()
+        .update({
+          lifecycle_status: lifecycle,
+          lifecycle_changed_at: new Date().toISOString(),
+        })
         .eq('id', id)
+        .select()
+        .single()
 
       if (error) throw error
+      return data as Car
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: carKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: carKeys.all })
     },
   })
 }

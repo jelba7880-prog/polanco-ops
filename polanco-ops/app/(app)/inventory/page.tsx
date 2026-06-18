@@ -7,7 +7,7 @@ import { useCars } from '@/hooks/useCars'
 import { CarCard } from '@/components/inventory/CarCard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FAB } from '@/components/ui/FAB'
-import type { CarStatus } from '@/lib/supabase/types'
+import type { CarStatus, CarLifecycleStatus } from '@/lib/supabase/types'
 
 const STATUS_FILTERS: { label: string; value: CarStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
@@ -17,8 +17,16 @@ const STATUS_FILTERS: { label: string; value: CarStatus | 'all' }[] = [
   { label: 'Sold', value: 'sold' },
 ]
 
+// Lifecycle tab — a separate dimension from the sales-status chips above.
+// 'deleted' cars are intentionally not selectable here (invisible everywhere).
+const LIFECYCLE_FILTERS: { label: string; value: Extract<CarLifecycleStatus, 'active' | 'archived'> }[] = [
+  { label: 'Active', value: 'active' },
+  { label: 'Archived', value: 'archived' },
+]
+
 export default function InventoryPage() {
-  const { data: cars, isLoading, error } = useCars()
+  const [lifecycle, setLifecycle] = useState<'active' | 'archived'>('active')
+  const { data: cars, isLoading, error } = useCars(lifecycle)
   const searchParams = useSearchParams()
   const statusParam = searchParams.get('status') as CarStatus | null
   const [search, setSearch] = useState('')
@@ -45,6 +53,27 @@ export default function InventoryPage() {
 
   return (
     <div className="px-4 py-6 pb-8">
+      {/* Lifecycle toggle — Active vs Archived. Sits above the sales-status
+          chips; both filters compose (status filtering applies within the
+          selected lifecycle tab). */}
+      <div className="flex gap-2 mb-4" role="tablist" aria-label="Lifecycle">
+        {LIFECYCLE_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            role="tab"
+            aria-selected={lifecycle === f.value}
+            onClick={() => setLifecycle(f.value)}
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium font-inter border active:scale-[0.97] motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out ${
+              lifecycle === f.value
+                ? 'bg-ink text-white border-ink'
+                : 'bg-white text-ink-muted border-[var(--border)] hover:border-ink-soft'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {/* Search bar */}
       <div className="relative mb-4">
         <Search
@@ -98,14 +127,16 @@ export default function InventoryPage() {
       {!isLoading && !error && filtered.length === 0 && (
         <EmptyState
           icon={Car}
-          title="No vehicles found"
+          title={lifecycle === 'archived' ? 'No archived vehicles' : 'No vehicles found'}
           description={
             search || statusFilter !== 'all'
               ? 'Try adjusting your search or filter.'
-              : 'Add your first vehicle to get started.'
+              : lifecycle === 'archived'
+                ? 'Vehicles you archive will show up here.'
+                : 'Add your first vehicle to get started.'
           }
           action={
-            search === '' && statusFilter === 'all'
+            lifecycle === 'active' && search === '' && statusFilter === 'all'
               ? { label: 'Add Vehicle', onClick: () => (window.location.href = '/inventory/add') }
               : undefined
           }
