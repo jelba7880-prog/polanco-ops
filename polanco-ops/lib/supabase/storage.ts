@@ -5,8 +5,12 @@ const BUCKET = 'car-images'
 const MAX_SIZE_MB = 1.5
 const MAX_WIDTH_PX = 1920
 
+// `folderId` namespaces the Storage path and isn't required to be a real car
+// id — the Add Vehicle flow uploads photos before a car exists yet, so it
+// passes a temporary id per file. The path is never read back by id, only by
+// URL, so nothing needs to change when the file is later attached to a car.
 export async function uploadCarImage(
-  carId: string,
+  folderId: string,
   file: File
 ): Promise<string> {
   // Compress first, falling back to the original file if compression fails
@@ -23,7 +27,7 @@ export async function uploadCarImage(
   }
 
   const ext = file.name.split('.').pop() ?? 'jpg'
-  const filename = `${carId}/${Date.now()}.${ext}`
+  const filename = `${folderId}/${Date.now()}.${ext}`
   const contentType = compressed.type || file.type || 'image/jpeg'
 
   const supabase = createClient()

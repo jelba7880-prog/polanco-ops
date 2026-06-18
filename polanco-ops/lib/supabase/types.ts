@@ -17,6 +17,15 @@ export interface CarImage {
   created_at: string
 }
 
+// An image already uploaded to Storage but not yet attached to a car row,
+// because no car exists yet (the Add Vehicle flow). Held in form state and
+// turned into real car_images rows once the car is created.
+export interface PendingCarImage {
+  tempId: string
+  url: string
+  isCover: boolean
+}
+
 export interface Car {
   id: string
   slug: string

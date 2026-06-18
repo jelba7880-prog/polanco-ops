@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,11 +12,15 @@ import {
 import { useCreateCar } from '@/hooks/useCars'
 import { CarForm } from '@/components/inventory/CarForm'
 import { useToast } from '@/components/ui/Toast'
+import type { PendingCarImage } from '@/lib/supabase/types'
 
 export default function AddCarPage() {
   const router = useRouter()
   const createCar = useCreateCar()
   const showToast = useToast()
+  // Photos selected before the car exists — see ImageUploader's pending mode.
+  // Turned into real car_images rows by useCreateCar once the car is created.
+  const [pendingImages, setPendingImages] = useState<PendingCarImage[]>([])
 
   const {
     register,
@@ -32,7 +37,7 @@ export default function AddCarPage() {
 
   async function onSubmit(values: CarFormValues) {
     try {
-      await createCar.mutateAsync(values)
+      await createCar.mutateAsync({ values, pendingImages })
       showToast('Vehicle added', 'success')
       router.push('/inventory')
     } catch (err) {
@@ -50,6 +55,8 @@ export default function AddCarPage() {
         isError={createCar.isError}
         submitLabel="Save Vehicle"
         onCancel={() => router.back()}
+        pendingImages={pendingImages}
+        onPendingImagesChange={setPendingImages}
       />
     </div>
   )
