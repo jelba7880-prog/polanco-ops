@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Pencil, FileText } from 'lucide-react'
-import { useCar, useDeleteCar } from '@/hooks/useCars'
+import { ArrowLeft, Pencil, FileText, Archive, RotateCcw, Trash2 } from 'lucide-react'
+import { useCar, useSetCarLifecycle } from '@/hooks/useCars'
 import { useSettings } from '@/hooks/useSettings'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { StatusBadge } from '@/components/inventory/StatusBadge'
@@ -27,19 +27,26 @@ export default function CarDetailPage() {
   const { data: car, isLoading, error } = useCar(slug)
   const { data: settings } = useSettings()
   const { data: currentUser } = useCurrentUser()
-  const deleteCarMutation = useDeleteCar()
+  const setLifecycle = useSetCarLifecycle()
   const [statusModalOpen, setStatusModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  // Which lifecycle confirmation is open: archive (active→archived),
+  // restore (archived→active) or delete (archived→deleted).
+  const [lifecycleAction, setLifecycleAction] =
+    useState<'archive' | 'restore' | 'delete' | null>(null)
 
   const isAdmin = currentUser?.role === 'admin'
 
-  async function handleDelete() {
+  async function handleLifecycle(next: 'active' | 'archived' | 'deleted') {
     if (!car) return
     try {
-      await deleteCarMutation.mutateAsync(car.id)
-      router.push('/inventory')
+      await setLifecycle.mutateAsync({ id: car.id, lifecycle: next })
+      setLifecycleAction(null)
+      // Restoring keeps the car in-app, so stay put and let the invalidated
+      // detail query swap the action buttons. Archive/Delete remove it from the
+      // current list context, so return to Inventory.
+      if (next !== 'active') router.push('/inventory')
     } catch (err) {
-      console.error('Delete failed:', err)
+      console.error('Lifecycle update failed:', err)
     }
   }
 
@@ -70,6 +77,7 @@ export default function CarDetailPage() {
   // Reads straight from the React Query cache, which useUpdateCarStatus
   // patches optimistically — so the badge updates instantly on confirm.
   const currentStatus = car.status
+  const lifecycle = car.lifecycle_status
   const carImages = car.car_images ?? []
   const exchangeRate = settings?.exchange_rate_usd_ngn ?? 1580
   const priceNGN = usdToNgn(car.price_usd, exchangeRate)
@@ -184,19 +192,44 @@ export default function CarDetailPage() {
             >
               Update Status
             </Button>
-            {isAdmin && (
+            {/* Active car: single admin "Archive" action (the reversible,
+                everyday "remove from the active lot" action). */}
+            {isAdmin && lifecycle === 'active' && (
               <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={() => setDeleteModalOpen(true)}
+                variant="secondary"
+                className="flex-1 gap-2"
+                onClick={() => setLifecycleAction('archive')}
               >
-                Delete
+                <Archive size={16} />
+                Archive
               </Button>
             )}
           </div>
 
-          {/* Generate deal sheet shortcut (available cars only) */}
-          {currentStatus === 'available' && (
+          {/* Archived car: admin Restore / Delete actions on their own row. */}
+          {isAdmin && lifecycle === 'archived' && (
+            <div className="flex gap-3 mt-2">
+              <Button
+                variant="secondary"
+                className="flex-1 gap-2"
+                onClick={() => setLifecycleAction('restore')}
+              >
+                <RotateCcw size={16} />
+                Restore to Active
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1 gap-2"
+                onClick={() => setLifecycleAction('delete')}
+              >
+                <Trash2 size={16} />
+                Delete
+              </Button>
+            </div>
+          )}
+
+          {/* Generate deal sheet shortcut (available, active cars only) */}
+          {currentStatus === 'available' && lifecycle === 'active' && (
             <Button
               variant="secondary"
               className="w-full gap-2 mt-2"
@@ -218,29 +251,87 @@ export default function CarDetailPage() {
         onClose={() => setStatusModalOpen(false)}
       />
 
-      {/* Delete confirmation modal (admin only) */}
+      {/* Archive confirmation (active → archived). Reversible, everyday action. */}
       <Modal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        title="Delete Vehicle"
+        open={lifecycleAction === 'archive'}
+        onClose={() => setLifecycleAction(null)}
+        title="Archive Vehicle"
       >
         <p className="font-inter text-sm text-ink-soft mb-6">
-          Are you sure you want to delete the {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)}?
-          This cannot be undone and will remove all associated images.
+          Removes this car from active inventory. You can restore it anytime from
+          the Archived tab.
         </p>
         <div className="flex gap-3">
           <Button
             variant="secondary"
             className="flex-1"
-            onClick={() => setDeleteModalOpen(false)}
+            onClick={() => setLifecycleAction(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="flex-1"
+            onClick={() => handleLifecycle('archived')}
+            loading={setLifecycle.isPending}
+          >
+            Archive
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Restore confirmation (archived → active). */}
+      <Modal
+        open={lifecycleAction === 'restore'}
+        onClose={() => setLifecycleAction(null)}
+        title="Restore Vehicle"
+      >
+        <p className="font-inter text-sm text-ink-soft mb-6">
+          Returns this car to active inventory. It will appear in the Active tab
+          again with all its data and images intact.
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => setLifecycleAction(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="flex-1"
+            onClick={() => handleLifecycle('active')}
+            loading={setLifecycle.isPending}
+          >
+            Restore to Active
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Delete confirmation (archived → deleted). More serious than Archive,
+          but still NOT a real DELETE — the row is kept in Postgres. */}
+      <Modal
+        open={lifecycleAction === 'delete'}
+        onClose={() => setLifecycleAction(null)}
+        title="Delete Vehicle"
+      >
+        <p className="font-inter text-sm text-ink-soft mb-6">
+          Removes this car everywhere in the app, including the Archived tab. The
+          record is kept and can be recovered by an admin directly in Supabase if
+          ever needed.
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => setLifecycleAction(null)}
           >
             Cancel
           </Button>
           <Button
             variant="destructive"
             className="flex-1"
-            onClick={handleDelete}
-            loading={deleteCarMutation.isPending}
+            onClick={() => handleLifecycle('deleted')}
+            loading={setLifecycle.isPending}
           >
             Delete
           </Button>

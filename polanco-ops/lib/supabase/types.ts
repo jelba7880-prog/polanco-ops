@@ -1,4 +1,8 @@
 export type CarStatus = 'available' | 'reserved' | 'sold' | 'in_transit'
+// Lifecycle is a separate dimension from the sales-status (CarStatus) above:
+// 'active' shows in main Inventory, 'archived' lives in the Archived tab and is
+// restorable, 'deleted' is hidden everywhere in the app but kept in Postgres.
+export type CarLifecycleStatus = 'active' | 'archived' | 'deleted'
 export type CarCondition = 'New' | 'Foreign Used' | 'Locally Used'
 export type UserRole = 'admin' | 'staff'
 export type LeadSource = 'whatsapp' | 'instagram' | 'walkin' | 'call' | 'referral'
@@ -30,6 +34,8 @@ export interface Car {
   horsepower: number | null
   price_usd: number
   status: CarStatus
+  lifecycle_status: CarLifecycleStatus
+  lifecycle_changed_at: string | null
   reserved_for: string | null
   notes: string | null
   added_by: string | null
