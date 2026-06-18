@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
 import { logActivity } from '@/lib/activity/log'
 import { formatCarTitle } from '@/lib/formatters'
-import type { Car, CarStatus, CarLifecycleStatus } from '@/lib/supabase/types'
+import type { Car, CarStatus, CarLifecycleStatus, PendingCarImage } from '@/lib/supabase/types'
 import type { CarFormValues } from '@/lib/validations/car.schema'
 
 const supabase = createClient()
@@ -82,7 +82,13 @@ export function useCreateCar() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: CarFormValues) => {
+    mutationFn: async ({
+      values,
+      pendingImages = [],
+    }: {
+      values: CarFormValues
+      pendingImages?: PendingCarImage[]
+    }) => {
       const { data: { user } } = await supabase.auth.getUser()
 
       const slug = generateCarSlug(values.year, values.make, values.model)
@@ -98,7 +104,32 @@ export function useCreateCar() {
         .single()
 
       if (error) throw error
-      return data as Car
+      const car = data as Car
+
+      // Photos are uploaded to Storage and held in form state before the car
+      // exists (see ImageUploader's pending mode), so this is where they
+      // finally become real car_images rows, pointed at the new car_id.
+      if (pendingImages.length > 0) {
+        const { error: imagesError } = await supabase.from('car_images').insert(
+          pendingImages.map((img, i) => ({
+            car_id: car.id,
+            url: img.url,
+            sort_order: i,
+            is_cover: img.isCover,
+          }))
+        )
+
+        if (imagesError) {
+          // The car can't be left behind half-created (a car with photos the
+          // user uploaded but that never got attached) — this is a rollback
+          // of a failed creation, not a user-facing delete, so it's the one
+          // place a real DELETE FROM cars is still correct.
+          await supabase.from('cars').delete().eq('id', car.id)
+          throw imagesError
+        }
+      }
+
+      return car
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: carKeys.lists() })

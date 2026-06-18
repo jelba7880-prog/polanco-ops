@@ -4,7 +4,7 @@ import type { FormEventHandler } from 'react'
 import type { UseFormRegister, FieldErrors } from 'react-hook-form'
 import type { CarFormInput } from '@/lib/validations/car.schema'
 import { ImageUploader } from '@/components/inventory/ImageUploader'
-import type { CarImage } from '@/lib/supabase/types'
+import type { CarImage, PendingCarImage } from '@/lib/supabase/types'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
@@ -31,6 +31,8 @@ interface CarFormProps {
   onCancel: () => void
   carId?: string
   images?: CarImage[]
+  pendingImages?: PendingCarImage[]
+  onPendingImagesChange?: (next: PendingCarImage[]) => void
 }
 
 function SectionHeader({ label }: { label: string }) {
@@ -54,6 +56,8 @@ export function CarForm({
   onCancel,
   carId,
   images,
+  pendingImages,
+  onPendingImagesChange,
 }: CarFormProps) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
@@ -198,15 +202,14 @@ export function CarForm({
       {/* ── Images ─────────────────────────────────────────────── */}
       <div>
         <SectionHeader label="Images" />
-        {carId && images ? (
-          <div className="bg-white rounded-xl border border-[var(--border)] p-4">
-            <ImageUploader carId={carId} images={images} />
-          </div>
-        ) : (
-          <p className="text-sm text-ink-muted font-inter">
-            Photos can be added after saving the vehicle.
-          </p>
-        )}
+        <div className="bg-white rounded-xl border border-[var(--border)] p-4">
+          <ImageUploader
+            carId={carId}
+            images={images}
+            pendingImages={pendingImages}
+            onPendingImagesChange={onPendingImagesChange}
+          />
+        </div>
       </div>
 
       {/* ── Notes ──────────────────────────────────────────────── */}
