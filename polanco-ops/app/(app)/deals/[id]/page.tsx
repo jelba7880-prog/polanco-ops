@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft, Download, Archive, ArchiveRestore } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useSettings } from '@/hooks/useSettings'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { useSetDealArchived } from '@/hooks/useDeals'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { formatUSD, formatNGN, formatDate } from '@/lib/formatters'
 import { ProformaPDF } from '@/lib/pdf/generateProforma'
 import type { DealSheet } from '@/lib/supabase/types'
@@ -24,10 +27,15 @@ export default function DealDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { data: settings } = useSettings()
+  const { data: currentUser } = useCurrentUser()
+  const setDealArchived = useSetDealArchived()
   const [deal, setDeal] = useState<DealSheet | null>(null)
   const [loading, setLoading] = useState(true)
   const [showPreview, setShowPreview] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false)
+
+  const isAdmin = currentUser?.role === 'admin'
 
   useEffect(() => {
     async function fetchDeal() {
@@ -98,6 +106,18 @@ export default function DealDetailPage() {
       console.error('PDF generation error:', err)
     } finally {
       setDownloading(false)
+    }
+  }
+
+  async function handleToggleArchive() {
+    if (!deal) return
+    const archiving = !deal.archived_at
+    try {
+      await setDealArchived.mutateAsync({ id: deal.id, archived: archiving })
+      setDeal({ ...deal, archived_at: archiving ? new Date().toISOString() : null })
+      setArchiveModalOpen(false)
+    } catch (err) {
+      console.error('Archive toggle failed:', err)
     }
   }
 
@@ -181,6 +201,17 @@ export default function DealDetailPage() {
           >
             {showPreview ? 'Hide Preview' : 'Show Preview'}
           </Button>
+
+          {isAdmin && (
+            <Button
+              variant={deal.archived_at ? 'secondary' : 'destructive'}
+              className="w-full"
+              onClick={() => setArchiveModalOpen(true)}
+            >
+              {deal.archived_at ? <ArchiveRestore size={16} /> : <Archive size={16} />}
+              {deal.archived_at ? 'Restore Deal Sheet' : 'Archive Deal Sheet'}
+            </Button>
+          )}
         </div>
 
         {/* Preview */}
@@ -194,6 +225,36 @@ export default function DealDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Archive/restore confirmation modal (admin only) */}
+      <Modal
+        open={archiveModalOpen}
+        onClose={() => setArchiveModalOpen(false)}
+        title={deal.archived_at ? 'Restore Deal Sheet' : 'Archive Deal Sheet'}
+      >
+        <p className="font-inter text-sm text-ink-soft mb-6">
+          {deal.archived_at
+            ? `Restore the deal sheet for ${deal.client_name}? It will reappear in the default Deals list.`
+            : `Archive the deal sheet for ${deal.client_name}? It will be hidden from the default Deals list but the record and PDF stay fully intact — you can restore it anytime.`}
+        </p>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => setArchiveModalOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant={deal.archived_at ? 'primary' : 'destructive'}
+            className="flex-1"
+            onClick={handleToggleArchive}
+            loading={setDealArchived.isPending}
+          >
+            {deal.archived_at ? 'Restore' : 'Archive'}
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }
