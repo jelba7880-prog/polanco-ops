@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
+import { logActivity } from '@/lib/activity/log'
+import { toDisplayCase } from '@/lib/formatters'
 import { leadSchema } from '@/lib/validations/lead.schema'
 
 export async function POST(request: NextRequest) {
@@ -39,6 +41,16 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (leadError) throw leadError
+
+    // Record the new lead in the activity feed. logActivity never throws, so a
+    // logging failure can't break the (already-saved) lead creation.
+    await logActivity(supabase, {
+      actor_id: user.id,
+      action_type: 'lead_created',
+      entity_type: 'lead',
+      entity_id: lead.id,
+      description: `New lead: ${lead.name}${lead.car_interest ? ` — ${toDisplayCase(lead.car_interest)}` : ''}`,
+    })
 
     // NOTE: Twilio Sandbox requires recipient phones to opt in first.
     // Each test number must send "join [keyword]" to whatsapp:+14155238886.
