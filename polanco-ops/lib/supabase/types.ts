@@ -83,6 +83,7 @@ export interface DealSheet {
   valid_hours: number
   generated_by: string | null
   created_at: string
+  archived_at: string | null
   // Joined field from useDeals query
   profiles?: {
     id: string
