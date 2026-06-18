@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
+import { logActivity } from '@/lib/activity/log'
 import { useToast } from '@/components/ui/Toast'
 import { formatUSD, formatNGN, usdToNgn, toDisplayCase } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
@@ -152,6 +153,17 @@ export default function NewDealPage() {
         .single()
 
       if (error) throw error
+
+      // Record the generated deal sheet in the activity feed, reusing the row's
+      // own generated_by as the actor rather than re-deriving it. logActivity
+      // never throws, so logging can't break the (already-saved) deal.
+      await logActivity(supabase, {
+        actor_id: deal.generated_by,
+        action_type: 'deal_sheet_generated',
+        entity_type: 'deal_sheet',
+        entity_id: deal.id,
+        description: `Deal sheet for ${deal.client_name} — ${toDisplayCase(carSnapshot.make)} ${toDisplayCase(carSnapshot.model)}`,
+      })
 
       showToast('Deal created', 'success')
       router.push(`/deals/${deal.id}`)

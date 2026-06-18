@@ -3,6 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
+import { logActivity } from '@/lib/activity/log'
+import { formatCarTitle } from '@/lib/formatters'
 import type { Car, CarStatus, CarLifecycleStatus } from '@/lib/supabase/types'
 import type { CarFormValues } from '@/lib/validations/car.schema'
 
@@ -129,7 +131,32 @@ export function useUpdateCarStatus() {
         .single()
 
       if (error) throw error
-      return data as Car
+      const car = data as Car
+
+      // Record the status change in the activity feed. Fire-and-forget so it
+      // can never block or fail the status update itself — logActivity already
+      // swallows insert errors, and the outer guard covers the getUser lookup.
+      void (async () => {
+        try {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser()
+          await logActivity(supabase, {
+            actor_id: user?.id ?? null,
+            action_type: 'car_status_changed',
+            entity_type: 'car',
+            entity_id: car.id,
+            description: `marked ${formatCarTitle(car.make, car.model, car.year)} as ${car.status}`,
+          })
+        } catch (err) {
+          console.error(
+            'Failed to log car status activity:',
+            err instanceof Error ? err.message : String(err)
+          )
+        }
+      })()
+
+      return car
     },
     // Optimistic update: patch every cached 'cars' entry the UI reads from
     // (the list at ['cars','list'] and any detail at ['cars','detail',slug])

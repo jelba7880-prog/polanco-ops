@@ -98,6 +98,22 @@ export interface DealSheet {
   } | null
 }
 
+export type ActivityActionType =
+  | 'car_status_changed'
+  | 'lead_created'
+  | 'deal_sheet_generated'
+export type ActivityEntityType = 'car' | 'lead' | 'deal_sheet'
+
+export interface ActivityLog {
+  id: string
+  actor_id: string | null
+  action_type: ActivityActionType
+  entity_type: ActivityEntityType
+  entity_id: string | null
+  description: string
+  created_at: string
+}
+
 export type StaffStatus = 'active' | 'pending' | 'deactivated'
 
 /**
