@@ -114,6 +114,13 @@ export interface ActivityLog {
   created_at: string
 }
 
+// An activity_log row with the acting user's profile joined in on actor_id, as
+// read by the Recent Activity feed. `profiles` is null when actor_id is null
+// (a past/unattributed event) or the referenced profile no longer exists.
+export interface ActivityLogWithActor extends ActivityLog {
+  profiles: { full_name: string } | null
+}
+
 export type StaffStatus = 'active' | 'pending' | 'deactivated'
 
 /**
