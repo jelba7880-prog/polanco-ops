@@ -9,6 +9,10 @@ on:
     branches: [main]
     paths:
       - "polanco-ops/supabase/migrations/**"
+  # Manual trigger so the secrets/auth path can be validated on demand without
+  # waiting for a real migration push. Note: GitHub only allows dispatching a
+  # workflow once it exists on the default branch, so this is usable after merge.
+  workflow_dispatch:
 
 jobs:
   migrate:
