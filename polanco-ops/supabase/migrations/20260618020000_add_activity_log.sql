@@ -21,11 +21,16 @@ create index activity_log_created_at_idx on public.activity_log (created_at desc
 
 alter table public.activity_log enable row level security;
 
+-- Scoped TO authenticated (the Postgres role PostgREST reliably switches into
+-- from the JWT) rather than gating on auth.role(), which is deprecated and
+-- reads a request GUC PostgREST no longer sets — it would silently deny every
+-- insert and hide every row.
+
 -- Any signed-in user can read the shared activity feed.
 create policy "authenticated_read" on public.activity_log
-  for select using (auth.role() = 'authenticated');
+  for select to authenticated using (true);
 
 -- Inserts must be attributed to the acting user themselves — a row can only be
 -- written with actor_id set to the caller's own auth uid.
 create policy "authenticated_insert" on public.activity_log
-  for insert with check (auth.role() = 'authenticated' and actor_id = auth.uid());
+  for insert to authenticated with check (actor_id = auth.uid());

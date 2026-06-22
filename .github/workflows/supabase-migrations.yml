@@ -1,0 +1,35 @@
+name: Apply Supabase migrations
+
+# Runs db push automatically on merge to main so a migration committed to the
+# repo can never again silently fail to reach production the way
+# add_activity_log.sql did — that file sat in supabase/migrations/ for days
+# while the table it creates never existed in prod, because nothing applied it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "polanco-ops/supabase/migrations/**"
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        working-directory: polanco-ops
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+
+      - name: Push migrations
+        working-directory: polanco-ops
+        run: supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
