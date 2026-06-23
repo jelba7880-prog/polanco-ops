@@ -18,10 +18,19 @@ const inter = Inter({
   display: "swap",
 });
 
+function resolveAppUrl(): URL {
+  const fallback = "https://project-6rmw6.vercel.app";
+  const raw = process.env.NEXT_PUBLIC_APP_URL?.trim();
+
+  try {
+    return new URL(raw || fallback);
+  } catch {
+    return new URL(fallback);
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://project-6rmw6.vercel.app"
-  ),
+  metadataBase: resolveAppUrl(),
   title: "Polanco Operations Hub",
   description: "Polanco Exotic Cars · Operations Hub",
   manifest: "/manifest.json",
