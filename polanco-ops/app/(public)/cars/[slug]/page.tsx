@@ -4,7 +4,7 @@ import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicFooter } from '@/components/showcase/PublicFooter'
 import { PublicStatusBadge } from '@/components/showcase/PublicStatusBadge'
 import { CarGallery } from '@/components/showcase/CarGallery'
-import { EnquiryButton } from '@/components/showcase/EnquiryButton'
+import { EnquiryForm } from '@/components/showcase/EnquiryForm'
 import { getPublicCarBySlug } from '@/lib/showcase/getPublicCars'
 import { formatUSD, formatMileage, toDisplayCase } from '@/lib/formatters'
 
@@ -84,7 +84,17 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               ))}
             </div>
 
-            <EnquiryButton />
+            <hr className="border-t border-[var(--border)] my-6" />
+
+            <EnquiryForm
+              car={{
+                id: car.id,
+                slug: car.slug,
+                year: car.year,
+                make: car.make,
+                model: car.model,
+              }}
+            />
           </div>
         </div>
       </main>
