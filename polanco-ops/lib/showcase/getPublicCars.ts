@@ -1,42 +1,12 @@
 import { createPublicClient } from '@/lib/supabase/publicClient'
+import type { PublicCar, PublicCarDetail } from './types'
 
-export interface PublicCarImage {
-  id: string
-  car_id: string
-  url: string
-  sort_order: number
-  is_cover: boolean
-}
-
-export interface PublicCarListItem {
-  id: string
-  slug: string
-  make: string
-  model: string
-  year: number
-  body_type: string | null
-  color_exterior: string | null
-  color_interior: string | null
-  mileage_km: number
-  condition: string
-  transmission: string | null
-  fuel_type: string | null
-  engine_cc: number | null
-  horsepower: number | null
-  price_usd: number
-  status: string
-  created_at: string
-  coverImageUrl: string | null
-}
-
-export interface PublicCarDetail extends Omit<PublicCarListItem, 'coverImageUrl'> {
-  images: PublicCarImage[]
-}
+export type { PublicCarImage, PublicCar, PublicCarDetail } from './types'
 
 // Two views are queried separately rather than embedded in one PostgREST
 // select: public_cars_view / public_car_images_view have no FK relationship
 // PostgREST can discover, since views don't carry the base tables' constraints.
-export async function getPublicCars(): Promise<PublicCarListItem[]> {
+export async function getPublicCars(): Promise<PublicCar[]> {
   const supabase = createPublicClient()
 
   const { data: cars, error: carsError } = await supabase
