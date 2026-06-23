@@ -55,7 +55,8 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
           src={ordered[activeIndex].url}
           alt={`${carName} — photo ${activeIndex + 1} of ${ordered.length}`}
           fill
-          preload={activeIndex === 0}
+          preload
+          quality={85}
           sizes="(max-width: 1024px) 100vw, 55vw"
           className="object-cover"
           onLoad={() => setLoaded(true)}
@@ -80,9 +81,11 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
               <Image
                 src={image.url}
                 alt=""
-                fill
-                sizes="72px"
-                className="object-cover"
+                width={72}
+                height={54}
+                quality={70}
+                loading="lazy"
+                className="object-cover w-full h-full"
               />
             </button>
           ))}
