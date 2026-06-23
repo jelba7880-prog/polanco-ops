@@ -16,13 +16,35 @@ export async function generateMetadata({ params }: CarDetailPageProps): Promise<
   const { slug } = await params
   const car = await getPublicCarBySlug(slug)
 
-  if (!car) return {}
+  if (!car) return { title: 'Vehicle Not Found | Polanco Exotic Cars' }
+
+  const title = `${car.year} ${car.make} ${car.model} | Polanco Exotic Cars`
+  const description = `${car.condition} · ${car.mileage_km.toLocaleString()} km · $${car.price_usd.toLocaleString()} — Available at Polanco Exotic Cars, Lagos.`
+  const imageUrl = car.images[0]?.url ?? ''
 
   return {
-    title: `${car.year} ${car.make} ${car.model} | Polanco Exotic Cars`,
-    description: `${car.condition} · ${car.mileage_km.toLocaleString()} km · $${car.price_usd.toLocaleString()}`,
+    title,
+    description,
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_APP_URL}/cars/${car.slug}`,
+    },
     openGraph: {
-      images: car.images[0]?.url ? [car.images[0].url] : [],
+      title,
+      description,
+      type: 'website',
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/cars/${car.slug}`,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${car.year} ${car.make} ${car.model}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [imageUrl],
     },
   }
 }

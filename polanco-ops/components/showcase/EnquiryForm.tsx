@@ -32,10 +32,6 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
   }
 
-  function openWhatsApp() {
-    window.open(buildWhatsAppUrl(), '_blank', 'noopener,noreferrer')
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
@@ -54,6 +50,10 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
       setPhoneError(null)
     }
     if (!valid) return
+
+    // Open the tab synchronously, in the same gesture as the tap — iOS Safari
+    // blocks window.open() called after an await.
+    const waWindow = window.open('', '_blank', 'noopener,noreferrer')
 
     // 2. Submit — create the lead before WhatsApp opens.
     setStatus('submitting')
@@ -74,19 +74,21 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
         // Duplicate within the window — still let the visitor chat, just don't
         // create another lead.
         setStatus('rate_limited')
-        openWhatsApp()
+        if (waWindow) waWindow.location.href = buildWhatsAppUrl()
         return
       }
 
       if (!res.ok) {
         // Don't block the buyer — surface a manual WhatsApp fallback.
+        waWindow?.close()
         setStatus('error')
         return
       }
 
       setStatus('success')
-      openWhatsApp()
+      if (waWindow) waWindow.location.href = buildWhatsAppUrl()
     } catch {
+      waWindow?.close()
       setStatus('error')
     }
   }

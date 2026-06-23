@@ -9,9 +9,10 @@ import type { PublicCar } from '@/lib/showcase/types'
 
 interface PublicCarCardProps {
   car: PublicCar
+  priority?: boolean
 }
 
-export function PublicCarCard({ car }: PublicCarCardProps) {
+export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
   const [loaded, setLoaded] = useState(false)
 
   return (
@@ -31,6 +32,8 @@ export function PublicCarCard({ car }: PublicCarCardProps) {
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              quality={85}
+              preload={priority}
               onLoad={() => setLoaded(true)}
               style={{ opacity: loaded ? 1 : 0 }}
             />

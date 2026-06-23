@@ -90,8 +90,8 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCars.map((car) => (
-              <PublicCarCard key={car.id} car={car} />
+            {filteredCars.map((car, index) => (
+              <PublicCarCard key={car.id} car={car} priority={index === 0} />
             ))}
           </div>
 

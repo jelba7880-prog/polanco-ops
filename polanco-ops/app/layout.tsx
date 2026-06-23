@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -19,6 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://project-6rmw6.vercel.app"
+  ),
   title: "Polanco Operations Hub",
   description: "Polanco Exotic Cars · Operations Hub",
   manifest: "/manifest.json",

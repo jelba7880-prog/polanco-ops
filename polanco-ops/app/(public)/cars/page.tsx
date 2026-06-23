@@ -5,7 +5,18 @@ import { getPublicCars } from '@/lib/showcase/getPublicCars'
 
 export const metadata = {
   title: 'Inventory | Polanco Exotic Cars',
-  description: 'Browse our current selection of exotic and luxury vehicles in Lagos, Nigeria.',
+  description:
+    'Browse our current selection of exotic and luxury vehicles available in Lagos, Nigeria.',
+  openGraph: {
+    title: 'Inventory | Polanco Exotic Cars',
+    description:
+      'Browse our current selection of exotic and luxury vehicles available in Lagos, Nigeria.',
+    type: 'website',
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/cars`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default async function CarsPage() {
