@@ -8,7 +8,7 @@
 create table public.activity_log (
   id uuid primary key default gen_random_uuid(),
   actor_id uuid references public.profiles(id) on delete set null,
-  action_type text not null,      -- 'car_status_changed' | 'lead_created' | 'deal_sheet_generated'
+  action_type text not null,      -- 'car_status_changed' | 'car_created' | 'lead_created' | 'deal_sheet_generated'
   entity_type text not null,      -- 'car' | 'lead' | 'deal_sheet'
   entity_id uuid,
   description text not null,       -- e.g. "marked 2025 Lexus RX350 as sold"

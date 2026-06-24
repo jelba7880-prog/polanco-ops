@@ -109,6 +109,7 @@ export interface DealSheet {
 
 export type ActivityActionType =
   | 'car_status_changed'
+  | 'car_created'
   | 'lead_created'
   | 'deal_sheet_generated'
 export type ActivityEntityType = 'car' | 'lead' | 'deal_sheet'
