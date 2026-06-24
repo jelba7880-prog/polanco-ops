@@ -129,6 +129,16 @@ export function useCreateCar() {
         }
       }
 
+      // Record the new vehicle in the activity feed. logActivity never
+      // throws, so a logging failure can't break the (already-saved) car.
+      await logActivity(supabase, {
+        actor_id: user?.id ?? null,
+        action_type: 'car_created',
+        entity_type: 'car',
+        entity_id: car.id,
+        description: `Added ${formatCarTitle(car.make, car.model, car.year)}`,
+      })
+
       return car
     },
     onSuccess: () => {
