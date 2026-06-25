@@ -30,7 +30,7 @@ export function BottomNav() {
   const tabCount = NAV_ITEMS.length
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-base border-t border-[var(--border)] pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[var(--border)] pb-safe">
       <div className="relative flex items-stretch h-16 lg:max-w-6xl lg:mx-auto">
 
         {/* Single shared active indicator — a gold dot under the active tab.
