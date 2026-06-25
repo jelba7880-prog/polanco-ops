@@ -29,10 +29,10 @@ export function DashboardClient({ stats }: DashboardClientProps) {
 
       {/* Stat cards — 2-col on phones, a single 4-col row from md upward. */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <StatCard label="Available"    value={stats.available}     delay={0} />
-        <StatCard label="Reserved"     value={stats.reserved}      delay={80} />
-        <StatCard label="Leads Today"  value={stats.leadsToday}    delay={160} />
-        <StatCard label="Deals / Week" value={stats.dealsThisWeek} delay={240} />
+        <StatCard label="Available"    value={stats.available}     accentColor="success" delay={0} />
+        <StatCard label="Reserved"     value={stats.reserved}      accentColor="warning" delay={80} />
+        <StatCard label="Leads Today"  value={stats.leadsToday}    accentColor="navy"    delay={160} />
+        <StatCard label="Deals / Week" value={stats.dealsThisWeek} accentColor="gold"    delay={240} />
       </div>
 
       {/* Quick actions */}

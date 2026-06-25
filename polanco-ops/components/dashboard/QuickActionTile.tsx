@@ -25,7 +25,9 @@ export function QuickActionTile({
       href={href}
       className={[
         'tile-enter card-hoverable',
-        'bg-white rounded-xl border border-[var(--border)] border-b-[3px] border-b-gold shadow-card',
+        // Neutral action surface: borderless, shadow defines the edge. The only
+        // gold accent here is the icon itself; the card carries no colored border.
+        'bg-white rounded-xl shadow-card',
         'active:scale-[0.97] transition-transform duration-150 ease-out',
         horizontal
           ? 'flex flex-row items-center gap-4 px-4 py-4 min-h-[64px]'

@@ -74,7 +74,7 @@ export function ActivityFeed() {
   return (
     <div>
       <SectionLabel>RECENT ACTIVITY</SectionLabel>
-      <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-card overflow-hidden">
         {items.length === 0 ? (
           <div className="py-6 text-center">
             <p className="font-inter text-xs text-ink-muted">No activity yet</p>
