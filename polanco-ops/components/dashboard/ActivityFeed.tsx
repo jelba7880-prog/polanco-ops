@@ -6,6 +6,7 @@ import { useActivityLog } from '@/hooks/useActivityLog'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { formatRelativeDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
+import { SectionLabel } from '@/components/layout/SectionLabel'
 import type { ActivityEntityType, ActivityLogWithActor } from '@/lib/supabase/types'
 
 const ACTIVITY_ICONS: Record<ActivityEntityType, typeof Car> = {
@@ -72,7 +73,7 @@ export function ActivityFeed() {
 
   return (
     <div>
-      <p className="font-inter text-xs font-medium text-ink-muted mb-3">RECENT ACTIVITY</p>
+      <SectionLabel>RECENT ACTIVITY</SectionLabel>
       <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
         {items.length === 0 ? (
           <div className="py-6 text-center">

@@ -18,6 +18,11 @@ const PAGE_TITLES: Record<string, string> = {
   '/settings': 'Settings',
 }
 
+// Root (tab-level) screens — the ones reachable straight from the BottomNav.
+// These are exactly the screens that have no back affordance, so the gold rule
+// renders here and is suppressed on the deeper add/detail/edit screens.
+const ROOT_PATHS = ['/dashboard', '/inventory', '/leads', '/deals', '/settings']
+
 interface TopBarProps {
   action?: React.ReactNode
 }
@@ -30,6 +35,9 @@ export function TopBar({ action }: TopBarProps) {
 
   // Match exact path first, then check prefixes for detail pages
   const title = PAGE_TITLES[pathname] ?? deriveTitle(pathname)
+
+  // Gold rule renders only on root screens (those without a back affordance).
+  const isRootScreen = ROOT_PATHS.includes(pathname)
 
   const initials = getInitials(currentUser?.full_name)
 
@@ -53,14 +61,21 @@ export function TopBar({ action }: TopBarProps) {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 lg:h-24 bg-base border-b border-[var(--border)]">
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 md:h-20 lg:h-24 bg-base border-b border-[var(--border)]">
       <div className="h-full flex items-center justify-between px-4 lg:max-w-6xl lg:mx-auto">
-        <div className="flex flex-col lg:gap-2">
-          <h1 className="font-cormorant text-xl lg:text-4xl font-semibold text-ink leading-tight">
+        <div className="flex flex-col gap-1 md:gap-2">
+          <h1 className="font-cormorant text-xl md:text-3xl lg:text-4xl font-semibold text-ink leading-tight">
             {title}
           </h1>
-          {/* Gold rule echoes the login wordmark divider and BottomNav active-tab indicator. */}
-          <div className="hidden lg:block w-12 h-px bg-gold opacity-60" />
+          {/* Gold rule echoes the login wordmark divider and BottomNav active-tab
+              indicator. Flush left, directly below the title, as a real sibling in
+              the flex column (not a ::after) so it contributes natural flow height
+              and never shifts the layout. w-7 on mobile, scaling to w-10 at md+ to
+              stay proportional with the larger title. Root screens only — tied to
+              the same boolean that would hide a back affordance. */}
+          {isRootScreen && (
+            <div className="w-7 md:w-10 h-px bg-gold opacity-60" />
+          )}
         </div>
 
         <div className="flex items-center gap-1">

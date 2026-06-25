@@ -29,13 +29,21 @@
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-inter: var(--font-inter), sans-serif;
 
-  --shadow-card: 0 1px 3px rgba(10, 10, 10, 0.08), 0 1px 2px rgba(10, 10, 10, 0.04);
+  /* Resting card depth: a whisper of shadow plus a 1px hairline ring. Kept
+     deliberately subtle so it reads clean at high mobile pixel densities. */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  /* Hover-only elevation, applied at md+ on hover-capable pointers (see the
+     @media (hover: hover) rule below). Never fires on touch-primary devices. */
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.06);
   --shadow-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
 }
 
 :root {
   --border: rgba(10, 10, 10, 0.08);
   --border-strong: rgba(10, 10, 10, 0.15);
+  /* Warm page background — applies at every breakpoint. Painted on <body> so it
+     fills the full viewport width behind the centered desktop content column. */
+  --bg-base: #f0ede8;
 }
 
 /* Hide horizontal scrollbar on filter chip rows while keeping scroll */
@@ -70,7 +78,7 @@ html {
 }
 
 body {
-  background: var(--color-base);
+  background: var(--bg-base);
   color: var(--color-ink);
 }
 
@@ -412,5 +420,25 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .stat-card-enter {
     animation: cardEnter 280ms ease-out both;
+  }
+}
+
+/* ── Card hover elevation: pointer-capable devices only ───────────── */
+/* Scoped to @media (hover: hover) — a capability check, not a width
+   breakpoint — so the hover shadow only ever fires on real pointers (md+
+   laptops/desktops with a mouse) and NEVER on touch-primary Tecno/Infinix
+   phones, which have no hover state. The transition shorthand also lists
+   transform/scale so any element that composes its own active:scale press
+   feedback (e.g. the Quick Action tiles) keeps a smooth press on hover-capable
+   devices; on touch devices that press transition is owned by the element's
+   own Tailwind transition utilities, which this rule leaves untouched. */
+@media (hover: hover) {
+  .card-hoverable {
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out,
+                scale 150ms ease-out;
+  }
+
+  .card-hoverable:hover {
+    box-shadow: var(--shadow-card-hover);
   }
 }

@@ -24,7 +24,7 @@ export function QuickActionTile({
     <Link
       href={href}
       className={[
-        'tile-enter',
+        'tile-enter card-hoverable',
         'bg-white rounded-xl border border-[var(--border)] border-b-[3px] border-b-gold shadow-card',
         'active:scale-[0.97] transition-transform duration-150 ease-out',
         horizontal
