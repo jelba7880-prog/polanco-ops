@@ -103,6 +103,10 @@ const AUTOMOTIVE_CASE_MAP: Record<string, string> = {
   'gtb': 'GTB',
   'gts': 'GTS',
   'gtr': 'GTR',
+  // Lamborghini / Porsche body suffixes
+  'svj': 'SVJ',
+  'gt3': 'GT3',
+  'rs': 'RS',
   // Mercedes model lines
   'gle': 'GLE',
   'glc': 'GLC',
@@ -114,6 +118,9 @@ const AUTOMOTIVE_CASE_MAP: Record<string, string> = {
   'cls': 'CLS',
   'cla': 'CLA',
   'slc': 'SLC',
+  // Lexus model lines
+  'rx': 'RX',
+  'lx': 'LX',
   // Fuel / powertrain
   'phev': 'PHEV',
   'ev': 'EV',
@@ -136,36 +143,30 @@ const SORTED_PREFIX_KEYS = Object.keys(AUTOMOTIVE_CASE_MAP).sort(
   (a, b) => b.length - a.length
 )
 
-function applyAutomotiveCase(titleCasedWord: string): string {
-  const lower = titleCasedWord.toLowerCase()
+function applyAutomotiveCase(word: string): string {
+  const lower = word.toLowerCase()
 
   // Exact match
   if (lower in AUTOMOTIVE_CASE_MAP) return AUTOMOTIVE_CASE_MAP[lower]
 
-  // Prefix match: e.g. "gle43" → "GLE" + "43", "xdrive40i" → "xDrive" + "40i"
+  // Prefix match: e.g. "gle43" → "GLE" + "43", "lx700h" → "LX" + "700h"
   for (const key of SORTED_PREFIX_KEYS) {
     if (lower.startsWith(key) && lower.length > key.length) {
-      return AUTOMOTIVE_CASE_MAP[key] + titleCasedWord.slice(key.length)
+      return AUTOMOTIVE_CASE_MAP[key] + lower.slice(key.length)
     }
   }
 
-  return titleCasedWord
+  return lower.charAt(0).toUpperCase() + lower.slice(1)
 }
 
 export function toDisplayCase(input: string | null | undefined): string {
   if (!input) return ''
 
-  // Base title case
-  const titleCased = input
-    .toLowerCase()
+  // Hyphens form their own boundary (e.g. "Rolls-Royce", "Mercedes-AMG") so
+  // each side of a hyphen is cased independently, same as space-separated words.
+  return input
     .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-
-  // Second pass: fix known automotive tokens
-  return titleCased
-    .split(' ')
-    .map(applyAutomotiveCase)
+    .map((word) => word.split('-').map(applyAutomotiveCase).join('-'))
     .join(' ')
 }
 
