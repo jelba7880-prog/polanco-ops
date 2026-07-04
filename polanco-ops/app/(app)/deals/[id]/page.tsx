@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { ArrowLeft, Download, Archive, ArchiveRestore } from 'lucide-react'
+import { Download, Archive, ArchiveRestore } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useSettings } from '@/hooks/useSettings'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useSetDealArchived } from '@/hooks/useDeals'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { Modal } from '@/components/ui/Modal'
 import { formatUSD, formatNGN, formatDate } from '@/lib/formatters'
 import { ProformaPDF } from '@/lib/pdf/generateProforma'
@@ -125,13 +126,7 @@ export default function DealDetailPage() {
     <div className="pb-8">
       {/* Back */}
       <div className="px-4 pt-2 pb-4">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-all duration-150 ease-out active:scale-[0.97] min-h-[44px]"
-        >
-          <ArrowLeft size={16} />
-          Deals
-        </button>
+        <BackLink label="Deals" onClick={() => router.back()} />
       </div>
 
       <div className="px-4 flex flex-col gap-4">
