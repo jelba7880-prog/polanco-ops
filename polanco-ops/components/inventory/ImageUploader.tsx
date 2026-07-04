@@ -181,7 +181,7 @@ export function ImageUploader({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="aspect-square rounded-lg border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center gap-1 bg-white hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97] disabled:opacity-50"
+            className="aspect-square rounded-lg border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center gap-1 bg-base hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97] disabled:opacity-50"
           >
             {isUploading ? (
               <div className="w-5 h-5 border-2 border-ink-muted border-t-ink rounded-full animate-spin" />

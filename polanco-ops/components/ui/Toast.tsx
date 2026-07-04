@@ -80,9 +80,9 @@ const VARIANT_STYLES: Record<
   ToastVariant,
   { className: string; Icon: typeof Info }
 > = {
-  success: { className: 'bg-success text-white', Icon: CheckCircle2 },
-  error: { className: 'bg-danger text-white', Icon: AlertCircle },
-  info: { className: 'bg-ink text-white', Icon: Info },
+  success: { className: 'bg-success text-white dark:text-on-accent', Icon: CheckCircle2 },
+  error: { className: 'bg-danger text-white dark:text-on-accent', Icon: AlertCircle },
+  info: { className: 'bg-ink text-base', Icon: Info },
 }
 
 /**

@@ -139,7 +139,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
   }
 
   const inputBase =
-    'w-full h-12 rounded-lg bg-white px-4 font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:border-navy disabled:opacity-50 disabled:cursor-not-allowed'
+    'w-full h-12 rounded-lg bg-base px-4 font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:border-navy disabled:opacity-50 disabled:cursor-not-allowed'
 
   return (
     <section>

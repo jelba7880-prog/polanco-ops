@@ -206,7 +206,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!canScrollPrev}
                 aria-label="Previous photo"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-ink/40 text-white transition-all duration-200 ease-out hover:bg-ink/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-all duration-200 ease-out hover:bg-black/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -218,7 +218,7 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 }}
                 disabled={!canScrollNext}
                 aria-label="Next photo"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-ink/40 text-white transition-all duration-200 ease-out hover:bg-ink/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-all duration-200 ease-out hover:bg-black/55 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronRight size={20} />
               </button>
@@ -239,7 +239,11 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
                 className="h-1.5 rounded-full transition-all duration-200"
                 style={{
                   width: i === activeIndex ? 18 : 6,
-                  backgroundColor: i === activeIndex ? '#C9A84C' : '#E5E5E5',
+                  // Theme tokens so the inactive dot doesn't stay bright grey on
+                  // the dark surface: gold for the active dot, the strong border
+                  // token (which flips per theme) for the rest.
+                  backgroundColor:
+                    i === activeIndex ? 'var(--gold)' : 'var(--border-strong)',
                 }}
               />
             ))}

@@ -38,7 +38,7 @@ export function SourceChips({ label, value, onChange, error }: SourceChipsProps)
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-2 font-inter text-xs font-medium transition-all duration-150 ease-out active:scale-[0.97]',
                 isSelected
                   ? 'border-gold bg-gold-tint text-gold-deep'
-                  : 'border-[var(--border)] bg-white text-ink-muted hover:border-ink-soft'
+                  : 'border-[var(--border)] bg-base text-ink-muted hover:border-ink-soft'
               )}
             >
               <Icon size={14} className={color} />

@@ -193,9 +193,9 @@ export default function NewDealPage() {
                   className={cn(
                     'w-7 h-7 rounded-full flex items-center justify-center text-xs font-inter font-semibold step-circle',
                     isCompleted
-                      ? 'bg-gold text-white'
+                      ? 'bg-gold text-on-accent'
                       : isActive
-                      ? 'bg-ink text-white'
+                      ? 'bg-ink text-base'
                       : 'bg-surface-muted text-ink-muted'
                   )}
                 >
@@ -332,7 +332,7 @@ export default function NewDealPage() {
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      className="flex-1 min-h-[48px] px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy tabular-nums"
+                      className="flex-1 min-h-[48px] px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy tabular-nums"
                       {...register('exchange_rate', { valueAsNumber: true })}
                     />
                     <span className="text-xs text-ink-muted font-inter shrink-0">
@@ -380,7 +380,7 @@ export default function NewDealPage() {
               aria-hidden={step !== 3 ? true : undefined}
             >
               <div className="flex flex-col gap-4">
-                <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+                <div className="bg-base rounded-xl border border-[var(--border)] overflow-hidden">
                   {[
                     { label: 'Client', value: watch('client_name') },
                     {
@@ -406,7 +406,7 @@ export default function NewDealPage() {
                 </div>
 
                 {/* Total */}
-                <div className="bg-ink rounded-xl p-4">
+                <div className="bg-ink dark:bg-[var(--bg-base)] rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-inter text-sm text-white/70">Total</span>
                     <span className="font-inter text-xl font-semibold text-gold tabular-nums">

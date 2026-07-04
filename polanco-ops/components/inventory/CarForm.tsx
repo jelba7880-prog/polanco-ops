@@ -202,7 +202,7 @@ export function CarForm({
       {/* ── Images ─────────────────────────────────────────────── */}
       <div>
         <SectionHeader label="Images" />
-        <div className="bg-white rounded-xl border border-[var(--border)] p-4">
+        <div className="bg-base rounded-xl border border-[var(--border)] p-4">
           <ImageUploader
             carId={carId}
             images={images}
@@ -218,7 +218,7 @@ export function CarForm({
         <textarea
           placeholder="Any additional details about this vehicle..."
           rows={3}
-          className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
+          className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
           {...register('notes')}
         />
       </div>

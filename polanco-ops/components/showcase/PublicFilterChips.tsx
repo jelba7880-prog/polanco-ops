@@ -28,8 +28,8 @@ function Chip({
       className={cn(
         'shrink-0 inline-flex items-center h-8 px-4 rounded-full font-inter text-[13px] border transition-colors duration-150 ease-out',
         active
-          ? 'bg-ink text-white border-ink'
-          : 'bg-white text-ink-soft border-[var(--border)]'
+          ? 'bg-ink text-base border-ink'
+          : 'bg-base text-ink-soft border-[var(--border)]'
       )}
     >
       {label}

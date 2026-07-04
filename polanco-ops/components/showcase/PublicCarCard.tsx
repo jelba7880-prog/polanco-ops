@@ -18,7 +18,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
   return (
     <Link
       href={`/cars/${car.slug}`}
-      className="block bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
+      className="block bg-base rounded-xl border border-[var(--border)] shadow-card overflow-hidden transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-surface-muted">
         {car.coverImageUrl ? (

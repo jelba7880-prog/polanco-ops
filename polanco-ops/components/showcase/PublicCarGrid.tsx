@@ -61,7 +61,7 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search make, model, year…"
-          className="w-full h-11 pl-9 pr-4 rounded-lg border border-[var(--border)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy/30"
+          className="w-full h-11 pl-9 pr-4 rounded-lg border border-[var(--border)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy/30"
         />
       </div>
 
@@ -82,7 +82,7 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
           <button
             type="button"
             onClick={clearFilters}
-            className="inline-flex items-center justify-center h-10 px-5 rounded-lg border border-[var(--border)] bg-white font-inter text-sm text-ink-soft hover:bg-surface-muted transition-colors duration-150 ease-out"
+            className="inline-flex items-center justify-center h-10 px-5 rounded-lg border border-[var(--border)] bg-base font-inter text-sm text-ink-soft hover:bg-surface-muted transition-colors duration-150 ease-out"
           >
             Clear filters
           </button>

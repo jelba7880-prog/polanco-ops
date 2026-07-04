@@ -22,7 +22,10 @@ export const PIPELINE_STAGES: PipelineStage[] = [
 export const STAGE_COLORS: Record<LeadStatus, string> = {
   new: 'bg-navy-tint text-navy',
   contacted: 'bg-gold-tint text-gold-deep',
-  test_drive: 'bg-purple-50 text-purple-600',
+  // Test Drive has no semantic token in the palette, so it keeps a purple accent
+  // via Tailwind's scale with an explicit dark-mode pairing (the light lavender
+  // fill would otherwise stay bright on the dark surface).
+  test_drive: 'bg-purple-50 text-purple-600 dark:bg-purple-500/15 dark:text-purple-300',
   negotiating: 'bg-warning-tint text-warning',
   closed_won: 'bg-success-tint text-success',
   closed_lost: 'bg-neutral-tint text-neutral-tag',

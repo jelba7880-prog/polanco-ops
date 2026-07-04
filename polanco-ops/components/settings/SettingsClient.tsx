@@ -19,6 +19,7 @@ import { useToast } from '@/components/ui/Toast'
 import { formatDate } from '@/lib/formatters'
 import type { StaffMember } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
+import { AppearancePicker } from '@/components/settings/AppearancePicker'
 
 interface SettingsClientProps {
   settings: Record<string, string>
@@ -251,8 +252,17 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
   return (
     <div className="px-4 py-6 pb-8 flex flex-col gap-6 max-w-lg mx-auto">
 
+      {/* Appearance */}
+      <section className="bg-base rounded-xl border border-[var(--border)] p-4">
+        <p className="font-inter text-sm font-semibold text-ink mb-1">Appearance</p>
+        <p className="font-inter text-xs text-ink-muted mb-4">
+          Choose a theme, or follow your device&apos;s system setting.
+        </p>
+        <AppearancePicker />
+      </section>
+
       {/* Exchange Rate */}
-      <section className="bg-white rounded-xl border border-[var(--border)] p-4">
+      <section className="bg-base rounded-xl border border-[var(--border)] p-4">
         <div className="flex items-center justify-between mb-4">
           <p className="font-inter text-sm font-semibold text-ink">Exchange Rate</p>
           <p className="font-inter text-xs text-ink-muted">Updated {rateUpdatedAt}</p>
@@ -291,7 +301,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
       </section>
 
       {/* Business Info */}
-      <section className="bg-white rounded-xl border border-[var(--border)] p-4">
+      <section className="bg-base rounded-xl border border-[var(--border)] p-4">
         <p className="font-inter text-sm font-semibold text-ink mb-4">Business Info</p>
 
         <div className="flex flex-col gap-3">
@@ -336,7 +346,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
       </section>
 
       {/* Staff */}
-      <section className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+      <section className="bg-base rounded-xl border border-[var(--border)] overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
           <p className="font-inter text-sm font-semibold text-ink">Staff Accounts</p>
           <Button
@@ -437,7 +447,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
       </section>
 
       {/* Data utilities */}
-      <section className="bg-white rounded-xl border border-[var(--border)] p-4">
+      <section className="bg-base rounded-xl border border-[var(--border)] p-4">
         <p className="font-inter text-sm font-semibold text-ink mb-1">Data Utilities</p>
         <p className="font-inter text-xs text-ink-muted mb-4">
           Permanently remove old sold inventory. Deal sheets that reference these

@@ -8,6 +8,7 @@ import { LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { getInitials } from '@/lib/formatters'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -90,6 +91,8 @@ export function TopBar({ action }: TopBarProps) {
         <div className="flex items-center gap-1 shrink-0">
           {action}
 
+          <ThemeToggle />
+
           {/* Avatar + dropdown */}
           <div className="relative" ref={menuRef}>
             <button
@@ -97,7 +100,7 @@ export function TopBar({ action }: TopBarProps) {
               aria-label="Account menu"
               aria-haspopup="menu"
               aria-expanded={menuOpen}
-              className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-white font-inter text-xs font-semibold transition-all duration-150 ease-out active:scale-[0.97]"
+              className="w-8 h-8 rounded-full bg-ink flex items-center justify-center text-base font-inter text-xs font-semibold transition-all duration-150 ease-out active:scale-[0.97]"
             >
               {initials}
             </button>
@@ -116,7 +119,7 @@ export function TopBar({ action }: TopBarProps) {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-red-50 transition-all duration-150 ease-out active:scale-[0.97]"
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-inter text-danger hover:bg-danger/10 transition-all duration-150 ease-out active:scale-[0.97]"
                 >
                   <LogOut size={14} />
                   Sign Out

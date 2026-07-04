@@ -132,7 +132,7 @@ export default function DealDetailPage() {
       <div className="px-4 flex flex-col gap-4">
 
         {/* Summary card */}
-        <div className="bg-white rounded-xl border border-[var(--border)] p-4">
+        <div className="bg-base rounded-xl border border-[var(--border)] p-4">
           <p className="font-inter text-xs text-ink-muted mb-1">CLIENT</p>
           <p className="font-display text-xl font-semibold text-ink mb-3">
             {deal.client_name}
@@ -141,7 +141,7 @@ export default function DealDetailPage() {
           <p className="font-inter text-xs text-ink-muted mb-1">VEHICLE</p>
           <p className="font-inter text-sm text-ink mb-3">{carLabel}</p>
 
-          <div className="bg-ink rounded-lg p-3 mt-3">
+          <div className="bg-ink dark:bg-[var(--bg-base)] rounded-lg p-3 mt-3">
             <div className="flex items-center justify-between">
               <span className="font-inter text-xs text-white/70">Total</span>
               <span className="font-inter text-lg font-semibold text-gold tabular-nums">
@@ -158,7 +158,7 @@ export default function DealDetailPage() {
         </div>
 
         {/* Meta */}
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-base rounded-xl border border-[var(--border)] overflow-hidden">
           {[
             { label: 'Created', value: formatDate(deal.created_at) },
             { label: 'Valid until', value: formatDate(expiryDate.toISOString()) },
@@ -211,7 +211,7 @@ export default function DealDetailPage() {
 
         {/* Preview */}
         {showPreview && settings && (
-          <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden mt-2">
+          <div className="bg-base rounded-xl border border-[var(--border)] overflow-hidden mt-2">
             <div className="w-full" style={{ height: '600px' }}>
               <PDFViewer width="100%" height="100%" showToolbar={false}>
                 <ProformaPDF deal={deal} settings={settings} />

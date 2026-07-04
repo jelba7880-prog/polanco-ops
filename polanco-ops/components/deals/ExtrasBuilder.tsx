@@ -49,7 +49,7 @@ export function ExtrasBuilder({ extras, exchangeRate, onChange }: ExtrasBuilderP
           {extras.map((extra, i) => (
             <div
               key={i}
-              className="flex items-center justify-between px-4 py-3 bg-white rounded-xl border border-[var(--border)]"
+              className="flex items-center justify-between px-4 py-3 bg-base rounded-xl border border-[var(--border)]"
             >
               <div>
                 <p className="font-inter text-sm text-ink">{extra.label}</p>

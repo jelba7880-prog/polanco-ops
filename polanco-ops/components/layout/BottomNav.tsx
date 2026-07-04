@@ -23,7 +23,7 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[var(--border)] pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-base border-t border-[var(--border)] pb-safe">
       <div className="flex items-stretch h-16 lg:max-w-6xl lg:mx-auto">
         {/* Active state is signaled by ink vs muted icon/label color alone; the
             former gold indicator dot has been removed. */}
