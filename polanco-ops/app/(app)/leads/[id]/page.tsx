@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import { useLead, useUpdateLeadStatus, useUpdateLead } from '@/hooks/useLeads'
 import { WhatsAppButton } from '@/components/leads/WhatsAppButton'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { formatDateTime, formatRelativeDate, formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
 import type { LeadStatus } from '@/lib/supabase/types'
 import { LEAD_SOURCE_CONFIG } from '@/lib/leads/sources'
@@ -110,13 +110,7 @@ export default function LeadDetailPage() {
   return (
     <div className="px-4 py-6 pb-8">
       {/* Back button */}
-      <button
-        onClick={() => router.push('/leads')}
-        className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-all duration-150 ease-out active:scale-[0.97] min-h-[44px] mb-2"
-      >
-        <ArrowLeft size={16} />
-        Leads
-      </button>
+      <BackLink label="Leads" onClick={() => router.push('/leads')} className="mb-2" />
 
       {/* Header */}
       <div className="mb-6">

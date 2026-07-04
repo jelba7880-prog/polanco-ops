@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Pencil, FileText, Archive, RotateCcw, Trash2 } from 'lucide-react'
+import { Pencil, FileText, Archive, RotateCcw, Trash2 } from 'lucide-react'
 import { useCar, useSetCarLifecycle } from '@/hooks/useCars'
 import { useSettings } from '@/hooks/useSettings'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/inventory/StatusBadge'
 import { StatusQuickUpdate } from '@/components/inventory/StatusQuickUpdate'
 import { ImageCarousel } from '@/components/inventory/ImageCarousel'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { Modal } from '@/components/ui/Modal'
 import {
   formatUSD,
@@ -103,13 +104,7 @@ export default function CarDetailPage() {
       <div className="pb-8">
         {/* Back button */}
         <div className="px-4 pt-2 pb-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-sm text-ink-muted font-inter hover:text-ink transition-all duration-150 ease-out active:scale-[0.97] min-h-[44px]"
-          >
-            <ArrowLeft size={16} />
-            Inventory
-          </button>
+          <BackLink label="Inventory" onClick={() => router.back()} />
         </div>
 
         {/* Image carousel */}
