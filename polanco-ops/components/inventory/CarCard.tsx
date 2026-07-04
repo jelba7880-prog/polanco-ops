@@ -20,7 +20,7 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
       href={`/inventory/${car.slug}`}
       style={typeof animationDelay === 'number' ? { animationDelay: `${animationDelay}ms` } : undefined}
       className={cn(
-        'block bg-white rounded-xl shadow-card border border-[var(--border)] overflow-hidden',
+        'block bg-base rounded-xl shadow-card border border-[var(--border)] overflow-hidden',
         // Press feedback shares the app-wide easing/duration (150ms ease-out).
         // Cards use a slightly softer scale (0.98 vs the 0.97 on buttons/chips)
         // because the same proportional shrink reads as more motion on a large

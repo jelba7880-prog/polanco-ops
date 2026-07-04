@@ -9,10 +9,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary:     'bg-[#C9A84C] text-[#0A0A0A] hover:bg-[#A8893E] border border-transparent',
-  secondary:   'bg-white text-[#0A0A0A] border border-[#D4D4D4] hover:bg-[#F4F4F5]',
+  // Gold fill keeps a FIXED dark foreground (text-on-accent) in both themes —
+  // gold stays a light fill, so aliasing to the theme-aware ink token would make
+  // the label unreadable in dark mode.
+  primary:     'bg-gold text-on-accent hover:bg-gold-deep border border-transparent',
+  secondary:   'bg-base text-ink border border-[var(--border-strong)] hover:bg-surface-muted',
   ghost:       'bg-transparent text-ink border border-ink/15 hover:bg-ink/5',
-  destructive: 'bg-white text-[#B91C1C] border border-[#B91C1C] hover:bg-red-50',
+  destructive: 'bg-base text-danger border border-danger hover:bg-danger/10',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

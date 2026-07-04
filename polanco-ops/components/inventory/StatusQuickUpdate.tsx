@@ -105,7 +105,7 @@ export function StatusQuickUpdate({
                 'flex items-center justify-between w-full px-4 py-3.5 rounded-xl border text-left transition-all duration-150 ease-out active:scale-[0.97]',
                 isSelected
                   ? 'border-ink bg-surface-muted'
-                  : 'border-[var(--border)] bg-white hover:bg-surface-muted'
+                  : 'border-[var(--border)] bg-base hover:bg-surface-muted'
               )}
             >
               <div>
@@ -134,7 +134,7 @@ export function StatusQuickUpdate({
             placeholder="Reserved for (client name)"
             value={reservedFor}
             onChange={(e) => setReservedFor(e.target.value)}
-            className="w-full min-h-[44px] px-4 py-2.5 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy mt-2"
+            className="w-full min-h-[44px] px-4 py-2.5 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy mt-2"
           />
         )}
       </div>

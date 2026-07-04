@@ -65,8 +65,8 @@ export default function InventoryPage() {
             onClick={() => setLifecycle(f.value)}
             className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium font-inter border active:scale-[0.97] motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out ${
               lifecycle === f.value
-                ? 'bg-ink text-white border-ink'
-                : 'bg-white text-ink-muted border-[var(--border)] hover:border-ink-soft'
+                ? 'bg-ink text-base border-ink'
+                : 'bg-base text-ink-muted border-[var(--border)] hover:border-ink-soft'
             }`}
           >
             {f.label}
@@ -85,7 +85,7 @@ export default function InventoryPage() {
           placeholder="Search by make, model, year..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-11 pl-9 pr-4 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy"
+          className="w-full h-11 pl-9 pr-4 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy"
         />
       </div>
 
@@ -97,8 +97,8 @@ export default function InventoryPage() {
             onClick={() => setStatusFilter(f.value)}
             className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-inter border active:scale-[0.97] motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out ${
               statusFilter === f.value
-                ? 'bg-ink text-white border-ink'
-                : 'bg-white text-ink-muted border-[var(--border)] hover:border-ink-soft'
+                ? 'bg-ink text-base border-ink'
+                : 'bg-base text-ink-muted border-[var(--border)] hover:border-ink-soft'
             }`}
           >
             {f.label}
@@ -112,7 +112,7 @@ export default function InventoryPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white rounded-xl h-48 animate-pulse border border-[var(--border)]"
+              className="bg-base rounded-xl h-48 animate-pulse border border-[var(--border)]"
             />
           ))}
         </div>

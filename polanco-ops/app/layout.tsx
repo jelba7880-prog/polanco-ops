@@ -58,6 +58,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // next-themes writes the resolved theme class onto <html> from an inline
+      // pre-paint script, so the server-rendered markup (no class) won't match
+      // the client's first paint. suppressHydrationWarning scopes that expected
+      // mismatch to this element only.
+      suppressHydrationWarning
       className={`${cormorant.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-inter">

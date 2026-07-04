@@ -126,7 +126,7 @@ export default function AddLeadPage() {
           <textarea
             placeholder="Any initial context about this lead..."
             rows={3}
-            className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
+            className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
             {...register('notes')}
           />
         </div>

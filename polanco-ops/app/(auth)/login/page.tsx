@@ -44,7 +44,10 @@ export default function LoginPage() {
             alt="Polanco Exotic Cars"
             width={160}
             height={64}
-            className="object-contain"
+            // The wordmark is a pure-black mark on transparency (a raster asset
+            // the token system can't recolour); invert it in dark mode so it
+            // reads as white on the near-black surface instead of vanishing.
+            className="object-contain dark:invert"
             priority
           />
         </div>

@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 const STATUS_OPTIONS: { value: LeadStatus; label: string; colorClass: string }[] = [
   { value: 'new', label: 'New', colorClass: 'bg-navy-tint text-navy' },
   { value: 'contacted', label: 'Contacted', colorClass: 'bg-gold-tint text-gold-deep' },
-  { value: 'test_drive', label: 'Test Drive', colorClass: 'bg-purple-50 text-purple-600' },
+  { value: 'test_drive', label: 'Test Drive', colorClass: 'bg-purple-50 text-purple-600 dark:bg-purple-500/15 dark:text-purple-300' },
   { value: 'negotiating', label: 'Negotiating', colorClass: 'bg-warning-tint text-warning' },
   { value: 'closed_won', label: 'Closed Won', colorClass: 'bg-success-tint text-success' },
   { value: 'closed_lost', label: 'Closed Lost', colorClass: 'bg-neutral-tint text-neutral-tag' },
@@ -122,7 +122,7 @@ export default function LeadDetailPage() {
           {currentLead.email && <> · {currentLead.email}</>}
         </p>
 
-        <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden mb-4">
+        <div className="bg-base rounded-xl border border-[var(--border)] overflow-hidden mb-4">
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
             <span className="font-inter text-sm text-ink-muted">Car Interest</span>
             <span className="font-inter text-sm font-medium text-ink text-right">
@@ -190,7 +190,7 @@ export default function LeadDetailPage() {
             onChange={(e) => setNoteText(e.target.value)}
             placeholder="Add a note..."
             rows={3}
-            className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-white font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
+            className="w-full px-4 py-3 rounded-lg border border-[var(--border-strong)] bg-base font-inter text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-navy resize-none"
           />
 
           {updateLead.isError && (
@@ -216,7 +216,7 @@ export default function LeadDetailPage() {
             {notes.map((note, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl border border-[var(--border)] px-4 py-3"
+                className="bg-base rounded-xl border border-[var(--border)] px-4 py-3"
               >
                 <p className="font-inter text-sm text-ink whitespace-pre-wrap mb-1">
                   {note.text}

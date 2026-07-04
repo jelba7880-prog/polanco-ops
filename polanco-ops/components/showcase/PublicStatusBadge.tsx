@@ -1,9 +1,14 @@
 import { cn } from '@/lib/utils'
 
+// Solid status chips overlay the car photo. Their fill uses the theme-aware
+// status tokens, but the palette's dark-mode status colours are LIGHTER, so
+// white text drops below contrast there — flip the label to fixed dark ink in
+// dark mode (dark:text-on-accent) while keeping white on the darker light-mode
+// fills.
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  available: { label: 'Available', className: 'bg-success/90 text-white' },
-  reserved: { label: 'Reserved', className: 'bg-warning/90 text-white' },
-  in_transit: { label: 'In Transit', className: 'bg-navy/90 text-white' },
+  available: { label: 'Available', className: 'bg-success/90 text-white dark:text-on-accent' },
+  reserved: { label: 'Reserved', className: 'bg-warning/90 text-white dark:text-on-accent' },
+  in_transit: { label: 'In Transit', className: 'bg-navy/90 text-white dark:text-on-accent' },
 }
 
 interface PublicStatusBadgeProps {

@@ -29,7 +29,7 @@ export function DealCard({ deal }: DealCardProps) {
     <Link
       href={`/deals/${deal.id}`}
       // Softer 0.98 press scale for large cards (vs 0.97 on buttons/chips); same 150ms ease-out.
-      className="block bg-white rounded-xl border border-[var(--border)] shadow-card active:scale-[0.98] transition-transform duration-150 ease-out"
+      className="block bg-base rounded-xl border border-[var(--border)] shadow-card active:scale-[0.98] transition-transform duration-150 ease-out"
     >
       <div className="flex items-start gap-3 px-4 py-3.5">
         {/* Thumbnail */}
@@ -54,7 +54,7 @@ export function DealCard({ deal }: DealCardProps) {
               {deal.client_name}
             </p>
             {initials && (
-              <span className="shrink-0 w-5 h-5 rounded-full bg-navy text-white text-[9px] font-inter font-semibold flex items-center justify-center">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-navy text-white dark:text-on-accent text-[9px] font-inter font-semibold flex items-center justify-center">
                 {initials}
               </span>
             )}

@@ -141,7 +141,7 @@ export default function CarDetailPage() {
           </div>
 
           {/* Specs grid */}
-          <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden mb-6">
+          <div className="bg-base rounded-xl border border-[var(--border)] overflow-hidden mb-6">
             {specs.map((spec, i) => (
               <div
                 key={spec.label}
@@ -157,7 +157,7 @@ export default function CarDetailPage() {
 
           {/* Notes */}
           {car.notes && (
-            <div className="bg-white rounded-xl border border-[var(--border)] px-4 py-4 mb-6">
+            <div className="bg-base rounded-xl border border-[var(--border)] px-4 py-4 mb-6">
               <p className="font-inter text-xs text-ink-muted mb-1">Notes</p>
               <p className="font-inter text-sm text-ink">{car.notes}</p>
             </div>

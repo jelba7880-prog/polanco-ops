@@ -1,50 +1,144 @@
 @import "tailwindcss";
 
+/* Class-scoped dark variant (manual override, NOT prefers-color-scheme). The
+   `.dark` class is toggled on <html> by next-themes. `dark:` utilities compile
+   to `&:where(.dark, .dark *)` so they apply only inside a .dark ancestor. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* NOTE: this @theme block keeps `inline` (required for the next/font
+   self-references below to resolve). Its COLOR + SHADOW keys are intentionally
+   mapped to `var(--token)` rather than literal hex: with `inline`, Tailwind
+   bakes the resolved value into each utility, so `--color-base: var(--surface)`
+   yields `.bg-base { background-color: var(--surface) }`. That indirection is
+   what lets the .dark override block below flip every token-based utility
+   without touching a single utility name. */
 @theme inline {
-  --color-base: #ffffff;
-  --color-subtle: #f7f5f0;
-  --color-ink: #0a0a0a;
-  --color-ink-soft: #4d4d4d;
-  --color-ink-muted: #6b6b6b;
-  --color-gold: #c9a84c;
-  --color-navy: #1e3a5f;
-  --color-danger: #c0392b;
+  --color-base: var(--surface);
+  --color-subtle: var(--bg-subtle);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-gold: var(--gold);
+  --color-navy: var(--navy);
+  --color-danger: var(--danger);
 
   /* Status colors + soft tinted backgrounds */
-  --color-success: #15803d;
-  --color-success-tint: #e7f3ec;
-  --color-warning: #b45309;
-  --color-warning-tint: #fdf1e3;
-  --color-neutral-tag: #737373;
-  --color-neutral-tint: #f0f0f0;
-  --color-navy-tint: #e8edf3;
-  --color-gold-tint: #f7f0dc;
-  --color-gold-deep: #a8853a;
+  --color-success: var(--success);
+  --color-success-tint: var(--tint-success);
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--tint-warning);
+  --color-neutral-tag: var(--neutral-tag);
+  --color-neutral-tint: var(--tint-neutral);
+  --color-navy-tint: var(--tint-navy);
+  --color-gold-tint: var(--tint-gold);
+  --color-gold-deep: var(--gold-deep);
 
   /* Surfaces & borders */
-  --color-surface-muted: #f2f2f2;
-  --color-border-base: rgba(10, 10, 10, 0.12);
+  --color-surface-muted: var(--surface-muted);
+  --color-border-base: var(--border-strong);
+
+  /* Fixed dark ink for text/icons sitting on gold (and other always-light
+     accent) fills. Intentionally does NOT flip with the theme — gold stays a
+     light fill in both modes, so aliasing this to --ink (which flips light in
+     dark mode) would make gold-button text unreadable. */
+  --color-on-accent: #0a0a0a;
 
   --font-cormorant: var(--font-cormorant), Georgia, serif;
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-inter: var(--font-inter), sans-serif;
 
-  /* Resting card depth: shadow + a 1px hairline ring, pronounced enough to lift
-     cards clearly off the warm --bg-base page. Blur radius stays <16px so it
-     doesn't dent Lighthouse paint scores. */
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  /* Hover-only elevation, applied at md+ on hover-capable pointers (see the
-     @media (hover: hover) rule below). Never fires on touch-primary devices. */
-  --shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.11), 0 0 0 1px rgba(0, 0, 0, 0.07);
-  --shadow-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
+  /* Elevation resolves through CSS variables (defined per-theme below) so the
+     light page keeps its soft drop shadow while the near-black dark page gets a
+     deeper shadow plus a faint light hairline ring — a pure drop shadow is
+     invisible on dark. Blur radius stays modest so it doesn't dent Lighthouse. */
+  --shadow-card: var(--elevation-card);
+  --shadow-card-hover: var(--elevation-card-hover);
+  --shadow-elevated: var(--elevation-elevated);
 }
 
+/* ── Light theme tokens (default) ─────────────────────────────────────────
+   The semantic layer the @theme mapping above references. Overridden wholesale
+   by the .dark block; anything a component reaches for via border-[var(--x)] or
+   bg-[var(--x)] also flips here for free. */
 :root {
+  /* Page + surface backgrounds. --bg-base is the warm page background painted
+     on <body>; --surface is the white card/bar/sheet/input fill (utility
+     `bg-base`, kept for name-compat with existing markup). */
+  --bg-base: #f0ede8;
+  --bg-subtle: #f7f5f0;
+  --surface: #ffffff;
+  --surface-muted: #f2f2f2;
+
+  /* Borders */
   --border: rgba(10, 10, 10, 0.08);
   --border-strong: rgba(10, 10, 10, 0.15);
-  /* Warm page background — applies at every breakpoint. Painted on <body> so it
-     fills the full viewport width behind the centered desktop content column. */
-  --bg-base: #f0ede8;
+
+  /* Text */
+  --ink: #0a0a0a;
+  --ink-soft: #4d4d4d;
+  --ink-muted: #6b6b6b;
+
+  /* Brand + status */
+  --gold: #c9a84c;
+  --gold-deep: #a8853a;
+  --navy: #1e3a5f;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #c0392b;
+  --neutral-tag: #737373;
+
+  /* Soft tint chip backgrounds — opaque, so they stay legible over photos. */
+  --tint-success: #e7f3ec;
+  --tint-warning: #fdf1e3;
+  --tint-navy: #e8edf3;
+  --tint-gold: #f7f0dc;
+  --tint-neutral: #f0f0f0;
+
+  /* Elevation (see @theme note above) */
+  --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --elevation-card-hover: 0 6px 16px rgba(0, 0, 0, 0.11), 0 0 0 1px rgba(0, 0, 0, 0.07);
+  --elevation-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
+}
+
+/* ── Dark theme tokens ────────────────────────────────────────────────────
+   Applied when next-themes sets class="dark" on <html>. Same variable names as
+   :root, dark values from the approved palette — so every token-based utility
+   and every bg-[var(--x)]/border-[var(--x)] usage flips with no per-component
+   dark styling. */
+.dark {
+  --bg-base: #0e0d0c;
+  --bg-subtle: #131211;
+  --surface: #1b1917;
+  --surface-muted: #242220;
+
+  --border: #2e2b27;
+  --border-strong: #3d3935;
+
+  --ink: #f5f1e8;
+  --ink-soft: #c7c0b4;
+  --ink-muted: #8a8478;
+
+  --gold: #d9bd6e;
+  --gold-deep: #c9a84c;
+  --navy: #6e93c0;
+  --success: #34a65f;
+  --warning: #d89440;
+  --danger: #e5534b;
+  --neutral-tag: #8a8478;
+
+  /* Dark tints: the status hue mixed INTO the opaque dark surface (not
+     transparent) so the chip stays a solid, legible fill over photos. */
+  --tint-success: color-mix(in srgb, var(--success) 20%, var(--surface));
+  --tint-warning: color-mix(in srgb, var(--warning) 20%, var(--surface));
+  --tint-navy: color-mix(in srgb, var(--navy) 22%, var(--surface));
+  --tint-gold: color-mix(in srgb, var(--gold) 20%, var(--surface));
+  --tint-neutral: color-mix(in srgb, var(--neutral-tag) 20%, var(--surface));
+
+  /* Dark elevation: deeper drop shadow + faint light hairline ring and inset
+     top highlight so a raised surface reads against the near-black page. */
+  --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 241, 232, 0.06), inset 0 1px 0 0 rgba(245, 241, 232, 0.04);
+  --elevation-card-hover: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.05);
+  --elevation-elevated: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.06);
 }
 
 /* Hide horizontal scrollbar on filter chip rows while keeping scroll */
@@ -441,5 +535,18 @@ body {
 
   .card-hoverable:hover {
     box-shadow: var(--shadow-card-hover);
+  }
+}
+
+/* ── Dark-mode FAB hover shadow ───────────────────────────────────────────
+   The FAB's resting shadow (shadow-elevated) already flips via the elevation
+   token, but its hover shadow is hardcoded dark rgba and vanishes on the
+   near-black page. Swap in a lifted shadow + light hairline ring under .dark so
+   the gold pill still reads as rising on hover. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .dark .fab:hover {
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6),
+                0 6px 14px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(245, 241, 232, 0.12);
   }
 }
