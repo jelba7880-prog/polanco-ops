@@ -56,7 +56,7 @@ export function PublicFilterChips({
           {makes.map((make) => (
             <Chip
               key={make}
-              label={toDisplayCase(make)}
+              label={make}
               active={selectedMake === make}
               onClick={() => onMakeChange(make)}
             />

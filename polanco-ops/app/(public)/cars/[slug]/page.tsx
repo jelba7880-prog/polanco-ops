@@ -76,7 +76,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
           <div className="lg:w-[55%]">
             <CarGallery
               images={car.images}
-              carName={`${car.year} ${toDisplayCase(car.make)} ${toDisplayCase(car.model)}`}
+              carName={`${car.year} ${car.make} ${car.model}`}
             />
           </div>
 
@@ -87,7 +87,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               {car.year}
             </p>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-ink leading-tight mb-3">
-              {toDisplayCase(car.make)} {toDisplayCase(car.model)}
+              {car.make} {car.model}
             </h1>
             <p className="font-inter text-[28px] font-semibold text-gold">
               {formatUSD(car.price_usd)}

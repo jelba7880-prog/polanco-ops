@@ -28,7 +28,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
             )}
             <Image
               src={car.coverImageUrl}
-              alt={`${car.year} ${toDisplayCase(car.make)} ${toDisplayCase(car.model)}`}
+              alt={`${car.year} ${car.make} ${car.model}`}
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -56,7 +56,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
           {car.year}
         </p>
         <h3 className="font-display text-[22px] font-semibold text-ink leading-tight mb-1">
-          {toDisplayCase(car.make)} {toDisplayCase(car.model)}
+          {car.make} {car.model}
         </h3>
         <p className="font-inter text-[13px] text-ink-soft mb-2">
           {toDisplayCase(car.condition)} · {formatMileage(car.mileage_km)}

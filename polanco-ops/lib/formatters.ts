@@ -170,8 +170,13 @@ export function toDisplayCase(input: string | null | undefined): string {
     .join(' ')
 }
 
+// Make/model are shown exactly as staff entered them — never re-cased. Real
+// model names carry acronyms, Roman numerals and mixed case ("III", "AMG",
+// "SVJ", "GT3 RS", "LX700h") that any title-case pass corrupts (e.g. "III" →
+// "Iii"). Staff type these correctly, so the stored value is the source of
+// truth; do not route make/model through toDisplayCase or any casing helper.
 export function formatCarTitle(make: string, model: string, year: number): string {
-  return `${year} ${toDisplayCase(make)} ${toDisplayCase(model)}`
+  return `${year} ${make} ${model}`
 }
 
 export function formatConditionLabel(condition: string): string {

@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 import { logActivity } from '@/lib/activity/log'
 import { useToast } from '@/components/ui/Toast'
-import { formatUSD, formatNGN, usdToNgn, toDisplayCase } from '@/lib/formatters'
+import { formatUSD, formatNGN, usdToNgn } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 type Step = 1 | 2 | 3
@@ -162,7 +162,7 @@ export default function NewDealPage() {
         action_type: 'deal_sheet_generated',
         entity_type: 'deal_sheet',
         entity_id: deal.id,
-        description: `Deal sheet for ${deal.client_name} — ${toDisplayCase(carSnapshot.make)} ${toDisplayCase(carSnapshot.model)}`,
+        description: `Deal sheet for ${deal.client_name} — ${carSnapshot.make} ${carSnapshot.model}`,
       })
 
       showToast('Deal created', 'success')
@@ -267,7 +267,7 @@ export default function NewDealPage() {
                       <option value="">Select from inventory...</option>
                       {availableCars.map((car) => (
                         <option key={car.id} value={car.id}>
-                          {car.year} {toDisplayCase(car.make)} {toDisplayCase(car.model)} — {formatUSD(car.price_usd)}
+                          {car.year} {car.make} {car.model} — {formatUSD(car.price_usd)}
                         </option>
                       ))}
                     </Select>
