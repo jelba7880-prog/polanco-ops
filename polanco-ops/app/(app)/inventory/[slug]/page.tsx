@@ -111,7 +111,7 @@ export default function CarDetailPage() {
         <div className="px-4">
           <ImageCarousel
             images={carImages}
-            carName={`${car.year} ${toDisplayCase(car.make)} ${toDisplayCase(car.model)}`}
+            carName={`${car.year} ${car.make} ${car.model}`}
           />
         </div>
 
