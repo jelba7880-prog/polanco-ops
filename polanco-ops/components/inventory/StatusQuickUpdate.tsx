@@ -149,7 +149,7 @@ export function StatusQuickUpdate({
       <button
         onClick={handleConfirm}
         disabled={updateStatus.isPending}
-        className="w-full h-12 bg-gold text-ink font-inter font-medium text-sm rounded-xl disabled:opacity-50 transition-all duration-150 ease-out active:scale-[0.97]"
+        className="w-full h-12 bg-gold text-on-accent font-inter font-medium text-sm rounded-xl disabled:opacity-50 transition-all duration-150 ease-out active:scale-[0.97]"
       >
         {updateStatus.isPending ? 'Updating...' : 'Confirm'}
       </button>

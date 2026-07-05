@@ -78,34 +78,49 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-hidden="true"
       />
 
-      {/* Sheet */}
+      {/* Sheet — capped to a share of the viewport height and split into a
+          fixed header + a scrolling body, so content taller than the screen
+          scrolls inside the sheet instead of pushing the primary action (e.g.
+          Confirm) past the edge. Matters most at sm+, where the sheet is
+          vertically centered (items-center) rather than bottom-anchored
+          (items-end) like on mobile — centering pushes overflow off BOTH
+          edges instead of just the top, and with body scroll locked while
+          open there'd be no way to reach the cut-off content. */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative w-full sm:max-w-md bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated px-6 pt-6 pb-6 pb-safe',
+          'relative w-full sm:max-w-md max-h-[85dvh] bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated flex flex-col overflow-hidden',
           closing ? 'modal-sheet-exit' : 'modal-sheet-enter'
         )}
       >
-        {/* Drag handle (mobile sheet affordance) */}
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border-base sm:hidden" />
+        {/* Header — stays pinned above the scrolling body so the title and
+            close button are always reachable, even mid-scroll. */}
+        <div className="shrink-0 px-6 pt-6">
+          {/* Drag handle (mobile sheet affordance) */}
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border-base sm:hidden" />
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          {title && (
-            <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
-          )}
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97]"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center justify-between mb-6">
+            {title && (
+              <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted transition-all duration-150 ease-out active:scale-[0.97]"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
-        {children}
+        {/* Body — the only scrollable region. min-h-0 is required inside a
+            flex column for overflow-y-auto to take effect (a flex child
+            otherwise won't shrink below its content's natural height). */}
+        <div className="min-h-0 overflow-y-auto overscroll-contain px-6 pb-6 pb-safe">
+          {children}
+        </div>
       </div>
     </div>
   )

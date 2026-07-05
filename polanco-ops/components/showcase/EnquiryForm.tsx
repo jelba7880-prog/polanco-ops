@@ -200,7 +200,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 rounded-lg bg-gold text-ink font-inter text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-12 rounded-lg bg-gold text-on-accent font-inter text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Sending…' : 'Enquire via WhatsApp →'}
         </button>
