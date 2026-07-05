@@ -1,21 +1,32 @@
 import Link from 'next/link'
 import { Phone } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
+import { PublicBackButton } from '@/components/showcase/PublicBackButton'
 
 const WHATSAPP_NUMBER = '+234 911 564 8723'
 
-export function PublicHeader() {
+interface PublicHeaderProps {
+  /** Show the back-to-listing affordance. Only detail-style pages (e.g. a car's
+   * own page) pass this — the listing itself is a root screen and stays bare. */
+  showBackButton?: boolean
+}
+
+export function PublicHeader({ showBackButton = false }: PublicHeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full bg-base border-b border-[var(--border)]">
       <div className="mx-auto max-w-[1280px] h-16 md:h-[72px] px-4 md:px-10 flex items-center justify-between">
-        <Link href="/cars">
-          <p className="font-display font-bold tracking-widest text-ink text-lg leading-tight">
-            POLANCO
-          </p>
-          <p className="font-inter text-[10px] text-ink-muted uppercase tracking-wide">
-            Exotic Cars · Lagos
-          </p>
-        </Link>
+        <div className="flex items-center gap-1">
+          {showBackButton && <PublicBackButton />}
+
+          <Link href="/cars">
+            <p className="font-display font-bold tracking-widest text-ink text-lg leading-tight">
+              POLANCO
+            </p>
+            <p className="font-inter text-[10px] text-ink-muted uppercase tracking-wide">
+              Exotic Cars · Lagos
+            </p>
+          </Link>
+        </div>
 
         <div className="flex items-center gap-1">
           <a
