@@ -145,7 +145,7 @@ export function ImageUploader({
             {/* Cover indicator */}
             {image.isCover && (
               <div className="absolute bottom-1 left-1">
-                <span className="bg-gold text-ink text-[9px] font-inter font-semibold px-1.5 py-0.5 rounded-full">
+                <span className="bg-gold text-on-accent text-[9px] font-inter font-semibold px-1.5 py-0.5 rounded-full">
                   COVER
                 </span>
               </div>
