@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 /* Class-scoped dark variant (manual override, NOT prefers-color-scheme). The
-   `.dark` class is toggled on <html> by next-themes. `dark:` utilities compile
-   to `&:where(.dark, .dark *)` so they apply only inside a .dark ancestor. */
-@custom-variant dark (&:where(.dark, .dark *));
+   `.dark` OR `.dim` class is toggled on <html> by next-themes. The variant
+   matches BOTH dark-family classes so every `dark:` utility (icon swaps,
+   inverted panels, status-badge text, etc.) applies in Dim as well as Dark —
+   Dim is a dark-family variant, just a softer mid-tone one. */
+@custom-variant dark (&:where(.dark, .dark *, .dim, .dim *));
 
 /* NOTE: this @theme block keeps `inline` (required for the next/font
    self-references below to resolve). Its COLOR + SHADOW keys are intentionally
@@ -98,13 +100,52 @@
   --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
   --elevation-card-hover: 0 6px 16px rgba(0, 0, 0, 0.11), 0 0 0 1px rgba(0, 0, 0, 0.07);
   --elevation-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
+
+  /* Native UI (scrollbars, form controls) tint. Managed here rather than by
+     next-themes (enableColorScheme={false}) so the mid-tone Dim variant — whose
+     theme key isn't one of next-themes' 'light'/'dark' — still gets a dark
+     native tint. */
+  color-scheme: light;
 }
 
-/* ── Dark theme tokens ────────────────────────────────────────────────────
-   Applied when next-themes sets class="dark" on <html>. Same variable names as
-   :root, dark values from the approved palette — so every token-based utility
-   and every bg-[var(--x)]/border-[var(--x)] usage flips with no per-component
-   dark styling. */
+/* ── Dark-family SHARED tokens (Dark + Dim) ────────────────────────────────
+   Brand, status, derived tints, elevation and native color-scheme — identical
+   across both dark-family variants (Dark = true black, Dim = mid-tone). Defined
+   ONCE in a shared selector so gold/navy/status can never drift between the two
+   in future edits. Only the neutral scale (bg/surface/border/ink) is split into
+   the per-variant blocks below.
+
+   Tints reference var(--surface): since --surface differs per variant, each tint
+   correctly mixes into ITS OWN surface, staying a solid legible chip on both —
+   the status HUE is identical, only the surface it's blended into changes. */
+.dark,
+.dim {
+  --gold: #d9bd6e;
+  --gold-deep: #c9a84c;
+  --navy: #6e93c0;
+  --success: #34a65f;
+  --warning: #d89440;
+  --danger: #e5534b;
+  --neutral-tag: #8a8478;
+
+  --tint-success: color-mix(in srgb, var(--success) 20%, var(--surface));
+  --tint-warning: color-mix(in srgb, var(--warning) 20%, var(--surface));
+  --tint-navy: color-mix(in srgb, var(--navy) 22%, var(--surface));
+  --tint-gold: color-mix(in srgb, var(--gold) 20%, var(--surface));
+  --tint-neutral: color-mix(in srgb, var(--neutral-tag) 20%, var(--surface));
+
+  /* Dark-family elevation: deeper drop shadow + faint light hairline ring and
+     inset top highlight so a raised surface reads against the dark page. */
+  --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 241, 232, 0.06), inset 0 1px 0 0 rgba(245, 241, 232, 0.04);
+  --elevation-card-hover: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.05);
+  --elevation-elevated: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.06);
+
+  color-scheme: dark;
+}
+
+/* ── Dark theme neutral scale (true black) ────────────────────────────────
+   Applied when next-themes sets class="dark" on <html> (the explicit "Dark"
+   option). Values UNCHANGED from the original single-variant dark theme. */
 .dark {
   --bg-base: #0e0d0c;
   --bg-subtle: #131211;
@@ -117,28 +158,24 @@
   --ink: #f5f1e8;
   --ink-soft: #c7c0b4;
   --ink-muted: #8a8478;
+}
 
-  --gold: #d9bd6e;
-  --gold-deep: #c9a84c;
-  --navy: #6e93c0;
-  --success: #34a65f;
-  --warning: #d89440;
-  --danger: #e5534b;
-  --neutral-tag: #8a8478;
+/* ── Dim theme neutral scale (mid-tone) ───────────────────────────────────
+   Applied when next-themes sets class="dim" on <html> (the "Dim" option and
+   the System→OS-dark resolution). A softer, warmer dark than true-black. Brand
+   and status tokens come from the shared .dark, .dim block above. */
+.dim {
+  --bg-base: #1e1c1a;
+  --bg-subtle: #242220;
+  --surface: #2b2825;
+  --surface-muted: #363330;
 
-  /* Dark tints: the status hue mixed INTO the opaque dark surface (not
-     transparent) so the chip stays a solid, legible fill over photos. */
-  --tint-success: color-mix(in srgb, var(--success) 20%, var(--surface));
-  --tint-warning: color-mix(in srgb, var(--warning) 20%, var(--surface));
-  --tint-navy: color-mix(in srgb, var(--navy) 22%, var(--surface));
-  --tint-gold: color-mix(in srgb, var(--gold) 20%, var(--surface));
-  --tint-neutral: color-mix(in srgb, var(--neutral-tag) 20%, var(--surface));
+  --border: #423e39;
+  --border-strong: #524c46;
 
-  /* Dark elevation: deeper drop shadow + faint light hairline ring and inset
-     top highlight so a raised surface reads against the near-black page. */
-  --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 241, 232, 0.06), inset 0 1px 0 0 rgba(245, 241, 232, 0.04);
-  --elevation-card-hover: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.05);
-  --elevation-elevated: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.06);
+  --ink: #f0ebe2;
+  --ink-soft: #c9c2b6;
+  --ink-muted: #948d80;
 }
 
 /* Hide horizontal scrollbar on filter chip rows while keeping scroll */
@@ -544,7 +581,8 @@ body {
    near-black page. Swap in a lifted shadow + light hairline ring under .dark so
    the gold pill still reads as rising on hover. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .dark .fab:hover {
+  .dark .fab:hover,
+  .dim .fab:hover {
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6),
                 0 6px 14px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(245, 241, 232, 0.12);

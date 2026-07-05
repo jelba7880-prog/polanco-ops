@@ -1,14 +1,19 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import { Monitor, Moon, Sun } from 'lucide-react'
+import { Monitor, Moon, Sun, SunDim } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
+import { THEME } from '@/lib/theme'
 
+// The only surface where all four options are exposed. "Dark" is the explicit
+// true-black variant (theme key 'black' — see lib/theme.ts); "Dim" is the
+// softer mid-tone; "System" follows the OS and resolves OS-dark to Dim.
 const OPTIONS = [
-  { value: 'light', label: 'Light', Icon: Sun },
-  { value: 'dark', label: 'Dark', Icon: Moon },
-  { value: 'system', label: 'System', Icon: Monitor },
+  { value: THEME.light, label: 'Light', Icon: Sun },
+  { value: THEME.dim, label: 'Dim', Icon: SunDim },
+  { value: THEME.dark, label: 'Dark', Icon: Moon },
+  { value: THEME.system, label: 'System', Icon: Monitor },
 ] as const
 
 // Hydration-safe "have we mounted on the client yet" flag. Returns false on the
@@ -50,7 +55,7 @@ export function AppearancePicker() {
             aria-checked={isActive}
             onClick={() => setTheme(value)}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 font-inter text-xs font-medium transition-all duration-150 ease-out active:scale-[0.97]',
+              'flex flex-1 min-w-0 items-center justify-center gap-1 rounded-md px-2 py-2 font-inter text-xs font-medium transition-all duration-150 ease-out active:scale-[0.97]',
               isActive
                 ? 'bg-base text-ink shadow-card'
                 : 'text-ink-muted hover:text-ink'
