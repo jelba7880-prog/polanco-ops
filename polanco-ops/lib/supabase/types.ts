@@ -45,6 +45,9 @@ export interface Car {
   status: CarStatus
   lifecycle_status: CarLifecycleStatus
   lifecycle_changed_at: string | null
+  // Public showcase opt-out (see public_cars_view). Independent of status and
+  // lifecycle_status; has no effect on any Ops Hub list/detail query.
+  is_public: boolean
   reserved_for: string | null
   notes: string | null
   added_by: string | null

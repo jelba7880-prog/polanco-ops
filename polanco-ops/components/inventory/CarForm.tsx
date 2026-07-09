@@ -199,6 +199,33 @@ export function CarForm({
         </div>
       </div>
 
+      {/* ── Visibility ─────────────────────────────────────────── */}
+      <div>
+        <SectionHeader label="Visibility" />
+        <label className="flex items-center justify-between gap-4 cursor-pointer">
+          <span className="flex flex-col">
+            <span className="font-inter text-sm font-medium text-ink">
+              Show on Public Site
+            </span>
+            <span className="font-inter text-xs text-ink-muted mt-0.5">
+              Lists this car on the public showcase. Turn off to hide it from the
+              public site — staff can still see and manage it here.
+            </span>
+          </span>
+          <span className="relative inline-flex items-center shrink-0 w-11 h-6">
+            <input type="checkbox" className="peer sr-only" {...register('is_public')} />
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-surface-muted border border-[var(--border-strong)] transition-colors duration-150 ease-out peer-checked:bg-gold peer-checked:border-gold peer-focus-visible:ring-2 peer-focus-visible:ring-navy/30"
+            />
+            <span
+              aria-hidden
+              className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full bg-base shadow-card transition-transform duration-150 ease-out peer-checked:translate-x-5"
+            />
+          </span>
+        </label>
+      </div>
+
       {/* ── Images ─────────────────────────────────────────────── */}
       <div>
         <SectionHeader label="Images" />

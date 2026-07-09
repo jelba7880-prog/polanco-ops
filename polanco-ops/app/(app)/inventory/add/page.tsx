@@ -32,6 +32,7 @@ export default function AddCarPage() {
       condition: 'Foreign Used',
       status: 'available',
       mileage_km: 0,
+      is_public: true,
     },
   })
 
