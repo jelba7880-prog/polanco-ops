@@ -110,15 +110,18 @@
 
   /* Public showcase card page-turn flip (desktop hover only — see the
      .showcase-flip* rules below and PublicCarCard). Theme-invariant, so defined
-     once here. The duration is a DELIBERATE one-off that still exceeds the app's
-     standard 200ms ease-out — a page turn needs longer to read as paper — but it
-     is now short enough to complete well inside each 1s cycle step, leaving a
-     visible static hold. The easing is asymmetric (quick initial rotation,
-     gentle deceleration) so the page reads as settling into place, no overshoot.
-     Changed from the PR #84 baseline of 620ms / cubic-bezier(0.45,0.05,0.25,1). */
+     once here. A DELIBERATE one-off that far exceeds the app's standard 200ms
+     ease-out: each step is now ONE continuous 1000ms turn with no static hold —
+     photos turn through the sequence at a steady ~1/second pace. The easing is
+     asymmetric (quicker initial rotation, gentle deceleration) so the turn reads
+     as settling into place rather than linear or front-loaded; the control
+     points are re-tuned from the previous 420ms flip because a curve that felt
+     right at 420ms drags at 1000ms. Evolution of this token:
+     620ms cubic-bezier(0.45,0.05,0.25,1) → 420ms cubic-bezier(0.2,0.8,0.25,1)
+     → 1000ms cubic-bezier(0.3,0.7,0.25,1). */
   --flip-perspective: 1200px;
-  --flip-duration: 420ms;
-  --flip-ease: cubic-bezier(0.2, 0.8, 0.25, 1);
+  --flip-duration: 1000ms;
+  --flip-ease: cubic-bezier(0.3, 0.7, 0.25, 1);
 
   /* Native UI (scrollbars, form controls) tint. Managed here rather than by
      next-themes (enableColorScheme={false}) so the mid-tone Dim variant — whose
