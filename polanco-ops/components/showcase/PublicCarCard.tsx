@@ -14,14 +14,13 @@ interface PublicCarCardProps {
 }
 
 // The pointer must rest on a card this long before the cycle starts — a
-// hover-intent delay so a cursor merely crossing a card never triggers it. It
-// doubles as the cover's own dwell before the first turn.
+// hover-intent delay so a cursor merely crossing a card never triggers it.
 const HOVER_INTENT_MS = 1000
 
-// Total time each photo holds on screen, INCLUDING its own ~420ms turn (the CSS
-// --flip-duration). The turn happens at the start of the window; the rest is a
-// static hold. A product cadence, distinct from the motion token in globals.css.
-const STEP_DWELL_MS = 1000
+// Safety net: if a target image's load event is somehow never observed, engage
+// its turn anyway after this long rather than stalling the cycle. The preloader
+// gives every image a big head start, so this effectively never fires.
+const LOAD_FALLBACK_MS = 1200
 
 // Shared across every card image so Next generates identical srcsets — the
 // hidden preloader then warms the exact optimized URLs the cycle later renders.
@@ -60,10 +59,13 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
   const phaseRef = useRef<Phase>('idle')
   const displayIndexRef = useRef(0) // index into displayCycle currently settled/targeted
   const intentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const stepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rafRef = useRef<number | null>(null) // pending double-rAF that arms the next turn
   const flippingRef = useRef(false) // mirror of `flipping` for synchronous reads
   const revertQueuedRef = useRef(false) // pointer left mid-flip: revert after this step commits
   const pendingTargetRef = useRef('') // image the in-flight turn is settling to
+  const awaitingLoadRef = useRef(false) // a turn is deferred until its target image loads
+  const loadFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const loadedSrcsRef = useRef<Set<string>>(new Set()) // image URLs known to have loaded
 
   // Resolve device capability on the client only. Touch-primary phones fail
   // (hover: hover)/(pointer: fine) and never cycle; reduced-motion users opt out
@@ -83,68 +85,113 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
     }
   }, [])
 
-  function clearTimers() {
+  // Cancel every pending async handle — the intent timer, the armed turn's
+  // double-rAF, and the load fallback. Called on every enter/leave, on capability
+  // loss, and on unmount, so no turn can advance a card that is no longer hovered.
+  function clearScheduled() {
     if (intentTimerRef.current) {
       clearTimeout(intentTimerRef.current)
       intentTimerRef.current = null
     }
-    if (stepTimerRef.current) {
-      clearTimeout(stepTimerRef.current)
-      stepTimerRef.current = null
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    if (loadFallbackRef.current) {
+      clearTimeout(loadFallbackRef.current)
+      loadFallbackRef.current = null
     }
   }
 
   // Tear everything down if capability is lost mid-cycle (mouse unplugged) or the
-  // card unmounts (grid re-filters) — no timer may advance a cycle on a card
-  // that is no longer hoverable or mounted.
+  // card unmounts (grid re-filters).
   useEffect(() => {
     if (!showFlip) {
-      clearTimers()
+      clearScheduled()
       phaseRef.current = 'idle'
       flippingRef.current = false
       revertQueuedRef.current = false
+      awaitingLoadRef.current = false
       displayIndexRef.current = 0
     }
   }, [showFlip])
 
   useEffect(() => {
-    return () => clearTimers()
+    return () => clearScheduled()
   }, [])
 
-  // Begin a single page turn toward `target`: point the reveal layer (static +
-  // back face) at it, then add .is-flipping so the front peels away to uncover
-  // it. The commit happens on transitionEnd.
-  function startFlip(target: string) {
-    if (flippingRef.current) return // never overlap turns (cadence prevents this)
+  // Record a loaded image and, if a turn was waiting on exactly this one, arm it
+  // now. Fed by both the preloader and the reveal layer's onLoad.
+  function markLoaded(src: string) {
+    loadedSrcsRef.current.add(src)
+    if (awaitingLoadRef.current && src === pendingTargetRef.current) {
+      awaitingLoadRef.current = false
+      if (loadFallbackRef.current) {
+        clearTimeout(loadFallbackRef.current)
+        loadFallbackRef.current = null
+      }
+      engageFlip()
+    }
+  }
+
+  // Add .is-flipping — but only after the page's current 0° state has actually
+  // painted. The double rAF guarantees that committed frame, which is what makes
+  // the turn animate (rather than snap) every single time: on the very first turn
+  // AND after each flip-clock reset, where the reset-to-0° and the next 0→-180°
+  // would otherwise collapse into one paint with nothing to transition from.
+  function engageFlip() {
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        flippingRef.current = true
+        setFlipping(true)
+      })
+    })
+  }
+
+  // Begin a turn toward `target`: point the reveal layer (static + back face) at
+  // it, then arm the turn — but wait until the target has actually loaded so the
+  // turn never uncovers a blank/decoding frame (the first step's failure mode,
+  // since its image is the earliest to still be in flight after the intent).
+  function beginFlipTo(target: string) {
     pendingTargetRef.current = target
     setRevealSrc(target) // occluded behind the opaque front / hidden back face
-    flippingRef.current = true
-    setFlipping(true)
+    if (loadedSrcsRef.current.has(target)) {
+      engageFlip()
+    } else {
+      awaitingLoadRef.current = true
+      loadFallbackRef.current = setTimeout(() => {
+        loadFallbackRef.current = null
+        if (awaitingLoadRef.current && pendingTargetRef.current === target) {
+          awaitingLoadRef.current = false
+          engageFlip()
+        }
+      }, LOAD_FALLBACK_MS)
+    }
   }
 
-  // Advance one step in the cycle and schedule the next. Called first when the
-  // intent timer fires (cover → photo 2), then every STEP_DWELL_MS.
-  function doStep() {
+  // Advance one step, wrapping cover → 2 → … → last → cover → … indefinitely.
+  function flipToNext() {
     const next = (displayIndexRef.current + 1) % cycleLen
-    startFlip(displayCycle[next])
     displayIndexRef.current = next
-    stepTimerRef.current = setTimeout(doStep, STEP_DWELL_MS)
+    beginFlipTo(displayCycle[next])
   }
 
-  // Turn back to the cover (index 0), then rest. Only ever called when not
-  // already mid-flip.
+  // Turn back to the cover (index 0), then rest. Only called when not mid-flip.
   function beginRevert() {
     if (displayIndexRef.current === 0) {
       phaseRef.current = 'idle'
       return
     }
     phaseRef.current = 'reverting'
-    startFlip(displayCycle[0])
     displayIndexRef.current = 0
+    beginFlipTo(displayCycle[0])
   }
 
   function handleFlipEnd(e: React.TransitionEvent) {
-    // The page fires this for transform; sheen opacity fires its own — ignore it.
+    // The page fires this for transform; the sheen fires its own for opacity —
+    // ignore that one. Removing .is-flipping resets to 0° with no transition, so
+    // it does not fire a second transform event.
     if (e.propertyName !== 'transform') return
     if (!flippingRef.current) return // a hard reset already invalidated this turn
 
@@ -156,9 +203,12 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
     setFrontSrc(pendingTargetRef.current)
 
     if (revertQueuedRef.current) {
-      // Pointer left mid-flip: that step has now settled, so turn to the cover.
       revertQueuedRef.current = false
-      beginRevert()
+      beginRevert() // pointer left mid-flip — that step settled, now turn to cover
+      return
+    }
+    if (phaseRef.current === 'cycling') {
+      flipToNext() // continuous: straight into the next turn, no static hold
       return
     }
     if (phaseRef.current === 'reverting') {
@@ -170,12 +220,13 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
     // showFlip already gates on capability; the pointerType check is a cheap
     // extra guard against touch-generated pointer events on hybrid devices.
     if (e.pointerType === 'touch') return
-    clearTimers()
+    clearScheduled()
 
     // Settle immediately to the cover baseline (do NOT reverse an in-flight
     // revert) and start a fresh intent timer, per the re-enter rule. Clearing
     // flippingRef makes any pending transitionEnd commit a no-op.
     revertQueuedRef.current = false
+    awaitingLoadRef.current = false
     flippingRef.current = false
     displayIndexRef.current = 0
     setFlipping(false)
@@ -187,12 +238,13 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
     intentTimerRef.current = setTimeout(() => {
       intentTimerRef.current = null
       phaseRef.current = 'cycling'
-      doStep() // first turn now (cover → photo 2), then every STEP_DWELL_MS
+      flipToNext() // first turn now (cover → photo 2), then continuously
     }, HOVER_INTENT_MS)
   }
 
   function handlePointerLeave() {
-    clearTimers()
+    clearScheduled()
+    awaitingLoadRef.current = false
     if (phaseRef.current === 'intent') {
       phaseRef.current = 'idle' // left during intent — nothing ever turned
       return
@@ -223,8 +275,9 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
             // 3D transform (see below).
             <div className="showcase-flip absolute inset-0">
               {/* Preloader: warm the entire hover sequence at the exact optimized
-                  URLs the cycle renders, so no step ever waits on the network.
-                  opacity-0 (not display:none) so the images actually fetch. */}
+                  URLs the cycle renders, so no turn ever waits on the network. Its
+                  onLoad also feeds the load-gate that holds each turn until its
+                  target has decoded. opacity-0 (not display:none) so images fetch. */}
               <div
                 className="absolute inset-0 opacity-0 pointer-events-none"
                 aria-hidden
@@ -239,13 +292,14 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
                     sizes={CARD_IMAGE_SIZES}
                     quality={85}
                     loading="eager"
+                    onLoad={() => markLoaded(src)}
                   />
                 ))}
               </div>
 
               {/* Static reveal layer: the photo the current turn uncovers, in
                   place beneath the page (which is hinged on its left edge and
-                  sweeps off-card). */}
+                  sweeps off-card). Its onLoad also confirms the target decoded. */}
               <Image
                 src={revealSrc}
                 alt=""
@@ -253,6 +307,8 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
                 className="object-cover"
                 sizes={CARD_IMAGE_SIZES}
                 quality={85}
+                loading="eager"
+                onLoad={() => markLoaded(revealSrc)}
               />
 
               {/* The turning page: front = resting photo, back = reveal photo. */}
@@ -280,6 +336,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
                     className="object-cover"
                     sizes={CARD_IMAGE_SIZES}
                     quality={85}
+                    loading="eager"
                   />
                   <div className="showcase-flip-sheen" aria-hidden />
                 </div>
