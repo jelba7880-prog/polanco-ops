@@ -197,7 +197,11 @@
 
   --ink: #f0ebe2;
   --ink-soft: #c9c2b6;
-  --ink-muted: #948d80;
+  /* #948d80 measured 4.45:1 on --surface — just under WCAG AA's 4.5:1 for
+     normal text (flagged on the login page's muted subtitle/footer text).
+     Bumped to a contrast-verified 4.81:1; every other Dim surface is darker
+     than --surface, so this is a strict improvement everywhere else too. */
+  --ink-muted: #9a9386;
 }
 
 /* Hide horizontal scrollbar on filter chip rows while keeping scroll */
