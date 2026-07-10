@@ -3,6 +3,16 @@ import { PublicFooter } from '@/components/showcase/PublicFooter'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
 import { getPublicCars } from '@/lib/showcase/getPublicCars'
 
+// Without this, the listing is prerendered once at build (Next marks it ○
+// Static) and freezes at the last deploy, so cars added afterward never appear.
+// Writes go through the browser Supabase client, not a Server Action, so
+// revalidatePath isn't a lever — instead re-run getPublicCars() at most once
+// per 60s. The anon supabase-js fetch sets no `cache`/`no-store` option, so the
+// segment stays prerender-compatible and this is true ISR, not a dynamic render
+// on every request — 60s keeps Supabase off the hot path for Instagram-driven
+// mobile-3G visitors while surfacing new/hidden cars within a minute, no rebuild.
+export const revalidate = 60
+
 export const metadata = {
   title: 'Inventory | Polanco Exotic Cars',
   description:

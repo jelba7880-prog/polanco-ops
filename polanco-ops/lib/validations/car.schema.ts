@@ -23,12 +23,16 @@ export const carSchema = z.object({
   status: z.enum(['available', 'reserved', 'sold', 'in_transit']).default('available'),
   reserved_for: z.string().optional(),
   notes: z.string().optional(),
+  // Public showcase opt-out. Defaults true so every new car is publicly visible
+  // unless a staff member turns it off; only gates public_cars_view, never the
+  // Ops Hub. See migration 20260709000000_add_car_is_public.
+  is_public: z.boolean().default(true),
 })
 
 // Output type (after defaults are applied) — what a successful submit yields.
 export type CarFormValues = z.infer<typeof carSchema>
 // Input type (before defaults) — what the form fields collect. Fields with a
-// `.default()` (mileage_km, status) are optional on the way in.
+// `.default()` (mileage_km, status, is_public) are optional on the way in.
 export type CarFormInput = z.input<typeof carSchema>
 
 // Partial schema for updates — all fields optional

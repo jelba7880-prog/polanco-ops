@@ -8,6 +8,12 @@ import { EnquiryForm } from '@/components/showcase/EnquiryForm'
 import { getPublicCarBySlug } from '@/lib/showcase/getPublicCars'
 import { formatUSD, formatMileage, toDisplayCase } from '@/lib/formatters'
 
+// Same 60s ISR as the /cars listing. This detail route was only ever dynamic by
+// accident (a dynamic [slug] segment with no generateStaticParams); make the
+// caching contract explicit so edits and visibility changes to a car surface
+// within a minute without a rebuild, consistent with the listing.
+export const revalidate = 60
+
 interface CarDetailPageProps {
   params: Promise<{ slug: string }>
 }

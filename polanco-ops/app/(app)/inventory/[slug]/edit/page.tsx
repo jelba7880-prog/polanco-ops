@@ -55,6 +55,10 @@ export default function EditCarPage() {
         status: car.status,
         reserved_for: car.reserved_for ?? undefined,
         notes: car.notes ?? undefined,
+        // ?? true guards the brief window where code has shipped but the
+        // is_public migration hasn't run yet (column absent -> undefined),
+        // so an existing car never resets to an unchecked (hidden) toggle.
+        is_public: car.is_public ?? true,
       })
     }
   }, [car, reset])
