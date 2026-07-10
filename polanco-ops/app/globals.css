@@ -56,6 +56,13 @@
   --shadow-card: var(--elevation-card);
   --shadow-card-hover: var(--elevation-card-hover);
   --shadow-elevated: var(--elevation-elevated);
+
+  /* Public showcase card page-turn flip. Raw values live in :root with the rest
+     of the semantic token layer (an `inline` @theme can't expose runtime-
+     resolvable custom properties); these re-map the two theme-namespace ones so
+     the design token — not a magic number — is the single source of truth. */
+  --perspective-flip: var(--flip-perspective);
+  --ease-flip: var(--flip-ease);
 }
 
 /* ── Light theme tokens (default) ─────────────────────────────────────────
@@ -100,6 +107,15 @@
   --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
   --elevation-card-hover: 0 6px 16px rgba(0, 0, 0, 0.11), 0 0 0 1px rgba(0, 0, 0, 0.07);
   --elevation-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
+
+  /* Public showcase card page-turn flip (desktop hover only — see the
+     .showcase-flip* rules below and PublicCarCard). Theme-invariant, so defined
+     once here. The duration + ease-in-out are a DELIBERATE one-off that exceeds
+     the app's standard 200ms ease-out: a book-style page turn needs more time
+     and a symmetric curve to read as paper rather than a UI transition. */
+  --flip-perspective: 1200px;
+  --flip-duration: 620ms;
+  --flip-ease: cubic-bezier(0.45, 0.05, 0.25, 1);
 
   /* Native UI (scrollbars, form controls) tint. Managed here rather than by
      next-themes (enableColorScheme={false}) so the mid-tone Dim variant — whose
@@ -587,4 +603,72 @@ body {
                 0 6px 14px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(245, 241, 232, 0.12);
   }
+}
+
+/* ── Public showcase card: hover-intent page-turn flip ─────────────────────
+   Desktop-only book-style flip on the /cars grid: after 1s of continuous hover
+   the cover turns like a page to reveal a gallery photo (see PublicCarCard).
+   The page is hinged on its LEFT edge (transform-origin) and turns a full 180°
+   toward the viewer, so it sweeps off-card and the browser clips it at the
+   card's existing overflow-hidden bounds; a static hover image beneath the page
+   supplies the settled, in-place photo, so it reads as turning a page to reveal
+   the next one rather than a card spinning in place.
+
+   This is a DELIBERATE exception to the app's 200ms ease-out motion standard —
+   a page turn needs ~600ms and an ease-in-out curve to read as paper (tokens in
+   :root / @theme). It stays fully inert on touch and reduced-motion: the class
+   that drives it (.is-flipped) is only ever toggled by JS gated on
+   (hover: hover) and (pointer: fine) with reduced-motion excluded, and the
+   transition itself is scoped to the same media query below. */
+.showcase-flip {
+  perspective: var(--flip-perspective);
+}
+
+.showcase-flip-page {
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* above the static hover layer beneath it */
+  transform-style: preserve-3d;
+  transform-origin: left center; /* hinge on the spine, not the centre */
+  transform: rotateY(0deg);
+}
+
+.showcase-flip-page.is-flipped {
+  transform: rotateY(-180deg);
+}
+
+/* Animate the turn only on pointer-capable, motion-permitting devices. On
+   everything else the transform still resolves, but .is-flipped is never set. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .showcase-flip-page {
+    transition: transform var(--flip-duration) var(--flip-ease);
+  }
+}
+
+.showcase-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* The back face carries the hover image, pre-rotated so it reads un-mirrored
+   once the page has turned around to face the viewer. */
+.showcase-flip-back {
+  transform: rotateY(180deg);
+}
+
+/* Soft shadow along the spine, only on screen while the back of the page is
+   turning past 90° — sells the paper-turning depth without tinting either
+   resting state. */
+.showcase-flip-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.28) 0%,
+    rgba(0, 0, 0, 0.08) 24%,
+    rgba(0, 0, 0, 0) 55%
+  );
 }

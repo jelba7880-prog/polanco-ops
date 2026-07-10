@@ -25,8 +25,14 @@ export interface PublicCar {
   status: string
   created_at: string
   coverImageUrl: string | null
+  // Second image used only by the /cars listing grid's desktop hover page-turn
+  // (see getPublicCars): the 8th photo by sort_order, or the last if fewer than
+  // 8. Null when there is nothing distinct to reveal — no cover, no gallery, or
+  // the resolved image is the cover itself — in which case the card shows no
+  // hover behaviour at all. Not part of the detail page.
+  hoverImageUrl: string | null
 }
 
-export interface PublicCarDetail extends Omit<PublicCar, 'coverImageUrl'> {
+export interface PublicCarDetail extends Omit<PublicCar, 'coverImageUrl' | 'hoverImageUrl'> {
   images: PublicCarImage[]
 }
