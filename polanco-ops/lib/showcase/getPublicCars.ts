@@ -19,13 +19,14 @@ export async function getPublicCars(): Promise<PublicCar[]> {
 
   const carIds = cars.map((car) => car.id)
 
-  // Pull only the columns needed to resolve the two listing URLs per car (cover
-  // + hover), ordered by sort_order so the per-car grouping below can pick the
-  // hover image POSITIONALLY. "8th image" means the 8th in sort_order, NOT
-  // sort_order === 7: deletions leave gaps in the sequence (see useDeleteCarImage),
-  // so only the ordered position is stable. This resolution runs server-side
-  // under the page's 60s ISR; the grid only ever receives the two resolved URLs
-  // per car, never the gallery — so the mobile-3G payload stays two images/card.
+  // Pull only the columns needed to resolve the listing URLs per car, ordered by
+  // sort_order so the per-car grouping below can pick the hover photos
+  // POSITIONALLY. "Photo N" means the Nth in sort_order, NOT sort_order === N-1:
+  // deletions leave gaps in the sequence (see useDeleteCarImage), so only the
+  // ordered position is stable. This resolution runs server-side under the
+  // page's 60s ISR; the grid receives the cover plus up to 7 hover URLs per car
+  // (photos 2-8), never the full gallery — and those hover images are only ever
+  // fetched on desktop hover, so the mobile-3G image budget is unchanged.
   const { data: images, error: imagesError } = await supabase
     .from('public_car_images_view')
     .select('car_id, url, sort_order, is_cover')
@@ -48,18 +49,16 @@ export async function getPublicCars(): Promise<PublicCar[]> {
     const carImages = imagesByCarId.get(car.id) ?? []
     const coverImageUrl = carImages.find((img) => img.is_cover)?.url ?? null
 
-    // Hover target: the 8th image by sort_order (index 7) when the car has 8+
-    // photos, otherwise the last one. Null — no hover behaviour — when there is
-    // no cover to flip from, no images, or the resolved image is the cover
-    // itself (e.g. a single-photo car, or the cover set to the 8th image).
-    let hoverImageUrl: string | null = null
-    if (coverImageUrl && carImages.length > 0) {
-      const candidate =
-        carImages.length >= 8 ? carImages[7] : carImages[carImages.length - 1]
-      if (candidate.url !== coverImageUrl) hoverImageUrl = candidate.url
-    }
+    // Desktop hover cycle: photos 2 through min(8, total) by sort_order — i.e.
+    // ordered indices 1 .. min(8, total) - 1. Empty when there's no cover to
+    // start the cycle from or the car has fewer than 2 photos, so the card
+    // treats it as "no hover behaviour" with no extra frontend logic.
+    const hoverSequence =
+      coverImageUrl && carImages.length >= 2
+        ? carImages.slice(1, Math.min(8, carImages.length)).map((img) => img.url)
+        : []
 
-    return { ...car, coverImageUrl, hoverImageUrl }
+    return { ...car, coverImageUrl, hoverSequence }
   })
 }
 
