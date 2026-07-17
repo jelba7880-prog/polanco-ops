@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { Search } from 'lucide-react'
 import { PublicCarCard } from './PublicCarCard'
 import { PublicFilterChips } from './PublicFilterChips'
@@ -14,6 +15,7 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
   const [query, setQuery] = useState('')
   const [selectedMake, setSelectedMake] = useState<string | null>(null)
   const [selectedBodyType, setSelectedBodyType] = useState<string | null>(null)
+  const [gridRef] = useAutoAnimate()
 
   const makes = useMemo(
     () => Array.from(new Set(cars.map((car) => car.make))).sort(),
@@ -89,7 +91,7 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCars.map((car, index) => (
               <PublicCarCard key={car.id} car={car} priority={index === 0} />
             ))}
