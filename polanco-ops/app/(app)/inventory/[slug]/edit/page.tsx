@@ -42,7 +42,11 @@ export default function EditCarPage() {
         make: car.make,
         model: car.model,
         year: car.year,
-        body_type: car.body_type ?? undefined,
+        // car.body_type is untyped free text at the DB layer (legacy rows may
+        // hold values outside the fixed dropdown enum) — cast at this boundary
+        // so an old/non-matching value still loads into the form without
+        // crashing, rather than widening the enum to fit stale data.
+        body_type: (car.body_type ?? undefined) as CarFormInput['body_type'],
         color_exterior: car.color_exterior ?? undefined,
         color_interior: car.color_interior ?? undefined,
         mileage_km: car.mileage_km ?? 0,
