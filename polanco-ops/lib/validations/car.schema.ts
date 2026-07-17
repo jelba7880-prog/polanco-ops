@@ -8,7 +8,19 @@ export const carSchema = z.object({
     .int()
     .min(1990, 'Year must be 1990 or later')
     .max(new Date().getFullYear() + 1, 'Year is too far in the future'),
-  body_type: z.string().optional(),
+  body_type: z
+    .enum([
+      'Sedan',
+      'Coupe',
+      'Convertible',
+      'SUV',
+      'Wagon',
+      'Hatchback',
+      'Grand Tourer',
+      'Van/Minivan',
+      'Truck',
+    ])
+    .optional(),
   color_exterior: z.string().optional(),
   color_interior: z.string().optional(),
   mileage_km: z.number().int().min(0).optional().default(0),

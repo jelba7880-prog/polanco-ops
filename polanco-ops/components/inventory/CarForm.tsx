@@ -90,11 +90,22 @@ export function CarForm({
               error={errors.year?.message}
               {...register('year', { valueAsNumber: true })}
             />
-            <Input
+            <Select
               label="Body Type"
-              placeholder="SUV"
-              {...register('body_type')}
-            />
+              error={errors.body_type?.message}
+              {...register('body_type', optionalSelect)}
+            >
+              <option value="">Select...</option>
+              <option value="Sedan">Sedan</option>
+              <option value="Coupe">Coupe</option>
+              <option value="Convertible">Convertible</option>
+              <option value="SUV">SUV</option>
+              <option value="Wagon">Wagon</option>
+              <option value="Hatchback">Hatchback</option>
+              <option value="Grand Tourer">Grand Tourer</option>
+              <option value="Van/Minivan">Van/Minivan</option>
+              <option value="Truck">Truck</option>
+            </Select>
           </div>
         </div>
       </div>
