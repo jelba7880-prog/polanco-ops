@@ -5,11 +5,11 @@ export default function PublicLayout({
 }: {
   children: React.ReactNode
 }) {
-  // `relative` only positions the decorative halftone layer beneath the
-  // showcase content; z-index:auto is deliberate here so no new stacking
-  // context is introduced around children (see the canvas's own comment).
+  // The halftone background is position:fixed (viewport-sized, not tied to
+  // this div's box), so it needs no positioning context here — this wrapper
+  // just carries overflow-x-hidden for the rest of the showcase.
   return (
-    <div className="relative w-full overflow-x-hidden">
+    <div className="w-full overflow-x-hidden">
       <PublicHalftoneBackground />
       {children}
     </div>

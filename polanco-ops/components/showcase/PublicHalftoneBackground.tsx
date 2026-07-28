@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 
-// Ambient decorative texture behind the top of the public showcase (mounted
-// once in (public)/layout.tsx). A gold halftone dot field, individually
-// breathing at rest, that grows/brightens near the cursor on real pointers.
+// Ambient decorative texture behind the entire public showcase (mounted once
+// in (public)/layout.tsx, as a viewport-fixed layer so it covers the page at
+// any scroll position). A gold halftone dot field, individually breathing at
+// rest, that grows/brightens near the cursor on real pointers.
 //
 // Rendered on a single <canvas> driven by one rAF loop rather than one DOM node
 // per dot: this site's real traffic is low-end Tecno/Infinix Android over 3G,
@@ -323,21 +324,23 @@ export function PublicHalftoneBackground() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      // pointer-events-none is the hard guarantee that buttons, chips, cards and
-      // links above stay fully clickable. -z-10 keeps the layer behind all
-      // in-flow and positioned content WITHOUT wrapping children in a new
-      // stacking context (the parent is position:relative at z-index:auto), so
-      // the sticky header / Modal / Toast ordering is completely untouched: this
-      // paints below content but above the page background propagated from body.
-      className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] sm:h-[520px] lg:h-[600px]"
-      // Dissolve the field toward the band's bottom edge — without this the
-      // grid ends on a hard horizontal line of dots, which reads as a seam
-      // across the page rather than as texture fading out. Compositor-only, so
-      // it costs nothing per frame. -webkit- included for older iOS Safari.
-      style={{
-        maskImage: 'linear-gradient(to bottom, #000 45%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, #000 45%, transparent 100%)',
-      }}
+      // `fixed inset-0` sizes the canvas to the viewport, not the document —
+      // it covers the page at any scroll position without ever needing to know
+      // total page height, so it stays correct as inventory (and page length)
+      // grows. w-full/h-full are NOT redundant with inset-0 here: canvas is a
+      // replaced element, and replaced elements don't stretch to fill opposing
+      // insets the way normal boxes do — without an explicit size, this silently
+      // collapses to the browser's intrinsic canvas default (300x150) pinned at
+      // the top-left instead of covering the viewport. pointer-events-none is
+      // the hard guarantee that buttons, chips, cards and links above stay
+      // fully clickable. -z-10 keeps the layer behind all in-flow and
+      // positioned content WITHOUT wrapping children in a new stacking context
+      // (fixed positioning doesn't require a positioned ancestor, and no
+      // ancestor here sets transform/filter/contain to hijack it), so the
+      // sticky header / Modal / Toast ordering is completely untouched: this
+      // paints below content but above the page background propagated from
+      // body.
+      className="pointer-events-none fixed inset-0 h-full w-full -z-10"
     />
   )
 }
