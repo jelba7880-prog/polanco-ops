@@ -113,7 +113,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
               href={buildWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gold underline underline-offset-2"
+              className="text-gold-text underline underline-offset-2"
             >
               tap here
             </a>
@@ -127,7 +127,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
               href={buildWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gold underline underline-offset-2"
+              className="text-gold-text underline underline-offset-2"
             >
               tap here
             </a>
@@ -212,7 +212,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
               href={buildWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gold underline underline-offset-2"
+              className="text-gold-text underline underline-offset-2"
             >
               Open WhatsApp
             </a>

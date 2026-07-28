@@ -34,6 +34,7 @@
   --color-navy-tint: var(--tint-navy);
   --color-gold-tint: var(--tint-gold);
   --color-gold-deep: var(--gold-deep);
+  --color-gold-text: var(--gold-text);
 
   /* Surfaces & borders */
   --color-surface-muted: var(--surface-muted);
@@ -90,6 +91,14 @@
   /* Brand + status */
   --gold: #c9a84c;
   --gold-deep: #a8853a;
+  /* Text-only gold: --gold (2.29:1 on --surface, 1.96:1 on --bg-base) and even
+     --gold-deep (3.45:1 / 2.96:1) both fail WCAG AA's 4.5:1 for normal text —
+     they're tuned for gold-as-fill (buttons, dividers, badges) where ink sits
+     on TOP of gold, not gold sitting on a light page. This variant keeps the
+     same ~44° hue but is darkened enough to clear 4.5:1 against both light
+     surfaces (4.84:1 on --bg-base, 5.65:1 on --surface) for price text, links,
+     and icons rendered directly on --bg-base/--surface. */
+  --gold-text: #7d6420;
   --navy: #1e3a5f;
   --success: #15803d;
   --warning: #b45309;
@@ -144,6 +153,11 @@
 .dim {
   --gold: #d9bd6e;
   --gold-deep: #c9a84c;
+  /* Dark-family --gold already reads at 8–10.6:1 on dark surfaces (light gold
+     on a near-black page), so the text-safe variant just aliases it instead of
+     inheriting the light-theme #7d6420 (which would read muddy/low-contrast
+     on dark surfaces). */
+  --gold-text: var(--gold);
   --navy: #6e93c0;
   --success: #34a65f;
   --warning: #d89440;

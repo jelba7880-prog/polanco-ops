@@ -69,7 +69,7 @@ export function DealCard({ deal }: DealCardProps) {
 
         {/* Prices */}
         <div className="shrink-0 text-right">
-          <p className="font-inter font-semibold text-sm text-gold tabular-nums">
+          <p className="font-inter font-semibold text-sm text-gold-text tabular-nums">
             {formatUSD(deal.total_usd)}
           </p>
           <p className="font-inter text-[10px] text-ink-muted tabular-nums mt-0.5">

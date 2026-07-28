@@ -95,7 +95,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             <h1 className="font-display text-3xl md:text-4xl font-bold text-ink leading-tight mb-3">
               {car.make} {car.model}
             </h1>
-            <p className="font-inter text-[28px] font-semibold text-gold">
+            <p className="font-inter text-[28px] font-semibold text-gold-text">
               {formatUSD(car.price_usd)}
             </p>
 

@@ -58,7 +58,7 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
           {formatCarTitle(car.make, car.model, car.year)}
         </h3>
 
-        <p className="font-inter text-xl font-semibold text-gold tabular-nums mb-3">
+        <p className="font-inter text-xl font-semibold text-gold-text tabular-nums mb-3">
           {formatUSD(car.price_usd)}
         </p>
 

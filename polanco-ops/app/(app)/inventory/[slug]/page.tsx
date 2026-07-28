@@ -132,7 +132,7 @@ export default function CarDetailPage() {
 
           {/* Price */}
           <div className="mb-6">
-            <p className="font-inter text-2xl font-semibold text-gold tabular-nums">
+            <p className="font-inter text-2xl font-semibold text-gold-text tabular-nums">
               {formatUSD(car.price_usd)}
             </p>
             <p className="font-inter text-sm text-ink-muted tabular-nums">

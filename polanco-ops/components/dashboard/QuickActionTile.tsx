@@ -36,7 +36,7 @@ export function QuickActionTile({
       ].join(' ')}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <Icon size={28} className="text-gold shrink-0" />
+      <Icon size={28} className="text-gold-text shrink-0" />
       <span className="font-cormorant font-semibold text-xl leading-tight text-ink">
         {label}
       </span>
