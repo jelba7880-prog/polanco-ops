@@ -388,7 +388,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
         <p className="font-inter text-[13px] text-ink-soft mb-2">
           {toDisplayCase(car.condition)} · {formatMileage(car.mileage_km)}
         </p>
-        <p className="font-inter text-lg font-semibold text-gold">
+        <p className="font-inter text-lg font-semibold text-gold-text">
           {formatUSD(car.price_usd)}
         </p>
       </div>
