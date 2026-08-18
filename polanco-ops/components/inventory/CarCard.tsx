@@ -39,7 +39,7 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
             alt={formatCarTitle(car.make, car.model, car.year)}
             fill
             className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
