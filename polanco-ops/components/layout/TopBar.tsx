@@ -106,13 +106,16 @@ export function TopBar({ action }: TopBarProps) {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-10 w-52 bg-base rounded-xl shadow-elevated border border-[var(--border)] overflow-hidden z-50">
+              <div className="absolute right-0 top-10 w-52 bg-surface-elevated rounded-xl shadow-elevated border border-[var(--border)] overflow-hidden z-50">
                 {currentUser && (
                   <div className="px-4 py-3 border-b border-[var(--border)]">
                     <p className="font-inter text-xs font-semibold text-ink truncate">
                       {currentUser.full_name}
                     </p>
-                    <p className="font-inter text-[10px] text-ink-muted capitalize">
+                    {/* text-ink-soft (not the usual text-ink-muted) — --surface-elevated
+                        sits close enough to --ink-muted's contrast floor that muted text
+                        here would read thin; ink-soft has ample headroom. */}
+                    <p className="font-inter text-[10px] text-ink-soft capitalize">
                       {currentUser.role}
                     </p>
                   </div>

@@ -91,7 +91,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative w-full sm:max-w-md max-h-[85dvh] bg-base rounded-t-2xl sm:rounded-2xl shadow-elevated flex flex-col overflow-hidden',
+          'relative w-full sm:max-w-md max-h-[85dvh] bg-surface-elevated rounded-t-2xl sm:rounded-2xl shadow-elevated flex flex-col overflow-hidden',
           closing ? 'modal-sheet-exit' : 'modal-sheet-enter'
         )}
       >
