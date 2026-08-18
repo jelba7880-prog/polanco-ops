@@ -21,6 +21,15 @@ const TOP_BORDER_COLOR_MAP: Record<StatCardProps['accentColor'], string> = {
   gold: 'border-t-gold',
 }
 
+// Dark-mode-only subtle status-tinted glow (see .stat-glow-* in globals.css).
+// No-op in light mode, where the flat fill + top border stays as-is.
+const GLOW_CLASS_MAP: Record<StatCardProps['accentColor'], string> = {
+  success: 'stat-glow-success',
+  warning: 'stat-glow-warning',
+  navy: 'stat-glow-navy',
+  gold: 'stat-glow-gold',
+}
+
 export function StatCard({ label, value, accentColor, delay = 0 }: StatCardProps) {
   const animatedValue = useCountUp(value, { delay })
 
@@ -30,7 +39,7 @@ export function StatCard({ label, value, accentColor, delay = 0 }: StatCardProps
        gives the larger desktop number room. card-hoverable adds the md+ hover
        elevation (pointer devices only — see globals.css @media (hover: hover)). */
     <div
-      className={`stat-card-enter card-hoverable bg-base rounded-xl shadow-card border-t-[3px] ${TOP_BORDER_COLOR_MAP[accentColor]} p-4 lg:p-6`}
+      className={`stat-card-enter card-hoverable bg-base ${GLOW_CLASS_MAP[accentColor]} rounded-xl shadow-card border-t-[3px] ${TOP_BORDER_COLOR_MAP[accentColor]} p-4 lg:p-6`}
       style={{ animationDelay: `${delay}ms` }}
     >
       <p className="font-inter text-[10px] font-medium uppercase tracking-widest text-ink-muted mb-1">

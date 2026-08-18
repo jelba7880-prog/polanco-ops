@@ -38,6 +38,7 @@
 
   /* Surfaces & borders */
   --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
   --color-border-base: var(--border-strong);
 
   /* Fixed dark ink for text/icons sitting on gold (and other always-light
@@ -78,6 +79,11 @@
   --bg-subtle: #f7f5f0;
   --surface: #ffffff;
   --surface-muted: #f2f2f2;
+  /* Light mode already separates modal/dropdown from cards via --shadow-elevated
+     alone (a white sheet floating on a warm page reads as "raised" without any
+     extra fill change needed); aliasing keeps light mode pixel-identical while
+     giving dark mode a genuinely distinct, lighter third tier below. */
+  --surface-elevated: var(--surface);
 
   /* Borders */
   --border: rgba(10, 10, 10, 0.08);
@@ -164,17 +170,28 @@
   --danger: #e5534b;
   --neutral-tag: #8a8478;
 
-  --tint-success: color-mix(in srgb, var(--success) 20%, var(--surface));
-  --tint-warning: color-mix(in srgb, var(--warning) 20%, var(--surface));
-  --tint-navy: color-mix(in srgb, var(--navy) 22%, var(--surface));
-  --tint-gold: color-mix(in srgb, var(--gold) 20%, var(--surface));
-  --tint-neutral: color-mix(in srgb, var(--neutral-tag) 20%, var(--surface));
+  /* 10% mix onto --surface, matching the design spec exactly (light mode's
+     baked hex tints already work out to ~10% — these were previously 20-22%,
+     roughly double spec, which read closer to a flat/solid fill than a pill
+     with a soft tinted wash. See StatusBadge.tsx for the bg-x-tint text-x
+     pattern these feed. */
+  --tint-success: color-mix(in srgb, var(--success) 10%, var(--surface));
+  --tint-warning: color-mix(in srgb, var(--warning) 10%, var(--surface));
+  --tint-navy: color-mix(in srgb, var(--navy) 10%, var(--surface));
+  --tint-gold: color-mix(in srgb, var(--gold) 10%, var(--surface));
+  --tint-neutral: color-mix(in srgb, var(--neutral-tag) 10%, var(--surface));
 
   /* Dark-family elevation: deeper drop shadow + faint light hairline ring and
-     inset top highlight so a raised surface reads against the dark page. */
+     inset top highlight so a raised surface reads against the dark page.
+     --elevation-elevated carries a visibly stronger rim-light + inset highlight
+     than card/card-hover (rather than just a bigger drop shadow, which barely
+     registers against an already-near-black page) — this is the primary cue
+     that reads as "spotlit" for modals/dropdowns, since --surface-elevated's
+     own fill can only move a little before crowding --ink-muted's contrast
+     margin (see the --surface-elevated definitions below). */
   --elevation-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 241, 232, 0.06), inset 0 1px 0 0 rgba(245, 241, 232, 0.04);
   --elevation-card-hover: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.05);
-  --elevation-elevated: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 241, 232, 0.1), inset 0 1px 0 0 rgba(245, 241, 232, 0.06);
+  --elevation-elevated: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(245, 241, 232, 0.14), inset 0 1px 0 0 rgba(245, 241, 232, 0.09);
 
   color-scheme: dark;
 }
@@ -185,8 +202,19 @@
 .dark {
   --bg-base: #0e0d0c;
   --bg-subtle: #131211;
-  --surface: #1b1917;
+  /* Nudged up from #1b1917 — the page/card gap was only a ~1.11:1 contrast
+     ratio (essentially imperceptible on a real screen). This is a deliberately
+     modest lift: --ink-muted vs --surface is a WCAG-AA-tuned pairing (see the
+     Dim --ink-muted comment below) that leaves very little headroom on a
+     near-black scale, so surface hierarchy here leans on the elevation shadow
+     tokens above as much as on this fill value. */
+  --surface: #1e1c1a;
   --surface-muted: #242220;
+  /* NEW third tier for Modal/BottomSheet/dropdown surfaces (see Modal.tsx,
+     TopBar.tsx account menu) — lighter than --surface-muted so it reads as the
+     most "raised" of the three, paired with --elevation-elevated's stronger
+     rim-light above. */
+  --surface-elevated: #2b2824;
 
   --border: #2e2b27;
   --border-strong: #3d3935;
@@ -203,8 +231,11 @@
 .dim {
   --bg-base: #1e1c1a;
   --bg-subtle: #242220;
-  --surface: #2b2825;
+  /* Same modest lift as .dark's --surface, for the same reason. */
+  --surface: #302c27;
   --surface-muted: #363330;
+  /* NEW third tier — see .dark's --surface-elevated comment. */
+  --surface-elevated: #3f3b34;
 
   --border: #423e39;
   --border-strong: #524c46;
@@ -593,6 +624,27 @@ body {
   .stat-card-enter {
     animation: cardEnter 280ms ease-out both;
   }
+}
+
+/* ── Dashboard stat cards: dark-mode-only status glow ─────────────── */
+/* A faint wash of the card's status hue in the top-left corner, fading to
+   nothing by the card's midpoint — layered as background-image ON TOP OF the
+   existing bg-base background-color (StatCard.tsx keeps that class), so the
+   flat --surface fill underneath is untouched everywhere the gradient has
+   faded out. Not an animation, so no reduced-motion gating is needed; scoped
+   to .dark/.dim only so light mode's flat fill + top-border treatment is
+   pixel-identical to before. */
+.dark .stat-glow-success, .dim .stat-glow-success {
+  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--success) 16%, transparent) 0%, transparent 60%);
+}
+.dark .stat-glow-warning, .dim .stat-glow-warning {
+  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--warning) 16%, transparent) 0%, transparent 60%);
+}
+.dark .stat-glow-navy, .dim .stat-glow-navy {
+  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--navy) 18%, transparent) 0%, transparent 60%);
+}
+.dark .stat-glow-gold, .dim .stat-glow-gold {
+  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--gold) 16%, transparent) 0%, transparent 60%);
 }
 
 /* ── Card hover elevation: pointer-capable devices only ───────────── */
