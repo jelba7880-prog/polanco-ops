@@ -1,6 +1,6 @@
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[var(--border)] py-12 px-4 text-center">
+    <footer className="border-t border-gold/20 py-12 px-4 text-center">
       <p className="font-display font-semibold text-ink text-lg mb-3">
         POLANCO EXOTIC CARS
       </p>
