@@ -97,7 +97,7 @@ export function PublicCarGrid({ cars }: PublicCarGridProps) {
             ))}
           </div>
 
-          <p className="font-inter text-[13px] text-ink-muted text-center mt-10 mb-8">
+          <p className="font-inter text-[13px] text-ink-muted text-center mt-10 mb-12">
             Showing {filteredCars.length} of {cars.length} vehicles
           </p>
         </>

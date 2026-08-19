@@ -1,6 +1,15 @@
+import Image from 'next/image'
+
 export function PublicFooter() {
   return (
-    <footer className="border-t-2 border-gold py-12 px-4 text-center">
+    <footer className="border-t-2 border-gold pt-16 pb-12 px-4 text-center">
+      <Image
+        src="/polanco-logo.png"
+        alt="Polanco Exotic Cars"
+        width={56}
+        height={56}
+        className="mx-auto mb-4"
+      />
       <p className="font-display font-semibold text-ink text-lg mb-3">
         POLANCO EXOTIC CARS
       </p>
