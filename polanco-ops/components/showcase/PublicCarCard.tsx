@@ -265,7 +265,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
       href={`/cars/${car.slug}`}
       onPointerEnter={showFlip ? handlePointerEnter : undefined}
       onPointerLeave={showFlip ? handlePointerLeave : undefined}
-      className="block bg-base rounded-xl border border-[var(--border)] shadow-card overflow-hidden transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover"
+      className="showcase-car-card active:scale-[0.98] block bg-base rounded-xl border border-[var(--border)] overflow-hidden"
     >
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-surface-muted">
         {coverImageUrl ? (
@@ -388,7 +388,7 @@ export function PublicCarCard({ car, priority = false }: PublicCarCardProps) {
         <p className="font-inter text-[13px] text-ink-soft mb-2">
           {toDisplayCase(car.condition)} · {formatMileage(car.mileage_km)}
         </p>
-        <p className="font-inter text-lg font-semibold text-gold-text">
+        <p className="font-inter text-lg font-semibold text-gold-text tabular-nums">
           {formatUSD(car.price_usd)}
         </p>
       </div>

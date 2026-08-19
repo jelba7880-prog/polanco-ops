@@ -19,20 +19,24 @@ import { useEffect, useRef } from 'react'
 // paints nothing but dots — it sits transparently on the existing token-driven
 // page background.
 
-const DOT_SPACING = 34 // px between dot centers, before the density cap below
+const DOT_SPACING = 30 // px between dot centers, before the density cap below
 const ROW_SPACING_RATIO = 0.87 // tighter row pitch than column = hex-ish halftone feel
 const MAX_DOTS = 480 // hard cap so very wide/tall viewports can't blow up fill cost
-const BASE_RADIUS = 1.4
-const BREATH_RADIUS_AMPLITUDE = 0.5
-const BREATH_OPACITY_MIN = 0.07
-const BREATH_OPACITY_MAX = 0.2
+const BASE_RADIUS = 1.7
+const BREATH_RADIUS_AMPLITUDE = 0.55
+// Raised from 0.07-0.2: at that range the field read as faint background noise
+// rather than a deliberate texture. This band (rest average ~0.25) is tuned to
+// read as fine paper/engraving texture at normal viewing distance while still
+// sitting well under MAX_OPACITY so it never competes with real gold accents.
+const BREATH_OPACITY_MIN = 0.16
+const BREATH_OPACITY_MAX = 0.34
 const BREATH_PERIOD_MIN_MS = 3200
 const BREATH_PERIOD_MAX_MS = 5200
 const CURSOR_RADIUS_PX = 130 // proximity falloff radius around the pointer
 const CURSOR_RADIUS_BOOST = 2.2
 const CURSOR_OPACITY_BOOST = 0.22
 const CURSOR_LERP = 0.12 // per-frame easing toward the target influence — this is what removes any snap
-const MAX_OPACITY = 0.4 // stays well under solid-fill UI so it never competes with real gold accents
+const MAX_OPACITY = 0.5 // stays well under solid-fill UI so it never competes with real gold accents
 const TARGET_FRAME_MS = 1000 / 30 // redraw cap — ambient motion reads fine at 30fps, half the cost of 60
 const MAX_DPR = 2 // clamp so 3x/4x-DPR Android panels don't multiply the canvas fill cost
 const GOLD_FALLBACK_RGB = '201, 168, 76' // light-theme --gold; used only if the live read fails
