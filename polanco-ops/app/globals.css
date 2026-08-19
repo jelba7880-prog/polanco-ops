@@ -123,6 +123,15 @@
   --elevation-card-hover: 0 6px 16px rgba(0, 0, 0, 0.11), 0 0 0 1px rgba(0, 0, 0, 0.07);
   --elevation-elevated: 0 10px 25px rgba(10, 10, 10, 0.12), 0 4px 10px rgba(10, 10, 10, 0.08);
 
+  /* Public showcase card shadow only (PublicCarCard) — a warm ink-brown tint
+     rather than the neutral grey/black --elevation-* tokens above, so a card
+     reads as resting on a lit table rather than a generic Material Design
+     drop shadow. Kept as its own pair rather than retuning --elevation-card
+     in place, since that token is shared with Ops Hub's .car-card/.fab/
+     .card-hoverable and this pass is showcase-scoped only. */
+  --shadow-showcase-card: 0 2px 10px rgba(35, 28, 12, 0.10), 0 1px 2px rgba(35, 28, 12, 0.06);
+  --shadow-showcase-card-hover: 0 16px 34px rgba(35, 28, 12, 0.16), 0 4px 10px rgba(35, 28, 12, 0.10);
+
   /* Public showcase card page-turn flip (desktop hover only — see the
      .showcase-flip* rules below and PublicCarCard). Theme-invariant, so defined
      once here. A DELIBERATE one-off that far exceeds the app's standard 200ms
@@ -678,6 +687,41 @@ body {
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6),
                 0 6px 14px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(245, 241, 232, 0.12);
+  }
+}
+
+/* ── Public showcase card: resting shadow + hover lift ───────────────────────
+   PublicCarCard's elevation, kept as its own rule (rather than stacking
+   Tailwind's hover:/transition-* utilities) for the same reason as .car-card
+   above: the lift must compose with the active:scale-[0.98] press feedback
+   (an individual `scale` property, not `transform`), and a second Tailwind
+   transition-* utility on the element would silently overwrite this one's
+   transition-property list rather than merge with it.
+
+   Scoped to @media (hover: hover) — a capability check — so the lift/shadow
+   change only ever fires on real pointers, exactly like PublicCarCard's own
+   JS gate for the photo-cycle (hover:hover + pointer:fine + no-reduced-
+   motion). Same real-pointer condition on both sides is what makes the
+   shadow deepen, the card lift, and the photo cycle read as one motion
+   instead of three uncoordinated ones — and what keeps touch devices from
+   ever landing in a stuck-hover state (they get active:scale's tap feedback
+   instead, applied inline on the element). */
+.showcase-car-card {
+  box-shadow: var(--shadow-showcase-card);
+  transition: transform 200ms ease-out, translate 200ms ease-out,
+              scale 200ms ease-out, rotate 200ms ease-out;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .showcase-car-card {
+    transition: transform 200ms ease-out, translate 200ms ease-out,
+                scale 200ms ease-out, rotate 200ms ease-out,
+                box-shadow 200ms ease-out;
+  }
+
+  .showcase-car-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-showcase-card-hover);
   }
 }
 
