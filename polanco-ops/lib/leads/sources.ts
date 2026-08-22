@@ -1,4 +1,4 @@
-import { MessageCircle, Camera, Store, Phone, Users, type LucideIcon } from 'lucide-react'
+import { MessageCircle, Camera, Store, Phone, Users, Globe, type LucideIcon } from 'lucide-react'
 import type { LeadSource } from '@/lib/supabase/types'
 
 export interface LeadSourceConfig {
@@ -23,6 +23,10 @@ export const LEAD_SOURCE_CONFIG: Record<LeadSource, LeadSourceConfig> = {
   walkin: { value: 'walkin', icon: Store, color: 'text-navy', label: 'Walk-in', shortLabel: 'Walk-in' },
   call: { value: 'call', icon: Phone, color: 'text-warning', label: 'Phone Call', shortLabel: 'Call' },
   referral: { value: 'referral', icon: Users, color: 'text-purple-500', label: 'Referral', shortLabel: 'Referral' },
+  // Created only by the automated showcase enquiry flow (create-from-showcase),
+  // never manually — so it's in the config for display but left out of
+  // LEAD_SOURCES below, which powers the manual Add Lead chip picker.
+  website: { value: 'website', icon: Globe, color: 'text-gold-text', label: 'Website', shortLabel: 'Website' },
 }
 
 /** Ordered list for rendering chip rows / option lists. */

@@ -52,8 +52,13 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
     if (!valid) return
 
     // Open the tab synchronously, in the same gesture as the tap — iOS Safari
-    // blocks window.open() called after an await.
-    const waWindow = window.open('', '_blank', 'noopener,noreferrer')
+    // blocks window.open() called after an await. Passing 'noopener' here
+    // would make window.open() return null (that's the spec behavior), so we
+    // couldn't navigate this handle once the fetch resolves — we'd be left
+    // with a permanent about:blank tab. Sever window.opener manually instead
+    // so we keep a usable reference without exposing it to the target page.
+    const waWindow = window.open('', '_blank')
+    if (waWindow) waWindow.opener = null
 
     // 2. Submit — create the lead before WhatsApp opens.
     setStatus('submitting')
@@ -79,17 +84,20 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
       }
 
       if (!res.ok) {
-        // Don't block the buyer — surface a manual WhatsApp fallback.
-        waWindow?.close()
+        // Lead logging failed — don't block the buyer, WhatsApp is the
+        // fallback capture path even when our own write failed.
+        console.error('create-from-showcase failed:', res.status, await res.text().catch(() => ''))
         setStatus('error')
+        if (waWindow) waWindow.location.href = buildWhatsAppUrl()
         return
       }
 
       setStatus('success')
       if (waWindow) waWindow.location.href = buildWhatsAppUrl()
-    } catch {
-      waWindow?.close()
+    } catch (err) {
+      console.error('create-from-showcase request failed:', err)
       setStatus('error')
+      if (waWindow) waWindow.location.href = buildWhatsAppUrl()
     }
   }
 
@@ -207,7 +215,7 @@ export function EnquiryForm({ car }: EnquiryFormProps) {
 
         {status === 'error' && (
           <p className="font-inter text-[13px] text-ink-muted">
-            Something went wrong. Please try WhatsApp directly.{' '}
+            We couldn&apos;t log your enquiry, but WhatsApp should have opened. If it didn&apos;t,{' '}
             <a
               href={buildWhatsAppUrl()}
               target="_blank"
