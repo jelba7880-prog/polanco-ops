@@ -84,6 +84,18 @@ export interface Lead {
     full_name: string
     role: string
   } | null
+  // Joined field from useLead (detail query only) — the car this lead
+  // enquired about, so staff can jump to its full spec sheet.
+  cars?: {
+    id: string
+    slug: string
+    year: number
+    make: string
+    model: string
+    price_usd: number
+    status: CarStatus
+    car_images: Pick<CarImage, 'url' | 'is_cover' | 'sort_order'>[]
+  } | null
 }
 
 export interface DealSheet {

@@ -45,7 +45,26 @@ async function fetchLeadById(id: string): Promise<Lead> {
     .single()
 
   if (error) throw error
-  return data as Lead
+  const lead = data as Lead
+
+  // Fetched as a separate query rather than an embedded `cars:car_id (...)`
+  // select — leads.car_id isn't backed by a foreign key PostgREST can embed
+  // through (deal_sheets, which has the same kind of bare car_id column,
+  // stores a snapshot instead of joining for the same reason). A car that's
+  // since been archived/deleted still resolves here so staff can find it;
+  // if the lookup fails for any reason, just leave the preview off rather
+  // than breaking the whole lead page over it.
+  if (lead.car_id) {
+    const { data: car } = await supabase
+      .from('cars')
+      .select('id, slug, year, make, model, price_usd, status, car_images ( url, is_cover, sort_order )')
+      .eq('id', lead.car_id)
+      .maybeSingle()
+
+    lead.cars = car as Lead['cars']
+  }
+
+  return lead
 }
 
 export function useLeads() {
