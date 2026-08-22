@@ -5,7 +5,7 @@ export type CarStatus = 'available' | 'reserved' | 'sold' | 'in_transit'
 export type CarLifecycleStatus = 'active' | 'archived' | 'deleted'
 export type CarCondition = 'New' | 'Foreign Used' | 'Locally Used'
 export type UserRole = 'admin' | 'staff'
-export type LeadSource = 'whatsapp' | 'instagram' | 'walkin' | 'call' | 'referral'
+export type LeadSource = 'whatsapp' | 'instagram' | 'walkin' | 'call' | 'referral' | 'website'
 export type LeadStatus = 'new' | 'contacted' | 'test_drive' | 'negotiating' | 'closed_won' | 'closed_lost'
 
 export interface CarImage {
