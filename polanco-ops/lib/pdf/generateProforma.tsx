@@ -4,14 +4,31 @@ import {
   Text,
   View,
   StyleSheet,
+  Font,
 } from '@react-pdf/renderer'
 import type { DealSheet, Settings } from '@/lib/supabase/types'
+import { LIBERATION_SANS_REGULAR_DATA_URI } from './fonts/liberationSansRegularBase64'
 
 // Built-in @react-pdf/renderer fonts (no network fetch — always render):
 //   serif  -> Times-Roman / Times-Bold
 //   sans   -> Helvetica / Helvetica-Bold
 const FONT_SANS = 'Helvetica'
 const FONT_SERIF = 'Times-Roman'
+
+// Helvetica/Times-Roman are react-pdf's built-in Standard-14 fonts, which are
+// limited to the ~224-glyph WinAnsiEncoding (Windows-1252) repertoire. The
+// Naira sign (₦, U+20A6) isn't in that repertoire, and react-pdf's fallback
+// for unmapped characters silently corrupts them (wrong glyph, zero measured
+// width, causing downstream clipping) rather than throwing. Liberation Sans
+// is metric-compatible with Helvetica/Arial and does include ₦, so it's used
+// as a drop-in font wherever a NGN-formatted amount is rendered. It's
+// embedded as a base64 data URI (bundled locally, no network fetch) since an
+// earlier attempt to load a font from a remote woff2 URL produced blank PDFs.
+const FONT_NGN = 'LiberationSansNaira'
+Font.register({
+  family: FONT_NGN,
+  src: LIBERATION_SANS_REGULAR_DATA_URI,
+})
 
 const COLORS = {
   ink: '#0A0A0A',
@@ -139,6 +156,7 @@ const styles = StyleSheet.create({
     color: COLORS.ink,
   },
   priceValueNgn: {
+    fontFamily: FONT_NGN,
     fontSize: 8,
     color: COLORS.inkMuted,
   },
@@ -165,6 +183,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SANS,
   },
   totalNgn: {
+    fontFamily: FONT_NGN,
     fontSize: 10,
     color: '#FFFFFF',
     opacity: 0.7,
@@ -178,6 +197,9 @@ const styles = StyleSheet.create({
     borderLeft: `2pt solid ${COLORS.gold}`,
     fontSize: 9,
     color: COLORS.inkSoft,
+  },
+  validityNgn: {
+    fontFamily: FONT_NGN,
   },
 
   // Footer
@@ -344,7 +366,7 @@ export function ProformaPDF({ deal, settings }: ProformaProps) {
 
           <Text style={styles.validity}>
             This quotation is valid for {deal.valid_hours} hours from the date issued.
-            Exchange rate ₦{deal.exchange_rate.toLocaleString()} per US$1.
+            Exchange rate <Text style={styles.validityNgn}>₦{deal.exchange_rate.toLocaleString()}</Text> per US$1.
             Quotation expires on {calculateValidUntil(deal.created_at, deal.valid_hours)}.
           </Text>
         </View>
