@@ -2,11 +2,15 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Car, ChevronRight } from 'lucide-react'
 import { useLead, useUpdateLeadStatus, useUpdateLead } from '@/hooks/useLeads'
 import { WhatsAppButton } from '@/components/leads/WhatsAppButton'
+import { StatusBadge } from '@/components/inventory/StatusBadge'
 import { Button } from '@/components/ui/Button'
 import { BackLink } from '@/components/ui/BackLink'
-import { formatDateTime, formatRelativeDate, formatPhoneDisplay, toDisplayCase } from '@/lib/formatters'
+import { formatDateTime, formatRelativeDate, formatPhoneDisplay, formatUSD, formatCarTitle, toDisplayCase } from '@/lib/formatters'
 import type { LeadStatus } from '@/lib/supabase/types'
 import { LEAD_SOURCE_CONFIG } from '@/lib/leads/sources'
 import { cn } from '@/lib/utils'
@@ -142,6 +146,46 @@ export default function LeadDetailPage() {
             </span>
           </div>
         </div>
+
+        {currentLead.cars && (
+          <Link
+            href={`/inventory/${currentLead.cars.slug}`}
+            className="flex items-center gap-3 bg-base rounded-xl border border-[var(--border)] p-3 mb-4 active:scale-[0.98] transition-transform duration-150 ease-out"
+          >
+            <div className="relative w-16 h-12 shrink-0 rounded-lg overflow-hidden bg-surface-muted">
+              {(() => {
+                const coverImage =
+                  currentLead.cars.car_images.find((img) => img.is_cover) ??
+                  currentLead.cars.car_images[0]
+                return coverImage ? (
+                  <Image
+                    src={coverImage.url}
+                    alt={formatCarTitle(currentLead.cars.make, currentLead.cars.model, currentLead.cars.year)}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Car size={20} className="text-ink-muted opacity-30" />
+                  </div>
+                )
+              })()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-inter text-sm font-medium text-ink truncate">
+                {formatCarTitle(currentLead.cars.make, currentLead.cars.model, currentLead.cars.year)}
+              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="font-inter text-xs text-gold-text tabular-nums">
+                  {formatUSD(currentLead.cars.price_usd)}
+                </span>
+                <StatusBadge status={currentLead.cars.status} />
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-ink-muted shrink-0" />
+          </Link>
+        )}
 
         <WhatsAppButton
           phone={currentLead.phone}
