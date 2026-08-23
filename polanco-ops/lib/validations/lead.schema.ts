@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { normalizeNigerianPhone } from '@/lib/formatters'
+import { ALL_LEAD_SOURCES } from '@/lib/supabase/types'
 
 export const leadSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -10,7 +11,10 @@ export const leadSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   car_interest: z.string().optional(),
   car_id: z.string().uuid().optional(),
-  source: z.enum(['whatsapp', 'instagram', 'walkin', 'call', 'referral']).default('whatsapp'),
+  // Accepts every source the DB allows (including 'website'), not just the
+  // ones a staff member can pick manually — leadUpdateSchema must be able to
+  // validate an existing website-sourced lead without rejecting it.
+  source: z.enum(ALL_LEAD_SOURCES).default('whatsapp'),
   status: z.enum(['new', 'contacted', 'test_drive', 'negotiating', 'closed_won', 'closed_lost']).default('new'),
   assigned_to: z
     .string()

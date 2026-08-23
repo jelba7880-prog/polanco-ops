@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type { Settings } from '@/lib/supabase/types'
+import { EXCHANGE_RATE_DEFAULT, parseExchangeRate } from '@/lib/validations/exchangeRate'
 
 export function useSettings() {
   return useQuery({
@@ -19,7 +20,10 @@ export function useSettings() {
       const map = Object.fromEntries(data.map((row) => [row.key, row.value]))
 
       return {
-        exchange_rate_usd_ngn: Number(map.exchange_rate_usd_ngn ?? 1580),
+        // Same validation as getExchangeRate's cache read — a raw Number()
+        // coercion would silently turn '' into 0 and let it flow straight
+        // into every proforma calculation that reads this value.
+        exchange_rate_usd_ngn: parseExchangeRate(map.exchange_rate_usd_ngn) ?? EXCHANGE_RATE_DEFAULT,
         exchange_rate_updated_at: map.exchange_rate_updated_at ?? '',
         whatsapp_number: map.whatsapp_number ?? '',
         business_name: map.business_name ?? 'Polanco Exotic Cars',

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
 import { logActivity } from '@/lib/activity/log'
 import { formatCarTitle } from '@/lib/formatters'
+import { deleteCarImage } from '@/lib/supabase/storage'
 import type { Car, CarStatus, CarLifecycleStatus, PendingCarImage } from '@/lib/supabase/types'
 import type { CarFormValues } from '@/lib/validations/car.schema'
 
@@ -93,41 +94,37 @@ export function useCreateCar() {
 
       const slug = generateCarSlug(values.year, values.make, values.model)
 
-      const { data, error } = await supabase
-        .from('cars')
-        .insert({
-          ...values,
-          slug,
-          added_by: user?.id ?? null,
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-      const car = data as Car
-
       // Photos are uploaded to Storage and held in form state before the car
-      // exists (see ImageUploader's pending mode), so this is where they
-      // finally become real car_images rows, pointed at the new car_id.
-      if (pendingImages.length > 0) {
-        const { error: imagesError } = await supabase.from('car_images').insert(
-          pendingImages.map((img, i) => ({
-            car_id: car.id,
-            url: img.url,
-            sort_order: i,
-            is_cover: img.isCover,
-          }))
-        )
+      // exists (see ImageUploader's pending mode). create_car_with_images
+      // inserts the car and attaches them to it in one transaction — if the
+      // image insert fails, the car insert rolls back with it, so there's no
+      // window where a car exists with zero images and no compensating
+      // delete (with a discarded error) to fall back on.
+      const { data, error } = await supabase.rpc('create_car_with_images', {
+        car: { ...values, slug, added_by: user?.id ?? null },
+        images: pendingImages.map((img, i) => ({
+          url: img.url,
+          sort_order: i,
+          is_cover: img.isCover,
+        })),
+      })
 
-        if (imagesError) {
-          // The car can't be left behind half-created (a car with photos the
-          // user uploaded but that never got attached) — this is a rollback
-          // of a failed creation, not a user-facing delete, so it's the one
-          // place a real DELETE FROM cars is still correct.
-          await supabase.from('cars').delete().eq('id', car.id)
-          throw imagesError
-        }
+      if (error) {
+        // The car row never committed (or never existed), so the Storage
+        // objects these photos were uploaded to are now unreachable from
+        // anywhere in the app — clean them up rather than leave them in the
+        // bucket forever. Best-effort: a delete failure here is logged, not
+        // rethrown, so it can't mask the real error from the failed create.
+        await Promise.all(
+          pendingImages.map((img) =>
+            deleteCarImage(img.url).catch((cleanupErr) =>
+              console.error('Failed to clean up orphaned car image after aborted create:', cleanupErr)
+            )
+          )
+        )
+        throw error
       }
+      const car = data as Car
 
       // Record the new vehicle in the activity feed. logActivity never
       // throws, so a logging failure can't break the (already-saved) car.

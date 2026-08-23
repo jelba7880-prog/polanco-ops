@@ -12,6 +12,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { EXCHANGE_RATE_MAX, EXCHANGE_RATE_MIN, parseExchangeRate } from '@/lib/validations/exchangeRate'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -37,6 +38,7 @@ function sanitizeTwilioNumber(value: string | undefined) {
 
 export function SettingsClient({ settings, staff, currentUserId }: SettingsClientProps) {
   const [exchangeRate, setExchangeRate] = useState(settings.exchange_rate_usd_ngn ?? '1580')
+  const [rateError, setRateError] = useState<string | null>(null)
   const [rateUpdatedAtValue, setRateUpdatedAtValue] = useState(settings.exchange_rate_updated_at ?? '')
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsapp_number ?? '')
   const [businessName, setBusinessName] = useState(settings.business_name ?? '')
@@ -100,11 +102,17 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
   }
 
   async function handleSaveRate() {
+    const parsed = parseExchangeRate(exchangeRate)
+    if (parsed === null) {
+      setRateError(`Enter a rate between ${EXCHANGE_RATE_MIN} and ${EXCHANGE_RATE_MAX}`)
+      return
+    }
+    setRateError(null)
     setSavingRate(true)
     try {
       const updatedAt = new Date().toISOString()
       await saveSettings({
-        exchange_rate_usd_ngn: exchangeRate,
+        exchange_rate_usd_ngn: String(parsed),
         exchange_rate_updated_at: updatedAt,
       })
       setRateUpdatedAtValue(updatedAt)
@@ -128,6 +136,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
       // The API route persists the fetched rate to the settings table —
       // no separate client-side write is needed (and would race with it).
       setExchangeRate(String(rate))
+      setRateError(null)
       setRateUpdatedAtValue(updatedAt)
       setSavedSection('rate')
       setTimeout(() => setSavedSection(null), 2000)
@@ -274,7 +283,11 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
               label="₦ per US$1"
               type="number"
               value={exchangeRate}
-              onChange={(e) => setExchangeRate(e.target.value)}
+              onChange={(e) => {
+                setExchangeRate(e.target.value)
+                if (rateError) setRateError(null)
+              }}
+              error={rateError ?? undefined}
             />
           </div>
         </div>

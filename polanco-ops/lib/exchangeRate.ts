@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { EXCHANGE_RATE_DEFAULT, parseExchangeRate } from '@/lib/validations/exchangeRate'
 
 export interface ExchangeRateResult {
   rate: number
@@ -22,11 +23,15 @@ export async function getExchangeRate(): Promise<ExchangeRateResult> {
     (settings ?? []).map((s) => [s.key, s.value])
   )
 
-  const cachedRate = Number(settingsMap.exchange_rate_usd_ngn ?? 1580)
+  // null when the stored value is missing, non-numeric, zero, or out of a
+  // sane range — e.g. a rate that reached the DB before saves were
+  // validated. An invalid cached rate must never be trusted just because its
+  // timestamp looks fresh, so freshness is only checked once the value
+  // itself has passed validation.
+  const cachedRate = parseExchangeRate(settingsMap.exchange_rate_usd_ngn)
   const cachedUpdatedAt = settingsMap.exchange_rate_updated_at ?? ''
 
-  // Check if cache is still fresh
-  if (cachedUpdatedAt) {
+  if (cachedRate !== null && cachedUpdatedAt) {
     const lastUpdate = new Date(cachedUpdatedAt).getTime()
     const now = Date.now()
     if (now - lastUpdate < CACHE_DURATION_MS) {
@@ -38,7 +43,7 @@ export async function getExchangeRate(): Promise<ExchangeRateResult> {
     }
   }
 
-  // Cache is stale — fetch fresh rate
+  // Cache is stale, or the cached value itself is invalid — fetch fresh rate
   try {
     const appId = process.env.OPEN_EXCHANGE_RATES_APP_ID
     if (!appId) throw new Error('OPEN_EXCHANGE_RATES_APP_ID not set')
@@ -51,14 +56,15 @@ export async function getExchangeRate(): Promise<ExchangeRateResult> {
     if (!response.ok) throw new Error(`API error: ${response.status}`)
 
     const data = await response.json()
-    const freshRate = data.rates?.NGN
+    const roundedRate = parseExchangeRate(
+      typeof data.rates?.NGN === 'number' ? Math.round(data.rates.NGN) : NaN
+    )
 
-    if (!freshRate || typeof freshRate !== 'number') {
+    if (roundedRate === null) {
       throw new Error('Invalid rate in API response')
     }
 
     const updatedAt = new Date().toISOString()
-    const roundedRate = Math.round(freshRate)
 
     // Persist via the service role client — writes to `settings` must
     // succeed regardless of the calling user's RLS permissions.
@@ -83,9 +89,11 @@ export async function getExchangeRate(): Promise<ExchangeRateResult> {
   } catch (err) {
     console.error('Exchange rate fetch failed, using cached:', err)
 
-    // Return cached value as fallback — never crash
+    // Fall back to the cached rate ONLY if it's valid (just stale). If it's
+    // invalid too, a broken value must never be surfaced — use the hardcoded
+    // last-known-good default instead.
     return {
-      rate: cachedRate,
+      rate: cachedRate ?? EXCHANGE_RATE_DEFAULT,
       source: 'fallback',
       updatedAt: cachedUpdatedAt || new Date().toISOString(),
     }

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceClient } from '@/lib/supabase/service'
 import { normalizeNigerianPhone } from '@/lib/formatters'
 import { checkRateLimit } from '@/lib/showcase/rateLimiter'
+
+// Postgres error codes that mean "car_id itself is the problem" rather than
+// a real write failure: 22P02 is invalid UUID syntax (a malformed value),
+// 23503 is a foreign-key violation (car_id pointing at a row that no longer
+// exists). Either way the visitor's name and phone are still good — losing
+// the whole lead over a stale/bad car reference is worse than saving it
+// without one.
+const CAR_ID_ERROR_CODES = new Set(['22P02', '23503'])
 
 // Public, unauthenticated lead-capture endpoint for the showcase enquiry flow.
 // This is the only unauthenticated write in the system, so it is locked down:
@@ -55,22 +64,40 @@ export async function POST(request: NextRequest) {
 
   // 4. Insert the lead with the service-role client (bypasses RLS).
   const supabase = createServiceClient()
-  const { data: insertedRow, error } = await supabase
+  const leadBase = {
+    name: sanitizedName,
+    phone: normalizedPhone,
+    car_interest,
+    source: 'website' as const,
+    status: 'new' as const,
+  }
+
+  let { data: insertedRow, error } = await supabase
     .from('leads')
-    .insert({
-      name: sanitizedName,
-      phone: normalizedPhone,
-      car_interest,
-      car_id,
-      source: 'website',
-      status: 'new',
-    })
+    .insert({ ...leadBase, car_id })
     .select('id')
     .single()
+
+  // 4b. car_id was never validated as a real, existing UUID above — if it's
+  // malformed or points at a car that's gone, retry once without it rather
+  // than dropping a visitor who filled out the form correctly.
+  if (error && CAR_ID_ERROR_CODES.has(error.code)) {
+    console.error('Showcase lead car_id rejected, retrying without it:', error)
+    Sentry.captureMessage('Showcase lead car_id rejected, retried without it', {
+      level: 'warning',
+      extra: { car_id, code: error.code },
+    })
+    ;({ data: insertedRow, error } = await supabase
+      .from('leads')
+      .insert({ ...leadBase, car_id: null })
+      .select('id')
+      .single())
+  }
 
   // 5. Surface a write failure as a 500.
   if (error || !insertedRow) {
     console.error('Failed to create showcase lead:', error)
+    Sentry.captureException(error ?? new Error('Failed to create showcase lead: no row returned'))
     return NextResponse.json({ error: 'Failed to create lead' }, { status: 500 })
   }
 
