@@ -5,7 +5,14 @@ export type CarStatus = 'available' | 'reserved' | 'sold' | 'in_transit'
 export type CarLifecycleStatus = 'active' | 'archived' | 'deleted'
 export type CarCondition = 'New' | 'Foreign Used' | 'Locally Used'
 export type UserRole = 'admin' | 'staff'
-export type LeadSource = 'whatsapp' | 'instagram' | 'walkin' | 'call' | 'referral' | 'website'
+// Single source of truth for every lead source the app or DB will accept.
+// Everything that needs the list of sources — the Zod enum, LEAD_SOURCE_CONFIG,
+// and this LeadSource type itself — derives from this one array so a value can
+// never again be added to one and silently missed in the others. Must stay in
+// sync with `leads_source_check` in supabase/migrations/20260822000000_add_website_lead_source.sql
+// (lib/leads/sources.ts asserts this at compile time).
+export const ALL_LEAD_SOURCES = ['whatsapp', 'instagram', 'walkin', 'call', 'referral', 'website'] as const
+export type LeadSource = (typeof ALL_LEAD_SOURCES)[number]
 export type LeadStatus = 'new' | 'contacted' | 'test_drive' | 'negotiating' | 'closed_won' | 'closed_lost'
 
 export interface CarImage {

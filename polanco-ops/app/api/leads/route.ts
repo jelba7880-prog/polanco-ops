@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
 import { logActivity } from '@/lib/activity/log'
@@ -56,7 +57,12 @@ export async function POST(request: NextRequest) {
     // Each test number must send "join [keyword]" to whatsapp:+14155238886.
     // In production with an approved WhatsApp Business API number, this is not required.
 
-    // Fire notifications — never let this block the response
+    // Fire notifications — never let this block the response. Collected
+    // rather than thrown: sendWhatsAppNotification catches everything
+    // internally and returns { success: false }, so a try/catch around
+    // these calls alone can never observe a failure — that gap is exactly
+    // why the last outage's Twilio failures went unnoticed.
+    let notificationError: string | null = null
     try {
       // Get settings for Bash's number
       const { data: settings } = await supabase
@@ -75,7 +81,10 @@ export async function POST(request: NextRequest) {
 
       // Notify Bash
       if (bashNumber) {
-        await sendWhatsAppNotification(bashNumber, message)
+        const result = await sendWhatsAppNotification(bashNumber, message)
+        if (!result.success) {
+          notificationError = result.error ?? 'Failed to notify primary WhatsApp number'
+        }
       }
 
       // Notify assigned rep (if different from Bash's number)
@@ -87,15 +96,25 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (assignedProfile?.phone && assignedProfile.phone !== bashNumber) {
-          await sendWhatsAppNotification(assignedProfile.phone, message)
+          const result = await sendWhatsAppNotification(assignedProfile.phone, message)
+          if (!result.success) {
+            notificationError = notificationError ?? (result.error ?? 'Failed to notify assigned rep')
+          }
         }
       }
-    } catch (notifyError) {
-      // Log but don't fail — lead is already saved
-      console.error('Notification failed (lead still saved):', notifyError)
+    } catch (err) {
+      notificationError = err instanceof Error ? err.message : 'Unknown notification error'
     }
 
-    return NextResponse.json({ lead }, { status: 201 })
+    if (notificationError) {
+      console.error('Notification failed (lead still saved):', notificationError)
+      Sentry.captureMessage('WhatsApp lead notification failed', {
+        level: 'warning',
+        extra: { leadId: lead.id, error: notificationError },
+      })
+    }
+
+    return NextResponse.json({ lead, notificationError }, { status: 201 })
   } catch (err) {
     console.error('Create lead error:', err)
     return NextResponse.json(
