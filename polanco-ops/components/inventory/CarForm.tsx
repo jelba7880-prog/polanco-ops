@@ -8,6 +8,7 @@ import type { CarImage, PendingCarImage } from '@/lib/supabase/types'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
+import { MetaLabel } from '@/components/ui/MetaLabel'
 
 const optionalNumber = {
   setValueAs: (v: unknown) => {
@@ -39,9 +40,7 @@ function SectionHeader({ label }: { label: string }) {
   return (
     <>
       <hr className="border-t border-[var(--border)] mb-3" />
-      <p className="font-inter text-[10px] font-medium uppercase tracking-widest text-ink-muted mb-3">
-        {label}
-      </p>
+      <MetaLabel className="mb-3">{label}</MetaLabel>
     </>
   )
 }
@@ -64,9 +63,7 @@ export function CarForm({
 
       {/* ── Basic Info ─────────────────────────────────────────── */}
       <div>
-        <p className="font-inter text-[10px] font-medium uppercase tracking-widest text-ink-muted mb-3">
-          Basic Info
-        </p>
+        <MetaLabel className="mb-3">Basic Info</MetaLabel>
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <Input

@@ -153,12 +153,16 @@ export function ImageCarousel({ images, carName }: ImageCarouselProps) {
           aria-label={`${carName} photos`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          className="relative w-full aspect-[16/9] bg-surface-muted rounded-lg overflow-hidden outline-none"
+          // 8px neutral mat (p-2) between the photo and the card chrome, same
+          // treatment as the Inventory list card — source photos have
+          // white/light backgrounds that otherwise bleed directly against the
+          // dark surface. Consistent in both themes.
+          className="relative w-full aspect-[16/9] bg-surface-muted rounded-lg overflow-hidden outline-none p-2"
         >
           <div
             ref={emblaRef}
             onClick={handleImageClick}
-            className="h-full w-full overflow-hidden touch-pan-y select-none cursor-zoom-in"
+            className="h-full w-full overflow-hidden rounded-md touch-pan-y select-none cursor-zoom-in"
           >
             <div className="flex h-full">
               {ordered.map((image, i) => (

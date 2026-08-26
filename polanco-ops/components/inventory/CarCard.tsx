@@ -31,14 +31,19 @@ export function CarCard({ car, className, animationDelay }: CarCardProps) {
         className
       )}
     >
-      {/* Image */}
-      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-surface-muted">
+      {/* Image. A fixed 8px neutral mat (bg-surface-muted + p-2) sits between
+          the photo and the card chrome in both themes — source photos have
+          white/light backgrounds, and without this frame their background
+          bleeds directly against the dark card in dark mode. Image `fill`
+          positions to the padding box, so the padding alone creates the mat;
+          no nested wrapper needed. */}
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-surface-muted p-2">
         {coverImage ? (
           <Image
             src={coverImage.url}
             alt={formatCarTitle(car.make, car.model, car.year)}
             fill
-            className="object-cover"
+            className="object-cover rounded-md"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
