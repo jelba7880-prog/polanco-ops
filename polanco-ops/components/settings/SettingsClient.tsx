@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
-import { formatDate } from '@/lib/formatters'
+import { formatDate, normalizeNigerianPhone, isValidNigerianPhone } from '@/lib/formatters'
 import type { StaffMember } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 import { AppearancePicker } from '@/components/settings/AppearancePicker'
@@ -41,6 +41,7 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
   const [rateError, setRateError] = useState<string | null>(null)
   const [rateUpdatedAtValue, setRateUpdatedAtValue] = useState(settings.exchange_rate_updated_at ?? '')
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsapp_number ?? '')
+  const [whatsappError, setWhatsappError] = useState<string | null>(null)
   const [businessName, setBusinessName] = useState(settings.business_name ?? '')
   const [businessAddress, setBusinessAddress] = useState(settings.business_address ?? '')
   const [validityHours, setValidityHours] = useState(settings.proforma_validity_hours ?? '48')
@@ -81,15 +82,27 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
   }
 
   async function handleSaveBusiness() {
+    // Unlike a lead's phone, the business's own WhatsApp sending number can't
+    // legitimately be foreign or malformed — this is the write path that
+    // previously had zero validation and let a malformed value in. Empty is
+    // still allowed (unconfigured), same as the Twilio number field below.
+    const normalizedWhatsapp = whatsappNumber.trim() ? normalizeNigerianPhone(whatsappNumber) : ''
+    if (normalizedWhatsapp && !isValidNigerianPhone(normalizedWhatsapp)) {
+      setWhatsappError('Enter a valid Nigerian number, e.g. +2348012345678')
+      return
+    }
+    setWhatsappError(null)
+
     setSavingBusiness(true)
     try {
       await saveSettings({
         business_name: businessName,
         business_address: businessAddress,
-        whatsapp_number: whatsappNumber,
+        whatsapp_number: normalizedWhatsapp,
         proforma_validity_hours: validityHours,
         twilio_notify_number: twilioNumber,
       })
+      setWhatsappNumber(normalizedWhatsapp)
       setSavedSection('business')
       setTimeout(() => setSavedSection(null), 2000)
       showToast('Business info saved', 'success')
@@ -331,8 +344,12 @@ export function SettingsClient({ settings, staff, currentUserId }: SettingsClien
           <Input
             label="WhatsApp Number (for notifications)"
             value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
+            onChange={(e) => {
+              setWhatsappNumber(e.target.value)
+              if (whatsappError) setWhatsappError(null)
+            }}
             placeholder="+2349115648723"
+            error={whatsappError ?? undefined}
           />
           <Input
             label="Proforma Validity (hours)"

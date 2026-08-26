@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServiceClient } from '@/lib/supabase/service'
-import { normalizeNigerianPhone } from '@/lib/formatters'
+import { normalizeNigerianPhone, isPlausiblePhoneNumber } from '@/lib/formatters'
 import { checkRateLimit } from '@/lib/showcase/rateLimiter'
 
 // Postgres error codes that mean "car_id itself is the problem" rather than
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
   // 2. Normalize the phone number and reject anything too short to be real.
   const normalizedPhone = normalizeNigerianPhone(phone)
-  if (normalizedPhone.replace(/\D/g, '').length < 10) {
+  if (!isPlausiblePhoneNumber(normalizedPhone)) {
     return NextResponse.json({ error: 'Invalid phone number' }, { status: 400 })
   }
 

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { normalizeNigerianPhone } from '@/lib/formatters'
+import { normalizeNigerianPhone, isPlausiblePhoneNumber } from '@/lib/formatters'
 import { ALL_LEAD_SOURCES } from '@/lib/supabase/types'
 
 export const leadSchema = z.object({
@@ -7,7 +7,13 @@ export const leadSchema = z.object({
   phone: z
     .string()
     .min(1, 'Phone is required')
-    .transform((val) => normalizeNigerianPhone(val)),
+    .transform((val) => normalizeNigerianPhone(val))
+    // Same minimum-plausibility floor the showcase lead-capture route already
+    // enforces — this manual staff-facing form previously had no length
+    // check at all, which is how a malformed number could reach leads.phone.
+    .refine((val) => isPlausiblePhoneNumber(val), {
+      message: 'Enter a valid phone number',
+    }),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   car_interest: z.string().optional(),
   car_id: z.string().uuid().optional(),
