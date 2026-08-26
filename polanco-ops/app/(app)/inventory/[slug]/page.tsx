@@ -99,6 +99,14 @@ export default function CarDetailPage() {
       : []),
   ]
 
+  // Notes are often typed as a bullet-separated ("•") run-on of individual
+  // specs/options rather than free-form prose — split those into a proper
+  // list instead of rendering them as one wrapped paragraph.
+  const noteItems = (car.notes ?? '')
+    .split(/•|\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+
   return (
     <>
       <div className="pb-8">
@@ -155,11 +163,24 @@ export default function CarDetailPage() {
             ))}
           </div>
 
-          {/* Notes */}
+          {/* Notes / Features */}
           {car.notes && (
             <div className="bg-base rounded-xl border border-[var(--border)] px-4 py-4 mb-6">
-              <p className="font-inter text-xs text-ink-muted mb-1">Notes</p>
-              <p className="font-inter text-sm text-ink">{car.notes}</p>
+              <p className="font-inter text-xs text-ink-muted mb-1">
+                {noteItems.length > 1 ? 'Features & Highlights' : 'Notes'}
+              </p>
+              {noteItems.length > 1 ? (
+                <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+                  {noteItems.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-gold shrink-0" />
+                      <span className="font-inter text-sm text-ink leading-snug">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-inter text-sm text-ink leading-relaxed">{car.notes}</p>
+              )}
             </div>
           )}
 
