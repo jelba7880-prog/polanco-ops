@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
 import { logActivity } from '@/lib/activity/log'
@@ -110,6 +111,17 @@ export function useCreateCar() {
       })
 
       if (error) {
+        // Without this, a failed create_car_with_images call left no trace
+        // anywhere — the UI only ever showed a generic "Failed to save
+        // vehicle", so diagnosing a real failure (bad enum value, RLS
+        // denial, duplicate slug, etc.) meant reproducing it with devtools
+        // open. Log the actual Postgres error, not just the fact of failure.
+        console.error('create_car_with_images failed:', error)
+        Sentry.captureException(error, {
+          tags: { scope: 'car-create' },
+          extra: { slug, imageCount: pendingImages.length },
+        })
+
         // The car row never committed (or never existed), so the Storage
         // objects these photos were uploaded to are now unreachable from
         // anywhere in the app — clean them up rather than leave them in the
@@ -253,7 +265,11 @@ export function useUpdateCar() {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Car update failed:', error)
+        Sentry.captureException(error, { tags: { scope: 'car-update' }, extra: { id } })
+        throw error
+      }
       return data as Car
     },
     onSuccess: (_, { id }) => {
