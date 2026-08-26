@@ -36,8 +36,11 @@ export function SourceChips({ label, value, onChange, error }: SourceChipsProps)
               onClick={() => onChange(source)}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-2 font-inter text-xs font-medium transition-all duration-150 ease-out active:scale-[0.97]',
+                // Selected-state status chip, reclassified off gold in dark/dim
+                // per the stricter dark-mode gold rule (gold stays reserved for
+                // CTAs, the price figure, and the active-nav-tab indicator).
                 isSelected
-                  ? 'border-gold bg-gold-tint text-gold-deep'
+                  ? 'border-gold bg-gold-tint text-gold-deep dark:border-ink-muted dark:bg-surface-muted dark:text-ink-muted'
                   : 'border-[var(--border)] bg-base text-ink-muted hover:border-ink-soft'
               )}
             >

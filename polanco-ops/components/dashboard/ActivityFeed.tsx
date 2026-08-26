@@ -15,10 +15,12 @@ const ACTIVITY_ICONS: Record<ActivityEntityType, typeof Car> = {
   deal_sheet: FileText,
 }
 
+// deal_sheet's icon is a decorative type marker, not a CTA/price/nav-tab, so
+// it's reclassified off gold in dark/dim per the stricter dark-mode gold rule.
 const ACTIVITY_COLORS: Record<ActivityEntityType, string> = {
   car: 'text-ink-muted',
   lead: 'text-navy',
-  deal_sheet: 'text-gold-deep',
+  deal_sheet: 'text-gold-deep dark:text-ink-muted',
 }
 
 // Initial/per-page size follows the same lg: breakpoint (1024px) the Dashboard

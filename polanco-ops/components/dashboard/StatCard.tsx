@@ -1,6 +1,7 @@
 'use client'
 
 import { useCountUp } from '@/hooks/useCountUp'
+import { MetaLabel } from '@/components/ui/MetaLabel'
 
 interface StatCardProps {
   label: string
@@ -14,11 +15,16 @@ interface StatCardProps {
 // Semantic accent, applied to the TOP edge only. The other three sides carry no
 // border — the card shadow defines those edges — so this is a pure top accent,
 // not a full-card frame.
+//
+// Gold is reclassified to ink-muted in dark/dim: gold is reserved for CTAs,
+// the price figure, and the active-nav-tab indicator, and gold-on-black reads
+// with far more visual weight than gold-on-white at the same value — a
+// section-accent border is neither of those reserved uses.
 const TOP_BORDER_COLOR_MAP: Record<StatCardProps['accentColor'], string> = {
   success: 'border-t-success',
   warning: 'border-t-warning',
   navy: 'border-t-navy',
-  gold: 'border-t-gold',
+  gold: 'border-t-gold dark:border-t-ink-muted',
 }
 
 // Dark-mode-only subtle status-tinted glow (see .stat-glow-* in globals.css).
@@ -42,9 +48,7 @@ export function StatCard({ label, value, accentColor, delay = 0 }: StatCardProps
       className={`stat-card-enter card-hoverable bg-base ${GLOW_CLASS_MAP[accentColor]} rounded-xl shadow-card border-t-[3px] ${TOP_BORDER_COLOR_MAP[accentColor]} p-4 lg:p-6`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <p className="font-inter text-[10px] font-medium uppercase tracking-widest text-ink-muted mb-1">
-        {label}
-      </p>
+      <MetaLabel className="mb-1">{label}</MetaLabel>
       <p className="font-cormorant font-semibold text-3xl lg:text-4xl leading-none tracking-tight text-ink">
         {animatedValue}
       </p>

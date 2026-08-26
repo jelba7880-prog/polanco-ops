@@ -36,7 +36,10 @@ export function QuickActionTile({
       ].join(' ')}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <Icon size={28} className="text-gold-text shrink-0" />
+      {/* Decorative icon, reclassified off gold in dark/dim per the stricter
+          dark-mode gold rule (gold stays reserved for CTAs, the price figure,
+          and the active-nav-tab indicator). */}
+      <Icon size={28} className="text-gold-text dark:text-ink-muted shrink-0" />
       <span className="font-cormorant font-semibold text-xl leading-tight text-ink">
         {label}
       </span>

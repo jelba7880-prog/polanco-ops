@@ -131,7 +131,10 @@ export function ImageUploader({
           <div
             key={image.id}
             className={cn(
-              'relative aspect-square rounded-lg overflow-hidden bg-surface-muted border-2',
+              // 8px neutral mat (p-2), same treatment as CarCard/ImageCarousel —
+              // source photos have white/light backgrounds that otherwise bleed
+              // directly against the dark thumbnail chrome.
+              'relative aspect-square rounded-lg overflow-hidden bg-surface-muted border-2 p-2',
               image.isCover ? 'border-gold' : 'border-transparent'
             )}
           >
@@ -139,13 +142,16 @@ export function ImageUploader({
             <img
               src={image.url}
               alt="Car photo"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-md"
             />
 
-            {/* Cover indicator */}
+            {/* Cover indicator. The selection ring above (border-gold) marks
+                *which* image is active, same role as a nav-tab indicator; this
+                label is a status badge, so it's reclassified off gold in
+                dark/dim per the stricter dark-mode gold rule. */}
             {image.isCover && (
               <div className="absolute bottom-1 left-1">
-                <span className="bg-gold text-on-accent text-[9px] font-inter font-semibold px-1.5 py-0.5 rounded-full">
+                <span className="bg-gold dark:bg-ink-muted text-on-accent text-[9px] font-inter font-semibold px-1.5 py-0.5 rounded-full">
                   COVER
                 </span>
               </div>

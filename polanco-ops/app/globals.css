@@ -207,7 +207,7 @@
 
 /* ── Dark theme neutral scale (true black) ────────────────────────────────
    Applied when next-themes sets class="dark" on <html> (the explicit "Dark"
-   option). Values UNCHANGED from the original single-variant dark theme. */
+   option). */
 .dark {
   --bg-base: #0e0d0c;
   --bg-subtle: #131211;
@@ -225,8 +225,14 @@
      rim-light above. */
   --surface-elevated: #2b2824;
 
-  --border: #2e2b27;
-  --border-strong: #3d3935;
+  /* Bumped from #2e2b27/#3d3935 — those measured only 1.21:1 / 1.48:1 against
+     --surface, i.e. close to imperceptible as an actual card/section boundary
+     (the elevation shadow ring was doing all the work). Same hue, lifted to
+     1.40:1 / 1.75:1 so the border itself now reads as a visible line — border
+     is still secondary to the --surface/--bg-base step per the elevation
+     model above, just no longer invisible on its own. */
+  --border: #3a352f;
+  --border-strong: #4a433c;
 
   --ink: #f5f1e8;
   --ink-soft: #c7c0b4;
@@ -246,8 +252,10 @@
   /* NEW third tier — see .dark's --surface-elevated comment. */
   --surface-elevated: #3f3b34;
 
-  --border: #423e39;
-  --border-strong: #524c46;
+  /* Bumped from #423e39/#524c46 (1.31:1 / 1.64:1 against --surface) for the
+     same reason as .dark above — same hue, lifted to 1.54:1 / 1.93:1. */
+  --border: #4f4841;
+  --border-strong: #5f564c;
 
   --ink: #f0ebe2;
   --ink-soft: #c9c2b6;
@@ -652,8 +660,12 @@ body {
 .dark .stat-glow-navy, .dim .stat-glow-navy {
   background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--navy) 18%, transparent) 0%, transparent 60%);
 }
+/* Uses --ink-muted, not --gold: the "Deals / Week" stat card's accent is
+   reclassified off gold in dark/dim (see StatCard.tsx) since gold-on-black
+   carries more visual weight than gold-on-white — reserving gold for CTAs,
+   the price figure, and the active-nav-tab indicator only. */
 .dark .stat-glow-gold, .dim .stat-glow-gold {
-  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--gold) 16%, transparent) 0%, transparent 60%);
+  background-image: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--ink-muted) 16%, transparent) 0%, transparent 60%);
 }
 
 /* ── Card hover elevation: pointer-capable devices only ───────────── */
