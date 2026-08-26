@@ -66,6 +66,23 @@ export function normalizeNigerianPhone(raw: string): string {
   return raw.startsWith('+') ? raw : `+${digits}`
 }
 
+// A normalized phone is at minimum plausible if it has enough digits to be a
+// real number at all — catches obvious truncation/typos (e.g. a dropped
+// digit) regardless of which country's number it claims to be. This is the
+// same floor the showcase lead-capture route already enforced; extracted
+// here so every write path into leads.phone applies it, not just that one.
+export function isPlausiblePhoneNumber(normalized: string): boolean {
+  return normalized.replace(/\D/g, '').length >= 10
+}
+
+// Strict check for numbers that must actually be Nigerian — e.g. the
+// business's own WhatsApp sending number in Settings, which unlike a lead's
+// phone can't legitimately be a foreign number. +234 followed by exactly 10
+// digits, nothing looser.
+export function isValidNigerianPhone(normalized: string): boolean {
+  return /^\+234\d{10}$/.test(normalized)
+}
+
 export function formatPhoneDisplay(phone: string | null | undefined): string {
   if (!phone) return ''
   if (phone.includes(' ')) return phone
