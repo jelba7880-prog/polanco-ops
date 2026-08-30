@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/client'
 import { uploadCarImage, deleteCarImage } from '@/lib/supabase/storage'
 import { carKeys } from '@/hooks/useCars'
@@ -47,7 +48,11 @@ export function useAddCarImage(carId: string) {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('car_images insert failed:', error)
+        Sentry.captureException(error, { tags: { scope: 'car-image-add' }, extra: { carId } })
+        throw error
+      }
       return data as CarImage
     },
     onSuccess: () => {
