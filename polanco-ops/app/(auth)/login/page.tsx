@@ -118,6 +118,9 @@ export default function LoginPage() {
         <p className="text-center text-xs text-ink-muted font-inter mt-8">
           Access is by invitation only.
         </p>
+        <p className="text-center text-xs text-ink-muted font-inter mt-2">
+          Open on your phone: Share → Add to Home Screen.
+        </p>
 
       </div>
     </div>

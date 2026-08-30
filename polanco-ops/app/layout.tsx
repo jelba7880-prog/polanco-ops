@@ -33,7 +33,8 @@ export const metadata: Metadata = {
   metadataBase: resolveAppUrl(),
   title: "Polanco Operations Hub",
   description: "Polanco Exotic Cars · Operations Hub",
-  manifest: "/manifest.json",
+  // No explicit `manifest` field — app/manifest.ts is auto-discovered and
+  // linked by Next.js.
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

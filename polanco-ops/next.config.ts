@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { withSerwist } from "@serwist/turbopack";
 
-const nextConfig: NextConfig = {
+// `@serwist/turbopack` (not `@serwist/next`) is required here: Next.js 16
+// defaults `next dev`/`next build` to Turbopack, and `@serwist/next`'s
+// webpack-plugin-based InjectManifest never runs under Turbopack — it would
+// silently produce no service worker, the same failure mode this replaces.
+const nextConfig: NextConfig = withSerwist({
   images: {
     // Car photos are served from Supabase Storage (e.g. <project>.supabase.co).
     remotePatterns: [
@@ -15,7 +20,7 @@ const nextConfig: NextConfig = {
     // silently fall back to the closest allowed value (default [75]).
     qualities: [70, 75, 85],
   },
-};
+});
 
 export default withSentryConfig(nextConfig, {
   // Only used for build-time sourcemap upload; no-ops (with a console
